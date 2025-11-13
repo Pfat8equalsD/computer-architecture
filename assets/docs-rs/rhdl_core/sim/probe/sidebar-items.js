@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["edges","ext","glitch_check","sample_at_pos_edge","synchronous_sample","vcd_file"]};

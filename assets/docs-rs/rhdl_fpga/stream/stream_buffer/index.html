@@ -1,0 +1,1095 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Carloni Buffer with Option Interface"><title>rhdl_fpga::stream::stream_buffer - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rhdl_fpga" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module stream_buffer</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../rhdl_fpga/index.html">rhdl_<wbr>fpga</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module stream_<wbr>buffer</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#carloni-buffer-with-option-interface" title="Carloni Buffer with Option Interface">Carloni Buffer with Option Interface</a></li><li><a href="#schematic-symbol" title="Schematic symbol">Schematic symbol</a></li><li><a href="#internal-details" title="Internal details">Internal details</a></li><li><a href="#example" title="Example">Example</a></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In rhdl_<wbr>fpga::<wbr>stream</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">rhdl_fpga</a>::<wbr><a href="../index.html">stream</a></div><h1>Module <span>stream_<wbr>buffer</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/rhdl_fpga/stream/stream_buffer.rs.html#1-165">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="carloni-buffer-with-option-interface"><a class="doc-anchor" href="#carloni-buffer-with-option-interface">§</a>Carloni Buffer with Option Interface</h2>
+<p>This core wraps the <a href="../../lid/carloni/struct.Carloni.html" title="struct rhdl_fpga::lid::carloni::Carloni">Carloni</a> skid buffer core
+in a more ergonomic <a href="https://doc.rust-lang.org/1.91.1/core/option/enum.Option.html" title="enum core::option::Option">Option</a> based interface.  The
+<code>void_in</code> input and the <code>data_in</code> are combined into
+a single <code>data_in</code> with type <a href="https://doc.rust-lang.org/1.91.1/core/option/enum.Option.html" title="enum core::option::Option">Option<T></a>, and the
+<code>void_out</code> and <code>data_out</code> are similarly combined
+into a single <code>data_out</code> with type <a href="https://doc.rust-lang.org/1.91.1/core/option/enum.Option.html" title="enum core::option::Option">Option<T></a>.  Furthermore
+for compatibility with the <code>ready-valid</code> interface used
+elsewhere in RHDL, the <code>stop</code> signals are inverted to be
+<code>valid</code> signals.</p>
+<h2 id="schematic-symbol"><a class="doc-anchor" href="#schematic-symbol">§</a>Schematic symbol</h2>
+<p>Here is the symbol for the buffer.</p>
+<p></p><div style="text-align:center;"><svg viewBox="0 0 350 105" width="350px" xmlns="http://www.w3.org/2000/svg">
+<path d="M85,7.5 M85,7.5 C92.01055,7.5,99.0211,7.5,105,7.5 M245,7.5 M245,7.5 C248.74562,7.5,252.49123,7.5,255,7.5 M35,37.5 M35,37.5 C44.714302,37.5,54.428608,37.5,75,37.5 M255,37.5 M255,37.5 C265.26715,37.5,275.53427,37.5,305,37.5 M35,67.5 M35,67.5 C45.37138,67.5,55.74276,67.5,85,67.5 M265,67.5 M265,67.5 C283.05075,67.5,301.1015,67.5,315,67.5 M85,7.5 M85,7.5 C85,42.89543,85,78.29086,85,97.5 M255,7.5 M255,7.5 C255,35.20854,255,62.917088,255,97.5 M85,97.5 M85,97.5 C148.4168,97.5,211.83359,97.5,255,97.5 M75,33 M75,33 C77.2629,34.018307,79.5258,35.03661,85,37.5 M85,37.5 C82.118996,38.79645,79.23799,40.092907,75,42 M75,42 C75,39.735706,75,37.47141,75,33 M305,33 M305,33 C307.39145,34.076153,309.7829,35.15231,315,37.5 M315,37.5 C312.3275,38.702618,309.65503,39.90524,305,42 M305,42 C305,40.05833,305,38.116665,305,33 M35,63 M35,63 C31.404127,64.61814,27.808254,66.23628,25,67.5 M25,67.5 C27.893103,68.801895,30.786207,70.10379,35,72 M35,72 C35,68.49821,35,64.99641,35,63 M265,63 M265,63 C261.13046,64.74129,257.26093,66.48258,255,67.5 M255,67.5 C257.15652,68.47044,259.31308,69.44089,265,72 M265,72 C265,69.82031,265,67.640625,265,63" fill="none" stroke="currentColor" stroke-width="1"/>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="7.5">
+O
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="125" y="7.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="135" y="7.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="145" y="7.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="155" y="7.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="165" y="7.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="175" y="7.5">
+C
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="7.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="195" y="7.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="205" y="7.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="215" y="7.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="225" y="7.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="235" y="7.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="45" y="22.5">
+?
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="55" y="22.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="275" y="22.5">
+?
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="285" y="22.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="37.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="125" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="215" y="37.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="225" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="235" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="245" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="5" y="52.5">
+R
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="15" y="52.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="52.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="52.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="45" y="52.5">
+y
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="55" y="52.5">
+&lt;
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="52.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="52.5">
+&gt;
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="275" y="52.5">
+R
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="285" y="52.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="295" y="52.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="305" y="52.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="315" y="52.5">
+y
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="325" y="52.5">
+&lt;
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="335" y="52.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="345" y="52.5">
+&gt;
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="67.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="67.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="67.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="125" y="67.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="135" y="67.5">
+y
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="205" y="67.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="215" y="67.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="225" y="67.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="235" y="67.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="245" y="67.5">
+y
+</text>
+</svg></div><p></p>
+<h2 id="internal-details"><a class="doc-anchor" href="#internal-details">§</a>Internal details</h2>
+<p>Internally, the buffer is simply a [CarloniBuffer]
+with <code>pack</code> and <code>unpack</code> cores to convert the
+<a href="https://doc.rust-lang.org/1.91.1/core/option/enum.Option.html" title="enum core::option::Option">Option<T></a>  to a pair of <code>data</code> and <code>valid</code> lines.
+The code is pretty short and self-expanatory.</p>
+<p>Here is a sketch of the internals</p>
+<p></p><div style="text-align:center;"><svg viewBox="0 0 770 210" width="770px" xmlns="http://www.w3.org/2000/svg">
+<path d="M285.74457,7.8446527 M285.744,7.3801293 C306.4353,9.035852,327.81497,8.525498,343.41696,7.2238307 M284.91537,7.7817225 C300.27332,6.7696724,315.8239,7.275753,344.59537,6.8722835 M424.42392,5.6656218 M426.02335,8.846221 C442.48862,9.93531,459.16635,7.6024084,506.17606,7.4141617 M425.60617,6.553427 C442.14203,8.570674,461.72504,9.121499,505.05496,8.310745 M64.66119,22.639708 M64.13281,21.574276 C67.38627,23.174755,68.70465,21.947502,74.57819,23.369438 M64.57272,22.242771 C68.21472,22.73731,72.42258,22.4644,75.27565,22.644602 M135.96246,21.064762 M135.85658,21.884932 C137.11378,23.539188,141.49278,23.382318,144.71762,23.226473 M134.90271,22.796686 C137.79369,22.772167,140.89835,22.577906,144.90567,22.936018 M624.58984,22.304518 M625.9815,22.740759 C628.53424,22.662235,630.9115,23.15605,634.9244,21.947266 M624.647,22.968124 C628.5277,22.776917,631.7932,22.35125,635.4006,22.13145 M685.21954,23.295328 M683.8248,24.257324 C690.6139,23.134844,695.8696,21.87434,703.2918,24.418694 M685.91254,23.337383 C691.0966,22.425478,696.9099,22.393671,704.3054,22.93201 M176.29182,39.12585 M175.69107,36.974155 C204.66768,37.809208,236.88278,35.438408,274.87903,36.06547 M174.94087,36.84516 C199.99019,34.808186,223.38095,35.250896,275.5351,38.36293 M503.30957,35.792946 M504.63828,36.064163 C530.09674,35.530373,554.424,37.800938,583.31134,39.493324 M505.75446,37.01277 C526.1503,35.388084,546.9541,36.955288,585.2571,37.356815 M6.547655,50.620556 M4.7895126,51.629578 C16.365805,52.43966,27.542974,51.05654,53.404446,51.441578 M5.4363275,53.0892 C22.984426,53.49051,39.737232,52.32584,54.029465,52.750366 M173.40811,37.359604 M176.10114,38.175102 C175.76859,44.24036,174.68741,49.73362,173.66985,51.94641 M175.6819,37.99209 C174.26555,42.43542,174.55362,48.82922,175.42474,52.545174 M143.54922,52.666176 M146.83409,51.34375 C155.51723,54.822643,166.022,54.58561,174.22339,53.89518 M144.71461,52.913883 C156.51248,52.387825,167.11311,52.054733,174.00966,51.569977 M586.93695,38.648666 M585.551,36.876316 C584.8446,41.72191,585.68115,44.030624,585.85297,51.36328 M584.85626,38.103733 C584.8984,41.61269,584.36176,47.165104,584.59,52.30284 M585.6045,50.91769 M586.8961,52.428448 C593.3129,51.46129,605.4627,52.660667,616.42426,52.17359 M584.20557,52.393044 C596.1512,51.83229,608.4968,51.615326,614.11505,52.45054 M706.96375,53.34218 M706.2044,52.037994 C716.9012,50.508896,732.50543,53.84425,764.20044,53.339397 M705.8459,51.726734 C728.92456,51.789707,751.49756,52.127308,764.9821,51.722572 M233.98639,67.5466 M233.48866,67.37404 C245.90671,67.74472,261.03973,67.973366,283.94302,67.47905 M235.83093,67.321594 C252.5563,68.774025,267.7814,68.756584,284.85757,66.75282 M513.071,67.452255 M513.1575,68.36102 C525.7709,66.260315,537.9742,68.1609,555.85095,68.19376 M515.75006,67.66253 C526.30975,66.87653,535.43744,67.300545,554.6558,67.85082 M146.39685,81.013466 M145.7556,81.00529 C151.72113,81.10504,163.39879,80.83354,175.3227,83.75692 M145.92577,83.44607 C152.62695,82.02211,161.70279,82.51674,175.68127,82.6822 M175.87288,84.21269 M175.49771,81.64832 C175.22946,88.84075,176.26208,94.083336,173.63045,97.82004 M175.26991,83.2264 C175.60387,86.371414,174.96378,91.08987,175.05455,97.23062 M176.98772,98.15899 M176.26074,96.942215 C214.49068,98.34127,252.97903,97.221825,274.8022,97.635376 M174.39291,97.37083 C201.87337,96.50198,229.39781,97.05219,274.96872,96.973526 M505.2106,98.52269 M503.41473,99.49378 C539.24774,97.53762,572.0114,98.96401,615.4411,97.25051 M505.95935,97.18455 C535.898,98.51965,564.67737,99.41829,614.6655,98.0773 M66.02146,23.364042 M64.20787,21.439236 C64.49734,44.249783,65.67877,64.49768,66.97485,112.88061 M65.50835,22.688152 C66.53354,43.109592,66.25103,63.49473,65.500336,111.88116 M143.15761,24.306461 M143.9844,24.499466 C145.82512,52.298203,147.15446,86.313866,145.63966,111.48043 M145.94446,22.48381 C145.34741,49.61711,145.74402,76.68858,144.44159,113.42333 M64.27401,113.93411 M64.57792,112.094826 C84.67809,112.81509,102.59098,114.88181,146.5693,110.82381 M64.4283,111.59365 C93.926735,114.3747,122.73325,114.105255,145.1159,111.958275 M626.3234,24.37413 M624.96747,21.538332 C623.9876,54.887836,627.4755,88.53853,626.38446,114.481064 M625.013,22.69059 C626.53314,41.801918,625.306,62.338226,625.0961,112.602394 M704.0465,22.888784 M706.96423,20.893602 C707.889,55.131855,705.7226,89.51039,704.9957,110.8433 M704.05316,21.667088 C705.0728,49.60841,704.31647,76.59601,704.30023,112.783226 M625.6868,112.628006 M623.7952,114.31735 C647.7997,113.57965,669.9012,113.63712,704.5607,113.65536 M625.0985,113.19007 C647.3871,113.18133,667.9162,114.217255,705.1135,112.60416 M285.53027,7.4998507 M284.71838,9.456825 C285.58594,47.385582,284.57104,83.857925,284.21912,125.936485 M285.25333,6.651697 C284.8982,33.01889,284.9935,57.484818,284.12686,126.5408 M504.042,7.3130393 M505.54678,6.9186397 C504.75467,43.74313,507.5057,78.133385,506.2683,126.31816 M504.1087,7.0764 C503.1383,40.587173,502.45612,72.7048,504.5137,128.13615 M286.7676,127.93225 M283.45868,127.99189 C370.24133,131.00276,456.83615,131.38684,506.18,128.0937 M284.9523,127.002716 C371.74817,127.27634,460.5157,126.5805,504.97473,126.99173 M86.30927,171.07135 M84.14659,171.11923 C90.926414,165.2254,95.9695,156.91634,105.271835,143.39735 M85.836044,172.56262 C88.47912,165.47339,92.904755,157.83403,105.06023,143.10764 M626.5593,172.91893 M625.1596,172.71173 C630.29517,165.24165,631.93225,158.70001,644.6375,142.081 M624.09546,172.39857 C631.701,162.55406,637.7857,154.11192,644.3507,143.32527 M3.3814898,171.05426 M3.5936852,172.99963 C19.91158,172.61969,36.911037,173.33673,64.47898,171.65471 M5.877671,172.85239 C18.598843,170.59851,32.9302,171.3694,65.964714,172.70923 M233.7871,66.941246 M236.41609,67.654816 C234.59726,94.96019,233.92337,125.13086,236.83391,172.45198 M234.33801,66.95801 C236.19138,97.66934,235.62051,129.2886,234.83076,172.62915 M113.81339,173.38875 M116.27424,170.79253 C146.96918,172.31,176.87389,172.01982,234.87483,170.7598 M115.31756,172.60272 C148.14603,172.5521,180.49168,170.61752,234.08514,172.50818 M556.8238,69.12165 M556.5321,66.45666 C556.02075,96.93074,557.6502,127.42119,553.34247,173.80458 M555.9039,67.290596 C554.01013,95.94279,554.96014,122.486244,555.6311,172.93948 M555.174,172.1726 M555.6058,170.68419 C566.84314,171.79398,575.7077,174.35628,605.3407,170.65298 M554.4034,173.42038 C570.9256,172.97884,589.38007,172.57605,604.41327,172.39915 M656.1327,173.82074 M656.2753,171.16757 C679.6369,173.56433,704.90674,170.29062,726.89197,174.37485 M655.631,172.20801 C670.8604,173.63852,685.6449,172.10384,725.53436,173.02902 M104.97308,141.35468 M103.98043,144.00124 C103.83565,158.61522,104.497795,174.82402,105.84947,202.7675 M104.4942,142.17618 C104.94196,167.29485,103.68757,189.48999,105.469124,203.4965 M83.54858,170.5804 M86.43781,170.63287 C90.79315,178.1585,92.78387,188.005,103.93018,204.47632 M85.961136,171.54053 C89.470245,180.40556,95.28847,186.23447,105.459595,201.68956 M644.6659,143.3047 M644.90216,143.41959 C644.8526,163.04962,644.3973,186.71994,646.2526,202.54384 M644.7378,143.09087 C645.2792,157.04326,645.1476,173.06564,645.5871,202.23535 M625.9573,174.31992 M626.06665,170.80186 C630.69946,179.6788,635.41766,187.50807,646.46124,200.58398 M624.91754,173.29318 C629.91113,177.8088,632.9901,184.7395,644.87805,202.1749 M276.31308,33.632233 M275.83923,33.19957 C278.41354,34.534557,279.96875,34.99964,285.09467,38.31593 M275.14026,32.99205 C278.83456,34.650608,282.44012,35.933144,284.58423,37.843765 M283.96332,36.796112 C282.7588,38.083305,280.11795,40.20104,274.84454,42.559483 M284.8888,37.650635 C282.81674,38.413307,280.04257,39.65482,275.19202,42.19133 M275.1424,41.636852 C274.73987,40.35265,274.8431,37.96113,275.49445,33.761948 M275.1324,42.213596 C274.86792,39.61732,275.1501,37.727055,275.31726,33.364983 M55.931797,49.131535 M54.600677,47.68271 C56.144085,50.015385,58.54582,49.577652,64.15898,51.57023 M54.8333,48.47166 C56.77843,49.402985,59.93507,49.780834,64.76426,52.157074 M65.397575,51.6317 C62.660053,52.510235,59.818306,54.741726,55.274117,56.272892 M65.06521,52.181835 C62.2197,53.844128,60.21212,54.274055,54.781635,57.272503 M55.183117,56.30878 C54.051594,53.139328,54.73042,50.997482,55.555923,47.279236 M55.243633,56.980267 C54.660088,53.706223,54.885765,50.31206,54.90938,47.85022 M616.17053,47.69586 M613.92535,47.899376 C617.9649,49.888653,623.2609,50.673973,625.11346,52.94527 M615.4138,48.46237 C617.04553,49.097397,619.50793,50.078323,625.0634,52.71126 M624.71674,52.56524 C622.34766,52.456554,619.3604,55.350124,615.30383,56.779243 M625.2574,52.714855 C621.3342,53.802498,618.3545,55.65279,615.1772,56.51509 M615.0461,57.12357 C614.99567,55.88647,614.06586,52.267574,615.6329,48.073196 M614.8214,57.07227 C614.6938,54.755005,614.8863,52.819275,615.30286,48.05074 M763.717,46.97461 M764.45154,48.032177 C768.56177,50.170513,773.63,52.240593,774.73834,53.548054 M764.7377,48.261288 C768.7589,49.099834,773.1212,51.43576,775.4102,52.912907 M774.1413,53.07697 C772.71344,54.42205,769.3845,56.06753,765.31177,58.052563 M775.247,51.99326 C771.8421,53.863087,769.2757,54.68394,765.42804,57.37937 M765.4825,57.216022 C764.9717,54.359104,764.1594,50.24707,764.9873,47.571213 M765.10815,56.934982 C765.1564,55.086895,765.2114,53.017662,764.6752,47.960003 M514.876,63.15727 M513.9207,63.138584 C511.75586,64.564255,508.33563,65.3056,505.6331,68.03605 M514.9106,62.683167 C512.4913,63.582798,509.14932,65.63777,504.66898,67.72669 M505.5569,67.854706 C508.64685,69.55311,510.368,70.87817,514.2073,71.11364 M505.39798,67.14864 C508.3805,68.72596,512.12537,71.09317,515.249,72.4783 M514.19904,72.72183 C515.08777,69.638115,515.8401,65.75809,515.4011,63.409798 M514.9393,72.01072 C514.5808,68.281044,515.1333,65.03465,514.69586,63.214645 M276.3209,92.58385 M275.08353,93.81188 C279.89618,95.80097,283.90173,97.12969,284.90823,98.29579 M275.0728,92.99362 C277.3522,94.54423,280.14212,95.48954,284.5611,97.24443 M285.5319,97.03006 C281.55896,98.38445,278.992,99.529915,275.61914,102.325066 M285.08533,97.18536 C281.47025,99.15679,278.56592,100.13505,275.14233,101.45357 M274.24744,101.365486 C274.41647,98.681,274.21494,95.55743,274.2376,93.490005 M275.34265,101.63624 C275.3499,99.69298,275.14377,97.43524,275.44196,93.36132 M613.7399,91.96756 M615.98413,93.17369 C617.079,93.85062,619.2066,95.23451,625.75684,96.79689 M615.0858,93.110115 C617.00696,94.417786,619.3133,95.34262,625.32916,97.978294 M625.68427,98.189415 C621.34546,99.11442,618.4943,100.83232,616.01733,101.4634 M625.4003,97.10404 C621.202,99.36652,618.238,100.230225,614.47345,101.62681 M615.70435,102.7767 C614.11755,99.016495,614.5947,95.21567,614.5131,92.31438 M614.8879,101.86678 C615.0829,99.20978,615.2408,95.76279,614.6861,93.05699 M6.3838553,169.84053 M4.4040923,168.5602 C0.9732662,169.01404,-0.85098267,170.16028,-4.0283585,173.14316 M4.9749794,168.35121 C1.526664,169.84663,-1.5881513,171.2977,-4.9190755,172.89917 M-5.4197183,173.28856 C-2.1405292,172.56131,-1.0107203,174.53047,5.7333536,176.31677 M-4.8972235,172.3383 C-2.1107264,173.59106,0.992104,174.97374,5.5143166,176.93413 M5.5388274,176.15297 C5.815537,173.56845,4.339469,171.39604,5.0027943,168.13594 M4.9300613,177.15337 C4.849401,173.60591,4.9700027,170.46643,4.9084888,168.17088 M116.53742,166.68019 M114.330795,167.72322 C110.12622,168.79982,107.257904,170.66338,104.61292,171.97275 M114.87315,167.51134 C111.251305,170.09384,107.921425,172.0422,104.90701,172.18448 M106.06049,171.92784 C108.21514,174.90724,112.12747,175.34705,115.25003,176.56613 M104.96107,172.76572 C109.34104,173.92989,112.801765,175.5516,114.655876,176.91925 M115.28851,176.27129 C114.798004,173.9748,115.31358,171.43758,115.043465,167.19138 M114.79701,177.0802 C115.48314,173.12848,115.40498,170.02309,114.67235,167.61879 M656.74756,166.96558 M656.0463,168.63573 C652.198,169.93684,650.78894,170.52177,645.3228,173.57195 M655.10736,168.54688 C651.7552,169.50153,649.8001,170.0448,644.8643,172.0141 M645.24945,173.44014 C647.9038,174.61835,651.5927,175.76631,654.25714,176.94162 M644.7601,172.88188 C647.75507,173.52771,649.59937,174.64575,654.60516,177.0385 M655.5539,177.55635 C654.69946,174.24026,655.5377,172.76247,654.2036,168.2213 M655.2347,176.70085 C655.61115,175.20024,654.7501,172.57649,655.33636,167.55318" fill="none" stroke="currentColor" stroke-width="1"/>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="355" y="7.5">
+C
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="7.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="7.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="7.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="395" y="7.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="7.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="7.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="22.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="22.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="22.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="22.5">
+c
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="125" y="22.5">
+k
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="645" y="22.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="655" y="22.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="665" y="22.5">
+c
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="675" y="22.5">
+k
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="15" y="37.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="45" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="305" y="37.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="315" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="325" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="335" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="345" y="37.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="355" y="37.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="37.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="37.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="425" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="435" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="445" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="455" y="37.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="465" y="37.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="475" y="37.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="485" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="725" y="37.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="735" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="745" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="755" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="52.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="52.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="135" y="52.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="635" y="52.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="675" y="52.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="685" y="52.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="695" y="52.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="305" y="67.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="315" y="67.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="325" y="67.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="335" y="67.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="345" y="67.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="355" y="67.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="67.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="67.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="67.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="425" y="67.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="435" y="67.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="445" y="67.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="455" y="67.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="465" y="67.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="475" y="67.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="82.5">
+v
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="82.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="82.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="125" y="82.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="135" y="82.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="305" y="97.5">
+v
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="315" y="97.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="325" y="97.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="335" y="97.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="345" y="97.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="355" y="97.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="97.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="97.5">
+v
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="425" y="97.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="435" y="97.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="445" y="97.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="455" y="97.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="465" y="97.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="475" y="97.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="485" y="97.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="635" y="97.5">
+v
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="645" y="97.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="655" y="97.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="665" y="97.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="675" y="97.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="15" y="157.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="157.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="157.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="45" y="157.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="55" y="157.5">
+y
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="675" y="157.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="685" y="157.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="695" y="157.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="705" y="157.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="715" y="157.5">
+y
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="172.5">
+○
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="615" y="172.5">
+○
+</text>
+</svg></div><p></p>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
+<p>Here is the example from the [CarloniBuffer] with an <a href="https://doc.rust-lang.org/1.91.1/core/option/enum.Option.html" title="enum core::option::Option">Option<T></a>
+based interface.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>rhdl::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>rhdl_fpga::{
+    rng::xorshift::XorShift128,
+    stream::stream_buffer::{<span class="self">self</span>, StreamBuffer},
+};
+
+<span class="kw">fn </span>main() -&gt; <span class="prelude-ty">Result</span>&lt;(), RHDLError&gt; {
+    <span class="comment">// The buffer will manage items of 4 bits
+    </span><span class="kw">let </span>uut = StreamBuffer::&lt;b4&gt;::default();
+    <span class="comment">// Create a random data stream that pauses randomly
+    </span><span class="kw">let </span><span class="kw-2">mut </span>source_rng = XorShift128::default();
+    <span class="kw">let </span><span class="kw-2">mut </span>send = (<span class="number">0</span>..).map(<span class="kw">move </span>|<span class="kw">_</span>| {
+        <span class="kw">if </span>rand::random::&lt;u8&gt;() &lt; <span class="number">200 </span>{
+            source_rng.next().map(|x| bits((x &amp; <span class="number">0xF</span>) <span class="kw">as </span>u128))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
+    });
+    <span class="kw">let </span><span class="kw-2">mut </span>need_reset = <span class="bool-val">true</span>;
+    <span class="kw">let </span>vcd = uut
+        .run_fn(
+            |out| {
+                <span class="kw">if </span>need_reset {
+                    need_reset = <span class="bool-val">false</span>;
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(rhdl::core::sim::ResetOrData::Reset);
+                }
+                <span class="kw">let </span><span class="kw-2">mut </span>input = stream_buffer::In::&lt;b4&gt;::dont_care();
+                <span class="comment">// if the valid flag is high, then advance the source RNG (maybe)
+                </span>input.data = <span class="prelude-val">None</span>;
+                <span class="kw">if </span>out.ready.raw {
+                    input.data = send.next().unwrap();
+                }
+                input.ready.raw = rand::random::&lt;u8&gt;() &lt; <span class="number">170</span>;
+                <span class="prelude-val">Some</span>(rhdl::core::sim::ResetOrData::Data(input))
+            },
+            <span class="number">100</span>,
+        )
+        .take_while(|t| t.time &lt; <span class="number">1500</span>)
+        .collect::&lt;Vcd&gt;();
+    rhdl_fpga::doc::write_svg_as_markdown(
+        vcd,
+        <span class="string">"option_carloni.md"</span>,
+        SvgOptions::default().with_io_filter(),
+    )<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div>
+<p>With trace</p>
+<p>
+<svg viewBox="0 0 1700 340" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<clipPath id="clip">
+<rect height="340" width="1700" x="0" y="0"/>
+</clipPath>
+</defs>
+<rect fill="#0B151D" height="340" stroke="darkblue" width="1700" x="0" y="0"/>
+<line stroke="#333333" stroke-width="1" x1="200" x2="200" y1="0" y2="340"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="200" y="10">
+0
+</text>
+<line stroke="#333333" stroke-width="1" x1="300" x2="300" y1="0" y2="340"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="300" y="10">
+100
+</text>
+<line stroke="#333333" stroke-width="1" x1="400" x2="400" y1="0" y2="340"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="400" y="10">
+200
+</text>
+<line stroke="#333333" stroke-width="1" x1="500" x2="500" y1="0" y2="340"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="500" y="10">
+300
+</text>
+<line stroke="#333333" stroke-width="1" x1="600" x2="600" y1="0" y2="340"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="600" y="10">
+400
+</text>
+<line stroke="#333333" stroke-width="1" x1="700" x2="700" y1="0" y2="340"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="700" y="10">
+500
+</text>
+<line stroke="#333333" stroke-width="1" x1="800" x2="800" y1="0" y2="340"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="800" y="10">
+600
+</text>
+<line stroke="#333333" stroke-width="1" x1="900" x2="900" y1="0" y2="340"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="900" y="10">
+700
+</text>
+<line stroke="#333333" stroke-width="1" x1="1000" x2="1000" y1="0" y2="340"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1000" y="10">
+800
+</text>
+<line stroke="#333333" stroke-width="1" x1="1100" x2="1100" y1="0" y2="340"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1100" y="10">
+900
+</text>
+<line stroke="#333333" stroke-width="1" x1="1200" x2="1200" y1="0" y2="340"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1200" y="10">
+1000
+</text>
+<line stroke="#333333" stroke-width="1" x1="1300" x2="1300" y1="0" y2="340"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1300" y="10">
+1100
+</text>
+<line stroke="#333333" stroke-width="1" x1="1400" x2="1400" y1="0" y2="340"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1400" y="10">
+1200
+</text>
+<line stroke="#333333" stroke-width="1" x1="1500" x2="1500" y1="0" y2="340"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1500" y="10">
+1300
+</text>
+<line stroke="#333333" stroke-width="1" x1="1600" x2="1600" y1="0" y2="340"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1600" y="10">
+1400
+</text>
+<line stroke="#333333" stroke-width="1" x1="1700" x2="1700" y1="0" y2="340"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1700" y="10">
+1500
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" y="10">
+Time:
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="30">
+.clock
+<title>top.clock</title>
+</text>
+<path d="M 200 30 L 200 37 L 250 37 L 250 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="251" y="23"/>
+<path d="M 250 30 L 250 23 L 300 23 L 300 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 300 30 L 300 37 L 350 37 L 350 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="351" y="23"/>
+<path d="M 350 30 L 350 23 L 400 23 L 400 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 400 30 L 400 37 L 450 37 L 450 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="451" y="23"/>
+<path d="M 450 30 L 450 23 L 500 23 L 500 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 500 30 L 500 37 L 550 37 L 550 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="551" y="23"/>
+<path d="M 550 30 L 550 23 L 600 23 L 600 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 600 30 L 600 37 L 650 37 L 650 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="651" y="23"/>
+<path d="M 650 30 L 650 23 L 700 23 L 700 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 700 30 L 700 37 L 750 37 L 750 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="751" y="23"/>
+<path d="M 750 30 L 750 23 L 800 23 L 800 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 800 30 L 800 37 L 850 37 L 850 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="851" y="23"/>
+<path d="M 850 30 L 850 23 L 900 23 L 900 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 900 30 L 900 37 L 950 37 L 950 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="951" y="23"/>
+<path d="M 950 30 L 950 23 L 1000 23 L 1000 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1000 30 L 1000 37 L 1050 37 L 1050 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1051" y="23"/>
+<path d="M 1050 30 L 1050 23 L 1100 23 L 1100 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1100 30 L 1100 37 L 1150 37 L 1150 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1151" y="23"/>
+<path d="M 1150 30 L 1150 23 L 1200 23 L 1200 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1200 30 L 1200 37 L 1250 37 L 1250 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1251" y="23"/>
+<path d="M 1250 30 L 1250 23 L 1300 23 L 1300 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1300 30 L 1300 37 L 1350 37 L 1350 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1351" y="23"/>
+<path d="M 1350 30 L 1350 23 L 1400 23 L 1400 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1400 30 L 1400 37 L 1450 37 L 1450 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1451" y="23"/>
+<path d="M 1450 30 L 1450 23 L 1500 23 L 1500 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1500 30 L 1500 37 L 1550 37 L 1550 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1551" y="23"/>
+<path d="M 1550 30 L 1550 23 L 1600 23 L 1600 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1600 30 L 1600 37 L 1650 37 L 1650 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1651" y="23"/>
+<path d="M 1650 30 L 1650 23 L 1700 23 L 1700 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="50">
+.input
+<title>top.input</title>
+</text>
+<path d="M 200 50 L 203 43 L 348 43 L 351 50 L 348 57 L 203 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="275" xml:space="preserve" y="50">
+{data: None,...
+<title>{data: None, ready: {raw: 0}}</title>
+</text>
+<path d="M 351 50 L 354 43 L 448 43 L 451 50 L 448 57 L 354 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="401" xml:space="preserve" y="50">
+{data: ...
+<title>{data: Some(2), ready: {raw: 0}}</title>
+</text>
+<path d="M 451 50 L 454 43 L 548 43 L 551 50 L 548 57 L 454 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="501" xml:space="preserve" y="50">
+{data: ...
+<title>{data: Some(5), ready: {raw: 1}}</title>
+</text>
+<path d="M 551 50 L 554 43 L 648 43 L 651 50 L 648 57 L 554 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="601" xml:space="preserve" y="50">
+{data: ...
+<title>{data: Some(6), ready: {raw: 1}}</title>
+</text>
+<path d="M 651 50 L 654 43 L 748 43 L 751 50 L 748 57 L 654 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="701" xml:space="preserve" y="50">
+{data: ...
+<title>{data: Some(2), ready: {raw: 0}}</title>
+</text>
+<path d="M 751 50 L 754 43 L 948 43 L 951 50 L 948 57 L 754 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="851" xml:space="preserve" y="50">
+{data: None, read...
+<title>{data: None, ready: {raw: 1}}</title>
+</text>
+<path d="M 951 50 L 954 43 L 1048 43 L 1051 50 L 1048 57 L 954 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1001" xml:space="preserve" y="50">
+{data: ...
+<title>{data: Some(a), ready: {raw: 1}}</title>
+</text>
+<path d="M 1051 50 L 1054 43 L 1148 43 L 1151 50 L 1148 57 L 1054 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1101" xml:space="preserve" y="50">
+{data: ...
+<title>{data: Some(1), ready: {raw: 1}}</title>
+</text>
+<path d="M 1151 50 L 1154 43 L 1248 43 L 1251 50 L 1248 57 L 1154 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1201" xml:space="preserve" y="50">
+{data: ...
+<title>{data: None, ready: {raw: 1}}</title>
+</text>
+<path d="M 1251 50 L 1254 43 L 1448 43 L 1451 50 L 1448 57 L 1254 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1351" xml:space="preserve" y="50">
+{data: Some(c), r...
+<title>{data: Some(c), ready: {raw: 1}}</title>
+</text>
+<path d="M 1451 50 L 1454 43 L 1548 43 L 1551 50 L 1548 57 L 1454 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1501" xml:space="preserve" y="50">
+{data: ...
+<title>{data: Some(5), ready: {raw: 1}}</title>
+</text>
+<path d="M 1551 50 L 1554 43 L 1648 43 L 1651 50 L 1648 57 L 1554 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1601" xml:space="preserve" y="50">
+{data: ...
+<title>{data: Some(d), ready: {raw: 0}}</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="70">
+   .data
+<title>top.input.data</title>
+</text>
+<path d="M 200 70 L 203 63 L 348 63 L 351 70 L 348 77 L 203 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="275" xml:space="preserve" y="70">
+None
+<title>None</title>
+</text>
+<path d="M 351 70 L 354 63 L 448 63 L 451 70 L 448 77 L 354 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="401" xml:space="preserve" y="70">
+Some(2)
+<title>Some(2)</title>
+</text>
+<path d="M 451 70 L 454 63 L 548 63 L 551 70 L 548 77 L 454 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="501" xml:space="preserve" y="70">
+Some(5)
+<title>Some(5)</title>
+</text>
+<path d="M 551 70 L 554 63 L 648 63 L 651 70 L 648 77 L 554 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="601" xml:space="preserve" y="70">
+Some(6)
+<title>Some(6)</title>
+</text>
+<path d="M 651 70 L 654 63 L 748 63 L 751 70 L 748 77 L 654 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="701" xml:space="preserve" y="70">
+Some(2)
+<title>Some(2)</title>
+</text>
+<path d="M 751 70 L 754 63 L 948 63 L 951 70 L 948 77 L 754 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="851" xml:space="preserve" y="70">
+None
+<title>None</title>
+</text>
+<path d="M 951 70 L 954 63 L 1048 63 L 1051 70 L 1048 77 L 954 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1001" xml:space="preserve" y="70">
+Some(a)
+<title>Some(a)</title>
+</text>
+<path d="M 1051 70 L 1054 63 L 1148 63 L 1151 70 L 1148 77 L 1054 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1101" xml:space="preserve" y="70">
+Some(1)
+<title>Some(1)</title>
+</text>
+<path d="M 1151 70 L 1154 63 L 1248 63 L 1251 70 L 1248 77 L 1154 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1201" xml:space="preserve" y="70">
+None
+<title>None</title>
+</text>
+<path d="M 1251 70 L 1254 63 L 1448 63 L 1451 70 L 1448 77 L 1254 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1351" xml:space="preserve" y="70">
+Some(c)
+<title>Some(c)</title>
+</text>
+<path d="M 1451 70 L 1454 63 L 1548 63 L 1551 70 L 1548 77 L 1454 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1501" xml:space="preserve" y="70">
+Some(5)
+<title>Some(5)</title>
+</text>
+<path d="M 1551 70 L 1554 63 L 1648 63 L 1651 70 L 1648 77 L 1554 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1601" xml:space="preserve" y="70">
+Some(d)
+<title>Some(d)</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="90">
+      #None
+<title>top.input.data#None</title>
+</text>
+<path d="M 200 90 L 203 83 L 348 83 L 351 90 L 348 97 L 203 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="275" xml:space="preserve" y="90">
+<title></title>
+</text>
+<path d="M 751 90 L 754 83 L 948 83 L 951 90 L 948 97 L 754 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="851" xml:space="preserve" y="90">
+<title></title>
+</text>
+<path d="M 1151 90 L 1154 83 L 1248 83 L 1251 90 L 1248 97 L 1154 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1201" xml:space="preserve" y="90">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="110">
+      #Some.0
+<title>top.input.data#Some.0</title>
+</text>
+<path d="M 351 110 L 354 103 L 448 103 L 451 110 L 448 117 L 354 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="401" xml:space="preserve" y="110">
+2
+<title>2</title>
+</text>
+<path d="M 451 110 L 454 103 L 548 103 L 551 110 L 548 117 L 454 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="501" xml:space="preserve" y="110">
+5
+<title>5</title>
+</text>
+<path d="M 551 110 L 554 103 L 648 103 L 651 110 L 648 117 L 554 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="601" xml:space="preserve" y="110">
+6
+<title>6</title>
+</text>
+<path d="M 651 110 L 654 103 L 748 103 L 751 110 L 748 117 L 654 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="701" xml:space="preserve" y="110">
+2
+<title>2</title>
+</text>
+<path d="M 951 110 L 954 103 L 1048 103 L 1051 110 L 1048 117 L 954 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1001" xml:space="preserve" y="110">
+a
+<title>a</title>
+</text>
+<path d="M 1051 110 L 1054 103 L 1148 103 L 1151 110 L 1148 117 L 1054 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1101" xml:space="preserve" y="110">
+1
+<title>1</title>
+</text>
+<path d="M 1251 110 L 1254 103 L 1448 103 L 1451 110 L 1448 117 L 1254 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1351" xml:space="preserve" y="110">
+c
+<title>c</title>
+</text>
+<path d="M 1451 110 L 1454 103 L 1548 103 L 1551 110 L 1548 117 L 1454 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1501" xml:space="preserve" y="110">
+5
+<title>5</title>
+</text>
+<path d="M 1551 110 L 1554 103 L 1648 103 L 1651 110 L 1648 117 L 1554 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1601" xml:space="preserve" y="110">
+d
+<title>d</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="130">
+   .ready
+<title>top.input.ready</title>
+</text>
+<path d="M 200 130 L 200 137 L 451 137 L 451 130" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="198" x="452" y="123"/>
+<path d="M 451 130 L 451 123 L 651 123 L 651 130" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 651 130 L 651 137 L 751 137 L 751 130" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="798" x="752" y="123"/>
+<path d="M 751 130 L 751 123 L 1551 123 L 1551 130" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1551 130 L 1551 137 L 1651 137 L 1651 130" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="150">
+      .marker
+<title>top.input.ready.marker</title>
+</text>
+<path d="M 200 150 L 203 143 L 1648 143 L 1651 150 L 1648 157 L 203 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="925" xml:space="preserve" y="150">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="170">
+      .raw
+<title>top.input.ready.raw</title>
+</text>
+<path d="M 200 170 L 200 177 L 451 177 L 451 170" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="198" x="452" y="163"/>
+<path d="M 451 170 L 451 163 L 651 163 L 651 170" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 651 170 L 651 177 L 751 177 L 751 170" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="798" x="752" y="163"/>
+<path d="M 751 170 L 751 163 L 1551 163 L 1551 170" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1551 170 L 1551 177 L 1651 177 L 1651 170" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="190">
+.outputs
+<title>top.outputs</title>
+</text>
+<path d="M 200 190 L 203 183 L 248 183 L 251 190 L 248 197 L 203 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="225" xml:space="preserve" y="190">
+{d...
+<title>{data: None, ready: {raw: 0}}</title>
+</text>
+<path d="M 251 190 L 254 183 L 447 183 L 450 190 L 447 197 L 254 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="350" xml:space="preserve" y="190">
+{data: None, rea...
+<title>{data: None, ready: {raw: 1}}</title>
+</text>
+<path d="M 450 190 L 453 183 L 547 183 L 550 190 L 547 197 L 453 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="500" xml:space="preserve" y="190">
+{data: ...
+<title>{data: Some(2), ready: {raw: 1}}</title>
+</text>
+<path d="M 550 190 L 553 183 L 647 183 L 650 190 L 647 197 L 553 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="600" xml:space="preserve" y="190">
+{data: ...
+<title>{data: Some(5), ready: {raw: 1}}</title>
+</text>
+<path d="M 650 190 L 653 183 L 747 183 L 750 190 L 747 197 L 653 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="700" xml:space="preserve" y="190">
+{data: ...
+<title>{data: Some(6), ready: {raw: 1}}</title>
+</text>
+<path d="M 750 190 L 753 183 L 847 183 L 850 190 L 847 197 L 753 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="800" xml:space="preserve" y="190">
+{data: ...
+<title>{data: Some(6), ready: {raw: 0}}</title>
+</text>
+<path d="M 850 190 L 853 183 L 947 183 L 950 190 L 947 197 L 853 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="900" xml:space="preserve" y="190">
+{data: ...
+<title>{data: Some(2), ready: {raw: 1}}</title>
+</text>
+<path d="M 950 190 L 953 183 L 1047 183 L 1050 190 L 1047 197 L 953 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1000" xml:space="preserve" y="190">
+{data: ...
+<title>{data: None, ready: {raw: 1}}</title>
+</text>
+<path d="M 1050 190 L 1053 183 L 1147 183 L 1150 190 L 1147 197 L 1053 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1100" xml:space="preserve" y="190">
+{data: ...
+<title>{data: Some(a), ready: {raw: 1}}</title>
+</text>
+<path d="M 1150 190 L 1153 183 L 1247 183 L 1250 190 L 1247 197 L 1153 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1200" xml:space="preserve" y="190">
+{data: ...
+<title>{data: Some(1), ready: {raw: 1}}</title>
+</text>
+<path d="M 1250 190 L 1253 183 L 1347 183 L 1350 190 L 1347 197 L 1253 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1300" xml:space="preserve" y="190">
+{data: ...
+<title>{data: None, ready: {raw: 1}}</title>
+</text>
+<path d="M 1350 190 L 1353 183 L 1547 183 L 1550 190 L 1547 197 L 1353 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1450" xml:space="preserve" y="190">
+{data: Some(c), r...
+<title>{data: Some(c), ready: {raw: 1}}</title>
+</text>
+<path d="M 1550 190 L 1553 183 L 1647 183 L 1650 190 L 1647 197 L 1553 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1600" xml:space="preserve" y="190">
+{data: ...
+<title>{data: Some(5), ready: {raw: 1}}</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="210">
+   .data
+<title>top.outputs.data</title>
+</text>
+<path d="M 200 210 L 203 203 L 447 203 L 450 210 L 447 217 L 203 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="325" xml:space="preserve" y="210">
+None
+<title>None</title>
+</text>
+<path d="M 450 210 L 453 203 L 547 203 L 550 210 L 547 217 L 453 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="500" xml:space="preserve" y="210">
+Some(2)
+<title>Some(2)</title>
+</text>
+<path d="M 550 210 L 553 203 L 647 203 L 650 210 L 647 217 L 553 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="600" xml:space="preserve" y="210">
+Some(5)
+<title>Some(5)</title>
+</text>
+<path d="M 650 210 L 653 203 L 847 203 L 850 210 L 847 217 L 653 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="750" xml:space="preserve" y="210">
+Some(6)
+<title>Some(6)</title>
+</text>
+<path d="M 850 210 L 853 203 L 947 203 L 950 210 L 947 217 L 853 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="900" xml:space="preserve" y="210">
+Some(2)
+<title>Some(2)</title>
+</text>
+<path d="M 950 210 L 953 203 L 1047 203 L 1050 210 L 1047 217 L 953 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1000" xml:space="preserve" y="210">
+None
+<title>None</title>
+</text>
+<path d="M 1050 210 L 1053 203 L 1147 203 L 1150 210 L 1147 217 L 1053 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1100" xml:space="preserve" y="210">
+Some(a)
+<title>Some(a)</title>
+</text>
+<path d="M 1150 210 L 1153 203 L 1247 203 L 1250 210 L 1247 217 L 1153 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1200" xml:space="preserve" y="210">
+Some(1)
+<title>Some(1)</title>
+</text>
+<path d="M 1250 210 L 1253 203 L 1347 203 L 1350 210 L 1347 217 L 1253 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1300" xml:space="preserve" y="210">
+None
+<title>None</title>
+</text>
+<path d="M 1350 210 L 1353 203 L 1547 203 L 1550 210 L 1547 217 L 1353 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1450" xml:space="preserve" y="210">
+Some(c)
+<title>Some(c)</title>
+</text>
+<path d="M 1550 210 L 1553 203 L 1648 203 L 1651 210 L 1648 217 L 1553 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1600" xml:space="preserve" y="210">
+Some(5)
+<title>Some(5)</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="230">
+      #None
+<title>top.outputs.data#None</title>
+</text>
+<path d="M 200 230 L 203 223 L 447 223 L 450 230 L 447 237 L 203 237 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="325" xml:space="preserve" y="230">
+<title></title>
+</text>
+<path d="M 950 230 L 953 223 L 1047 223 L 1050 230 L 1047 237 L 953 237 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1000" xml:space="preserve" y="230">
+<title></title>
+</text>
+<path d="M 1250 230 L 1253 223 L 1347 223 L 1350 230 L 1347 237 L 1253 237 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1300" xml:space="preserve" y="230">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="250">
+      #Some.0
+<title>top.outputs.data#Some.0</title>
+</text>
+<path d="M 450 250 L 453 243 L 547 243 L 550 250 L 547 257 L 453 257 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="500" xml:space="preserve" y="250">
+2
+<title>2</title>
+</text>
+<path d="M 550 250 L 553 243 L 647 243 L 650 250 L 647 257 L 553 257 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="600" xml:space="preserve" y="250">
+5
+<title>5</title>
+</text>
+<path d="M 650 250 L 653 243 L 847 243 L 850 250 L 847 257 L 653 257 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="750" xml:space="preserve" y="250">
+6
+<title>6</title>
+</text>
+<path d="M 850 250 L 853 243 L 947 243 L 950 250 L 947 257 L 853 257 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="900" xml:space="preserve" y="250">
+2
+<title>2</title>
+</text>
+<path d="M 1050 250 L 1053 243 L 1147 243 L 1150 250 L 1147 257 L 1053 257 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1100" xml:space="preserve" y="250">
+a
+<title>a</title>
+</text>
+<path d="M 1150 250 L 1153 243 L 1247 243 L 1250 250 L 1247 257 L 1153 257 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1200" xml:space="preserve" y="250">
+1
+<title>1</title>
+</text>
+<path d="M 1350 250 L 1353 243 L 1547 243 L 1550 250 L 1547 257 L 1353 257 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1450" xml:space="preserve" y="250">
+c
+<title>c</title>
+</text>
+<path d="M 1550 250 L 1553 243 L 1648 243 L 1651 250 L 1648 257 L 1553 257 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1600" xml:space="preserve" y="250">
+5
+<title>5</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="270">
+   .ready
+<title>top.outputs.ready</title>
+</text>
+<path d="M 200 270 L 200 277 L 251 277 L 251 270" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="497" x="252" y="263"/>
+<path d="M 251 270 L 251 263 L 750 263 L 750 270" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 750 270 L 750 277 L 850 277 L 850 270" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="798" x="851" y="263"/>
+<path d="M 850 270 L 850 263 L 1650 263 L 1650 270" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="290">
+      .marker
+<title>top.outputs.ready.marker</title>
+</text>
+<path d="M 200 290 L 203 283 L 1648 283 L 1651 290 L 1648 297 L 203 297 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="925" xml:space="preserve" y="290">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="310">
+      .raw
+<title>top.outputs.ready.raw</title>
+</text>
+<path d="M 200 310 L 200 317 L 251 317 L 251 310" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="497" x="252" y="303"/>
+<path d="M 251 310 L 251 303 L 750 303 L 750 310" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 750 310 L 750 317 L 850 317 L 850 310" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="798" x="851" y="303"/>
+<path d="M 850 310 L 850 303 L 1650 303 L 1650 310" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="330">
+.reset
+<title>top.reset</title>
+</text>
+<rect fill="#1C400C" height="14" stroke="none" width="49" x="201" y="323"/>
+<path d="M 200 330 L 200 323 L 251 323 L 251 330" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 251 330 L 251 337 L 1651 337 L 1651 330" fill="none" stroke="#56C126" stroke-width="1"/>
+</svg>
+</p>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.StreamBuffer.html" title="struct rhdl_fpga::stream::stream_buffer::StreamBuffer">Stream<wbr>Buffer</a></dt><dd>Option-based Carloni buffer core</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.In.html" title="type rhdl_fpga::stream::stream_buffer::In">In</a></dt><dd>Inputs to the <a href="struct.StreamBuffer.html" title="struct rhdl_fpga::stream::stream_buffer::StreamBuffer">StreamBuffer</a> buffer core</dd><dt><a class="type" href="type.Out.html" title="type rhdl_fpga::stream::stream_buffer::Out">Out</a></dt><dd>Outputs from the <a href="struct.StreamBuffer.html" title="struct rhdl_fpga::stream::stream_buffer::StreamBuffer">StreamBuffer</a> buffer core</dd></dl></section></div></main></body></html>

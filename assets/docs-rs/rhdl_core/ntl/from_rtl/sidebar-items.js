@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["build_ntl_from_rtl"]};

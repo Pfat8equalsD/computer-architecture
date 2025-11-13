@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["build_descriptor","build_synchronous_descriptor"],"struct":["CircuitDescriptor"]};

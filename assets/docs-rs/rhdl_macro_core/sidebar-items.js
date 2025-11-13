@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["derive_circuit","derive_circuit_dq","derive_digital","derive_synchronous","derive_synchronous_dq","derive_timed","export_macro","hdl_kernel","path_macro"],"mod":["typenum_op","vlog"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["host","leds","sys_clock"]};

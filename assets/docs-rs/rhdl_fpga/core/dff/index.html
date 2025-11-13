@@ -1,0 +1,536 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Digital Flip Flop"><title>rhdl_fpga::core::dff - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rhdl_fpga" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module dff</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../rhdl_fpga/index.html">rhdl_<wbr>fpga</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module dff</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#timing" title="Timing">Timing</a></li><li><a href="#example" title="Example">Example</a></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In rhdl_<wbr>fpga::<wbr>core</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">rhdl_fpga</a>::<wbr><a href="../index.html">core</a></div><h1>Module <span>dff</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/rhdl_fpga/core/dff.rs.html#1-235">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Digital Flip Flop</p>
+<p>The <a href="struct.DFF.html" title="struct rhdl_fpga::core::dff::DFF">DFF</a> is the building block for nearly all synchronous
+logic.  The <a href="struct.DFF.html" title="struct rhdl_fpga::core::dff::DFF">DFF</a> is generic over the type <code>T</code> it holds,
+and can store a custom value for the reset value to take.
+The <a href="struct.DFF.html" title="struct rhdl_fpga::core::dff::DFF">DFF</a> is positive edge triggered, with an active
+high reset.  It is a <a href="../../../rhdl_core/circuit/synchronous/trait.Synchronous.html" title="trait rhdl_core::circuit::synchronous::Synchronous">Synchronous</a> component, and meant
+to be used in synchronous circuits.</p>
+<p>Here is the schematic symbol</p>
+<p></p><div style="text-align:center;"><svg viewBox="0 0 200 90" width="200px" xmlns="http://www.w3.org/2000/svg">
+<path d="M45,7.5 M45,7.5 C55.51583,7.5,66.03166,7.5,75,7.5 M115,7.5 M115,7.5 C133.72807,7.5,152.45615,7.5,165,7.5 M5,37.5 M5,37.5 C12.285728,37.5,19.571457,37.5,35,37.5 M165,37.5 M165,37.5 C171.16028,37.5,177.32056,37.5,195,37.5 M45,7.5 M45,7.5 C45,23.057072,45,38.614143,45,82.5 M165,7.5 M165,7.5 C165,34.57611,165,61.652225,165,82.5 M45,82.5 M45,82.5 C92.19391,82.5,139.38782,82.5,165,82.5 M35,33 M35,33 C38.078728,34.385426,41.157455,35.770855,45,37.5 M45,37.5 C41.763412,38.956463,38.52683,40.412926,35,42 M35,42 C35,38.96905,35,35.938103,35,33 M195,33 M195,33 C198.51126,34.580067,202.02252,36.160133,205,37.5 M205,37.5 C202.45232,38.64646,199.90462,39.792923,195,42 M195,42 C195,39.53663,195,37.073257,195,33" fill="none" stroke="currentColor" stroke-width="1"/>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="7.5">
+D
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="7.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="7.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="22.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="22.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="55" y="37.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="37.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="37.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="37.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="125" y="37.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="135" y="37.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="145" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="52.5">
+(
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="52.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="52.5">
+)
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="125" y="52.5">
+(
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="135" y="52.5">
+q
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="145" y="52.5">
+)
+</text>
+</svg></div><p></p>
+<h2 id="timing"><a class="doc-anchor" href="#timing">§</a>Timing</h2>
+<p>Good resources are available online to understand how digital
+flip flops work, and what they do.  The simplest explanation is
+that they operate like 1-tap delay lines, in which the data
+presented at a clock edge appears on the output at the next
+clock edge.</p>
+<p>Roughly, this looks like this:</p>
+<p></p><div style="text-align:center;"><svg viewBox="0 0 390 135" width="390px" xmlns="http://www.w3.org/2000/svg">
+<path d="M105.74456,7.8446527 M105.743996,7.3801293 C119.42475,8.775763,133.79384,8.265409,143.41696,7.2238307 M104.915375,7.7817225 C115.27259,7.067919,125.82245,7.5739994,144.59538,6.8722835 M184.4239,5.6656218 M186.02335,8.846221 C193.85141,9.47817,201.89194,7.1452694,226.17604,7.4141617 M185.60617,6.553427 C193.15648,7.80112,203.75392,8.351945,225.05498,8.310745 M264.6612,7.6397076 M263.26563,5.648552 C273.859,8.893462,280.58228,6.4389567,304.1564,9.238876 M264.14545,6.9855413 C278.44727,7.839088,293.88074,7.2932663,305.5513,7.789204 M345.96246,6.0647626 M346.71317,6.269863 C355.13403,9.791101,369.79855,9.47736,384.43524,8.952945 M344.80542,8.093374 C356.9117,8.121422,369.4453,7.7328963,384.81134,8.372036 M104.58981,7.3045177 M106.47224,7.8611374 C105.26786,12.875813,103.81282,18.637466,104.88661,21.670898 M104.47047,8.202188 C105.19896,12.568401,105.30468,16.722511,105.60085,21.947176 M65.21955,23.295328 M63.82482,24.257324 C75.62289,22.747171,85.887634,21.486668,103.29181,24.418694 M65.912544,23.337383 C77.4741,22.803265,89.66501,22.771458,104.30544,22.93201 M146.29182,9.12585 M145.5183,7.1056175 C144.63469,12.89382,146.15332,15.6442585,144.90927,21.424103 M144.95566,7.008871 C144.95813,10.624866,143.98856,14.659432,145.40132,23.147198 M183.30957,5.792946 M184.72871,6.4231215 C185.9228,10.764751,186.05367,16.996313,183.73349,23.994995 M185.56586,7.1345797 C185.00739,10.661356,185.05077,15.726615,185.19281,22.392612 M146.54765,20.620558 M144.7895,21.629578 C153.93457,22.40897,162.68051,21.025852,183.40445,21.441578 M145.43633,23.0892 C159.53922,23.470583,172.84683,22.305914,184.02946,22.750364 M223.40811,7.359603 M226.10114,8.175104 C225.76859,14.240359,224.68741,19.733622,223.66985,21.946411 M225.6819,7.992088 C224.26555,12.435422,224.55362,18.82922,225.42474,22.545172 M263.54922,7.6661773 M266.37558,6.632814 C265.44772,13.807207,266.0393,18.487423,264.41754,23.546385 M264.78595,7.8104124 C265.1745,13.023512,264.89923,18.25754,264.25723,21.802483 M226.93698,23.648664 M225.73473,21.66842 C234.82574,22.685768,245.80493,20.832167,266.13727,20.984377 M224.80832,23.30498 C237.00337,22.297964,248.45204,23.6191,264.45334,22.237123 M305.60452,5.9176903 M306.42206,7.446336 C303.35898,12.143181,304.89474,18.09374,306.06818,22.255192 M304.4042,7.4197826 C304.66275,13.247712,305.1621,18.924873,304.3363,22.462904 M346.96375,8.34218 M345.90332,7.153496 C344.1184,9.383027,346.1934,15.093929,344.40036,23.129549 M345.63443,6.9200497 C345.23135,13.517744,344.6237,19.616762,344.9866,21.91693 M303.9864,22.546598 M303.48868,22.37404 C313.40033,22.786524,326.027,23.01517,343.94302,22.479053 M305.83093,22.321594 C319.2256,23.714924,331.11993,23.69749,344.85757,21.752821 M63.07096,52.452255 M63.157475,53.36102 C70.37969,51.376163,77.19175,53.276737,85.850975,53.193768 M65.75004,52.662533 C71.06304,51.84784,74.94399,52.27185,84.65584,52.850826 M116.39684,51.013466 M115.7556,51.00529 C127.51772,51.206635,144.99196,50.93513,165.3227,53.756916 M115.925766,53.446068 C128.10309,52.204697,142.65508,52.69933,165.68127,52.682198 M195.87288,54.21269 M195.66362,51.364433 C214.14024,52.898323,234.45987,52.31133,243.17392,52.92672 M195.35988,53.46854 C210.80061,51.677544,225.10715,51.904816,245.07272,52.140827 M276.9877,53.15899 M276.26074,51.942215 C294.8388,52.97028,313.6753,51.85083,324.8022,52.635376 M274.3929,52.37083 C288.2216,52.00245,302.09427,52.55265,324.96872,51.97353 M355.2106,53.522686 M353.41473,54.493786 C364.8126,51.665146,373.14102,53.09154,385.4411,52.25051 M355.95935,52.184547 C364.15387,52.382633,371.18924,53.281265,384.66556,53.077305 M66.02146,53.364044 M64.40591,51.704426 C65.28998,56.463276,66.176056,59.300133,66.48114,67.78545 M65.381256,52.641113 C65.61052,55.72106,65.398636,58.77378,65.37525,67.035866 M143.15761,54.30646 M144.23831,53.9996 C145.16331,56.784054,146.16032,64.2312,145.47974,66.73532 M145.70834,52.487858 C145.00937,57.2492,145.30682,61.964172,144.58119,68.1925 M224.27402,53.934116 M224.68344,52.196117 C226.21182,55.824783,226.0009,60.78623,226.17697,66.24285 M224.57123,51.82024 C225.09363,58.213943,225.2814,63.366142,225.08693,67.09371 M306.32343,54.37413 M304.9756,51.778748 C303.73517,57.502087,306.35114,63.451317,306.03836,68.9858 M305.00977,52.642944 C305.52066,55.32749,304.6003,59.080784,305.0721,67.5768 M384.0465,52.888786 M386.47314,51.2952 C386.50418,57.91458,384.87943,64.639175,384.9968,66.25748 M384.2899,51.875317 C385.1822,56.824463,384.61493,61.058315,384.4752,67.712425 M65.686844,67.628006 M64.1567,68.772064 C154.72159,71.443,243.95445,71.48323,384.69254,68.3087 M65.068954,67.983025 C152.58084,71.09123,238.8612,71.81634,385.07947,67.57291 M105.530266,67.49985 M104.78878,68.96762 C104.95246,73.517456,104.19131,76.97499,104.41433,81.32736 M105.189995,66.86377 C104.972786,71.04351,105.04427,73.7973,104.34514,81.7806 M104.04199,82.31304 M105.54679,81.91864 C133.0004,82.40179,164.58566,82.19096,206.26831,81.31816 M104.10871,82.0764 C131.89867,82.78477,158.28362,82.42185,204.5137,83.136154 M206.76761,82.93225 M203.66614,82.92569 C204.93864,88.70466,205.8282,94.87115,206.02118,98.01381 M204.95872,82.06964 C204.3623,88.80721,205.53436,94.16501,204.97812,97.060135 M66.30927,111.07134 M64.14659,111.119225 C70.948685,113.863945,75.99177,114.19343,85.271835,113.397354 M65.836044,112.562614 C69.0527,112.503265,73.47833,111.893776,85.06023,113.10764 M116.55932,112.91893 M115.159615,112.71173 C127.646225,111.87068,136.12598,112.17167,164.63753,112.08099 M114.09546,112.39858 C131.34735,111.809456,147.00366,112.93894,164.35071,113.32528 M193.38148,111.05427 M193.59369,112.99964 C207.3938,112.80453,221.87547,113.52156,244.47897,111.6547 M195.87767,112.85238 C206.24121,110.758255,218.21492,111.529144,245.96472,112.70922 M273.7871,111.941246 M276.41608,112.654816 C287.8097,111.2423,300.90305,112.50184,326.8339,112.45198 M274.338,111.95801 C289.65244,112.32748,303.55917,113.54375,324.83075,112.62915 M353.8134,113.38875 M356.27423,110.79253 C364.04306,111.73519,371.02164,111.445,384.87482,110.759796 M355.31757,112.602715 C363.9257,113.22944,372.051,111.294876,384.08514,112.50819 M66.82376,114.12165 M66.14908,111.7175 C64.798134,115.884315,66.020256,120.0634,63.756863,128.47844 M65.677895,112.34295 C64.40769,116.842285,65.1202,119.760086,65.47333,127.82961 M145.174,112.17261 M145.45435,111.13814 C145.69818,115.19026,144.06929,120.42292,145.25554,126.11474 M144.55255,113.190285 C144.28117,118.07438,145.5029,122.819954,144.55997,127.42436 M226.13266,113.82073 M225.9565,111.50068 C225.03682,118.857864,225.32112,121.73632,226.41896,128.90613 M225.47324,112.281 C225.64095,116.362045,225.43547,118.437836,225.40079,127.89677 M304.97308,111.35468 M304.23532,113.62592 C304.68695,116.47772,305.18356,120.52562,305.63712,127.70063 M304.62064,112.25713 C305.26895,119.14714,304.32816,123.84453,305.35184,128.24739 M383.54858,110.5804 M386.07837,111.09965 C385.8503,115.24646,383.76697,120.843155,384.19763,128.98224 M385.72086,111.780396 C384.81735,116.743484,385.5871,119.3182,385.3447,126.892166 M64.665924,128.3047 M64.93151,128.14368 C182.13213,129.30844,299.29456,130.45819,385.8768,127.530685 M64.81648,127.913574 C147.14313,127.0573,229.61333,127.43664,385.41095,127.31476 M200.9573,99.319916 M200.84328,96.15751 C201.54713,100.92132,202.33754,104.74074,206.1552,110.98525 M199.93481,98.12706 C201.6711,100.004425,201.93214,103.73147,204.90361,112.24298 M203.85765,112.315765 C207.94348,107.33123,209.65958,101.97469,209.42249,96.8236 M205.41307,112.00135 C206.52214,107.786835,207.95723,102.95175,209.92584,96.71702 M210.23468,98.324135 C206.81294,96.676056,205.35927,96.84201,199.34009,98.09771 M210.096,97.985985 C207.04034,97.50201,204.39539,97.066864,199.70065,97.38103" fill="none" stroke="currentColor" stroke-width="1"/>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="15" y="22.5">
+c
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="22.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="22.5">
+k
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="52.5">
+D
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="52.5">
+1
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="175" y="52.5">
+D
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="52.5">
+2
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="255" y="52.5">
+D
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="265" y="52.5">
+3
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="335" y="52.5">
+D
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="345" y="52.5">
+4
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="15" y="67.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="67.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="67.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="45" y="67.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="55" y="67.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="112.5">
+X
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="112.5">
+X
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="175" y="112.5">
+D
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="112.5">
+1
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="255" y="112.5">
+D
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="265" y="112.5">
+2
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="335" y="112.5">
+D
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="345" y="112.5">
+3
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="5" y="127.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="15" y="127.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="127.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="127.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="45" y="127.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="55" y="127.5">
+t
+</text>
+</svg></div><p></p>
+ One of the primary purposes of [DFF]s in designs is to decouple
+ the input side of the flip flop from the output side.  This allows
+ the output side of the FF to only depend on a fixed quantity (the
+ last recorded value), instead of the potentially changing input
+ side.
+<p><a href="struct.DFF.html" title="struct rhdl_fpga::core::dff::DFF">DFF</a>s are used in state machines, as memory storage elements,
+and to break up pipelines.</p>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
+<p>Here is a simple example of a state machine recognizing a sequence
+using a <a href="struct.DFF.html" title="struct rhdl_fpga::core::dff::DFF">DFF</a>.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>rhdl::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>rhdl_fpga::{core::dff::DFF, doc::write_svg_as_markdown};
+
+<span class="comment">// We create a state enum to track the number
+// of zeros we have seen.  This could just be
+// counter, but it's a bit easier to read this way.
+</span><span class="attr">#[derive(PartialEq, Digital, Debug, Default)]
+</span><span class="kw">pub enum </span>State {
+    <span class="comment">// Enums need to have a default
+    // value.  In this case, it's
+    // safe to assume that the default
+    // is no zeros.
+    </span><span class="attr">#[default]
+    </span>NoZeros,
+    OneZero,
+    TwoZeroes,
+}
+
+<span class="comment">// This is the core itself.  We derive these
+// 4 traits to provide the needed functions
+</span><span class="attr">#[derive(Synchronous, Clone, Debug, SynchronousDQ)]
+</span><span class="kw">pub struct </span>Recognizer {
+    state: DFF&lt;State&gt;,
+}
+
+<span class="kw">impl </span>Default <span class="kw">for </span>Recognizer {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            state: DFF::new(State::NoZeros),
+        }
+    }
+}
+
+<span class="comment">// The SynchronousIO trait tells RHDL what the
+// input and output types are (both bools in this case),
+// as well as where the kernel can be found.
+</span><span class="kw">impl </span>SynchronousIO <span class="kw">for </span>Recognizer {
+    <span class="kw">type </span>I = bool;
+    <span class="kw">type </span>O = bool;
+    <span class="kw">type </span>Kernel = kernel;
+}
+
+<span class="attr">#[kernel]
+</span><span class="comment">// This is the kernel.  Hopefully self evident.
+</span><span class="kw">pub fn </span>kernel(_cr: ClockReset, i: bool, q: Q) -&gt; (bool, D) {
+    <span class="kw">let </span>(o, d) = <span class="kw">match </span>(q.state, i) {
+        (State::NoZeros, <span class="bool-val">false</span>) =&gt; (<span class="bool-val">false</span>, State::OneZero),
+        (State::NoZeros, <span class="bool-val">true</span>) =&gt; (<span class="bool-val">false</span>, State::NoZeros),
+        (State::OneZero, <span class="bool-val">false</span>) =&gt; (<span class="bool-val">false</span>, State::TwoZeroes),
+        (State::OneZero, <span class="bool-val">true</span>) =&gt; (<span class="bool-val">false</span>, State::NoZeros),
+        (State::TwoZeroes, <span class="bool-val">false</span>) =&gt; (<span class="bool-val">false</span>, State::TwoZeroes),
+        (State::TwoZeroes, <span class="bool-val">true</span>) =&gt; (<span class="bool-val">true</span>, State::NoZeros),
+    };
+    (o, D { state: d })
+}
+
+<span class="kw">fn </span>main() -&gt; <span class="prelude-ty">Result</span>&lt;(), RHDLError&gt; {
+    <span class="comment">// Recognize the sequence `0 0 1`
+    </span><span class="kw">let </span>input = [<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>];
+    <span class="kw">let </span>input = input.into_iter().with_reset(<span class="number">1</span>).clock_pos_edge(<span class="number">100</span>);
+    <span class="kw">let </span>uut = Recognizer::default();
+    <span class="kw">let </span>vcd = uut.run(input)<span class="question-mark">?</span>.collect::&lt;Vcd&gt;();
+    <span class="kw">let </span>options = SvgOptions::default().with_label_width(<span class="number">20</span>);
+    write_svg_as_markdown(vcd, <span class="string">"dff.md"</span>, options)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div>
+<p>The trace shows the FSM working.</p>
+<p>
+<svg viewBox="0 0 1150 260" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<clipPath id="clip">
+<rect height="260" width="1150" x="0" y="0"/>
+</clipPath>
+</defs>
+<rect fill="#0B151D" height="260" stroke="darkblue" width="1150" x="0" y="0"/>
+<line stroke="#333333" stroke-width="1" x1="200" x2="200" y1="0" y2="260"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="200" y="10">
+0
+</text>
+<line stroke="#333333" stroke-width="1" x1="300" x2="300" y1="0" y2="260"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="300" y="10">
+100
+</text>
+<line stroke="#333333" stroke-width="1" x1="400" x2="400" y1="0" y2="260"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="400" y="10">
+200
+</text>
+<line stroke="#333333" stroke-width="1" x1="500" x2="500" y1="0" y2="260"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="500" y="10">
+300
+</text>
+<line stroke="#333333" stroke-width="1" x1="600" x2="600" y1="0" y2="260"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="600" y="10">
+400
+</text>
+<line stroke="#333333" stroke-width="1" x1="700" x2="700" y1="0" y2="260"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="700" y="10">
+500
+</text>
+<line stroke="#333333" stroke-width="1" x1="800" x2="800" y1="0" y2="260"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="800" y="10">
+600
+</text>
+<line stroke="#333333" stroke-width="1" x1="900" x2="900" y1="0" y2="260"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="900" y="10">
+700
+</text>
+<line stroke="#333333" stroke-width="1" x1="1000" x2="1000" y1="0" y2="260"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1000" y="10">
+800
+</text>
+<line stroke="#333333" stroke-width="1" x1="1100" x2="1100" y1="0" y2="260"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1100" y="10">
+900
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" y="10">
+Time:
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="30">
+.clock
+<title>top.clock</title>
+</text>
+<path d="M 200 30 L 200 37 L 250 37 L 250 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="251" y="23"/>
+<path d="M 250 30 L 250 23 L 300 23 L 300 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 300 30 L 300 37 L 350 37 L 350 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="351" y="23"/>
+<path d="M 350 30 L 350 23 L 400 23 L 400 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 400 30 L 400 37 L 450 37 L 450 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="451" y="23"/>
+<path d="M 450 30 L 450 23 L 500 23 L 500 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 500 30 L 500 37 L 550 37 L 550 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="551" y="23"/>
+<path d="M 550 30 L 550 23 L 600 23 L 600 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 600 30 L 600 37 L 650 37 L 650 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="651" y="23"/>
+<path d="M 650 30 L 650 23 L 700 23 L 700 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 700 30 L 700 37 L 750 37 L 750 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="751" y="23"/>
+<path d="M 750 30 L 750 23 L 800 23 L 800 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 800 30 L 800 37 L 850 37 L 850 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="851" y="23"/>
+<path d="M 850 30 L 850 23 L 900 23 L 900 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 900 30 L 900 37 L 950 37 L 950 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="951" y="23"/>
+<path d="M 950 30 L 950 23 L 1000 23 L 1000 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1000 30 L 1000 37 L 1050 37 L 1050 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1051" y="23"/>
+<path d="M 1050 30 L 1050 23 L 1100 23 L 1100 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1100 30 L 1100 37 L 1150 37 L 1150 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="50">
+.input
+<title>top.input</title>
+</text>
+<path d="M 200 50 L 200 57 L 351 57 L 351 50" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="98" x="352" y="43"/>
+<path d="M 351 50 L 351 43 L 451 43 L 451 50" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 451 50 L 451 57 L 551 57 L 551 50" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="198" x="552" y="43"/>
+<path d="M 551 50 L 551 43 L 751 43 L 751 50" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 751 50 L 751 57 L 951 57 L 951 50" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="98" x="952" y="43"/>
+<path d="M 951 50 L 951 43 L 1051 43 L 1051 50" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1051 50 L 1051 57 L 1150 57 L 1150 50" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="70">
+.outputs
+<title>top.outputs</title>
+</text>
+<path d="M 200 70 L 200 77 L 951 77 L 951 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="97" x="952" y="63"/>
+<path d="M 951 70 L 951 63 L 1050 63 L 1050 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1050 70 L 1050 77 L 1150 77 L 1150 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="90">
+.reset
+<title>top.reset</title>
+</text>
+<rect fill="#1C400C" height="14" stroke="none" width="49" x="201" y="83"/>
+<path d="M 200 90 L 200 83 L 251 83 L 251 90" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 251 90 L 251 97 L 1150 97 L 1150 90" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="110">
+.state.dff.input
+<title>top.state.dff.input</title>
+</text>
+<path d="M 200 110 L 203 103 L 347 103 L 350 110 L 347 117 L 203 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="275" xml:space="preserve" y="110">
+OneZero
+<title>OneZero</title>
+</text>
+<path d="M 351 110 L 354 103 L 448 103 L 451 110 L 448 117 L 354 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="401" xml:space="preserve" y="110">
+NoZeros
+<title>NoZeros</title>
+</text>
+<path d="M 451 110 L 454 103 L 547 103 L 550 110 L 547 117 L 454 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="500" xml:space="preserve" y="110">
+OneZero
+<title>OneZero</title>
+</text>
+<path d="M 551 110 L 554 103 L 748 103 L 751 110 L 748 117 L 554 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="651" xml:space="preserve" y="110">
+NoZeros
+<title>NoZeros</title>
+</text>
+<path d="M 751 110 L 754 103 L 847 103 L 850 110 L 847 117 L 754 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="800" xml:space="preserve" y="110">
+OneZero
+<title>OneZero</title>
+</text>
+<path d="M 850 110 L 853 103 L 948 103 L 951 110 L 948 117 L 853 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="900" xml:space="preserve" y="110">
+TwoZeroes
+<title>TwoZeroes</title>
+</text>
+<path d="M 951 110 L 954 103 L 1048 103 L 1051 110 L 1048 117 L 954 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1001" xml:space="preserve" y="110">
+NoZeros
+<title>NoZeros</title>
+</text>
+<path d="M 1051 110 L 1054 103 L 1147 103 L 1150 110 L 1147 117 L 1054 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1100" xml:space="preserve" y="110">
+OneZero
+<title>OneZero</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="130">
+   #NoZeros
+<title>top.state.dff.input#NoZeros</title>
+</text>
+<path d="M 351 130 L 354 123 L 448 123 L 451 130 L 448 137 L 354 137 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="401" xml:space="preserve" y="130">
+<title></title>
+</text>
+<path d="M 551 130 L 554 123 L 748 123 L 751 130 L 748 137 L 554 137 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="651" xml:space="preserve" y="130">
+<title></title>
+</text>
+<path d="M 951 130 L 954 123 L 1048 123 L 1051 130 L 1048 137 L 954 137 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1001" xml:space="preserve" y="130">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="150">
+   #OneZero
+<title>top.state.dff.input#OneZero</title>
+</text>
+<path d="M 200 150 L 203 143 L 347 143 L 350 150 L 347 157 L 203 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="275" xml:space="preserve" y="150">
+<title></title>
+</text>
+<path d="M 451 150 L 454 143 L 547 143 L 550 150 L 547 157 L 454 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="500" xml:space="preserve" y="150">
+<title></title>
+</text>
+<path d="M 751 150 L 754 143 L 847 143 L 850 150 L 847 157 L 754 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="800" xml:space="preserve" y="150">
+<title></title>
+</text>
+<path d="M 1051 150 L 1054 143 L 1147 143 L 1150 150 L 1147 157 L 1054 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1100" xml:space="preserve" y="150">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="170">
+   #TwoZeroes
+<title>top.state.dff.input#TwoZeroes</title>
+</text>
+<path d="M 850 170 L 853 163 L 948 163 L 951 170 L 948 177 L 853 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="900" xml:space="preserve" y="170">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="190">
+.state.dff.output
+<title>top.state.dff.output</title>
+</text>
+<path d="M 200 190 L 203 183 L 347 183 L 350 190 L 347 197 L 203 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="275" xml:space="preserve" y="190">
+NoZeros
+<title>NoZeros</title>
+</text>
+<path d="M 350 190 L 353 183 L 447 183 L 450 190 L 447 197 L 353 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="400" xml:space="preserve" y="190">
+OneZero
+<title>OneZero</title>
+</text>
+<path d="M 450 190 L 453 183 L 547 183 L 550 190 L 547 197 L 453 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="500" xml:space="preserve" y="190">
+NoZeros
+<title>NoZeros</title>
+</text>
+<path d="M 550 190 L 553 183 L 647 183 L 650 190 L 647 197 L 553 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="600" xml:space="preserve" y="190">
+OneZero
+<title>OneZero</title>
+</text>
+<path d="M 650 190 L 653 183 L 847 183 L 850 190 L 847 197 L 653 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="750" xml:space="preserve" y="190">
+NoZeros
+<title>NoZeros</title>
+</text>
+<path d="M 850 190 L 853 183 L 947 183 L 950 190 L 947 197 L 853 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="900" xml:space="preserve" y="190">
+OneZero
+<title>OneZero</title>
+</text>
+<path d="M 950 190 L 953 183 L 1047 183 L 1050 190 L 1047 197 L 953 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1000" xml:space="preserve" y="190">
+TwoZeroes
+<title>TwoZeroes</title>
+</text>
+<path d="M 1050 190 L 1053 183 L 1147 183 L 1150 190 L 1147 197 L 1053 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1100" xml:space="preserve" y="190">
+NoZeros
+<title>NoZeros</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="210">
+   #NoZeros
+<title>top.state.dff.output#NoZeros</title>
+</text>
+<path d="M 200 210 L 203 203 L 347 203 L 350 210 L 347 217 L 203 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="275" xml:space="preserve" y="210">
+<title></title>
+</text>
+<path d="M 450 210 L 453 203 L 547 203 L 550 210 L 547 217 L 453 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="500" xml:space="preserve" y="210">
+<title></title>
+</text>
+<path d="M 650 210 L 653 203 L 847 203 L 850 210 L 847 217 L 653 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="750" xml:space="preserve" y="210">
+<title></title>
+</text>
+<path d="M 1050 210 L 1053 203 L 1147 203 L 1150 210 L 1147 217 L 1053 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1100" xml:space="preserve" y="210">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="230">
+   #OneZero
+<title>top.state.dff.output#OneZero</title>
+</text>
+<path d="M 350 230 L 353 223 L 447 223 L 450 230 L 447 237 L 353 237 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="400" xml:space="preserve" y="230">
+<title></title>
+</text>
+<path d="M 550 230 L 553 223 L 647 223 L 650 230 L 647 237 L 553 237 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="600" xml:space="preserve" y="230">
+<title></title>
+</text>
+<path d="M 850 230 L 853 223 L 947 223 L 950 230 L 947 237 L 853 237 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="900" xml:space="preserve" y="230">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="250">
+   #TwoZeroes
+<title>top.state.dff.output#TwoZeroes</title>
+</text>
+<path d="M 950 250 L 953 243 L 1047 243 L 1050 250 L 1047 257 L 953 257 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1000" xml:space="preserve" y="250">
+<title></title>
+</text>
+</svg>
+</p></div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.DFF.html" title="struct rhdl_fpga::core::dff::DFF">DFF</a></dt><dd>Basic Digital Flip Flop</dd></dl></section></div></main></body></html>

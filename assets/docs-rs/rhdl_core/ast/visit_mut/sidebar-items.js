@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["visit_mut_block","visit_mut_expr","visit_mut_kernel_fn","visit_mut_local","visit_mut_match_arm","visit_mut_pat","visit_mut_stmt"],"trait":["VisitorMut"]};

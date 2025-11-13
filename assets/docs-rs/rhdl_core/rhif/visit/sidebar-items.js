@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["visit_object_slots","visit_object_slots_mut","visit_slots","visit_slots_mut"]};

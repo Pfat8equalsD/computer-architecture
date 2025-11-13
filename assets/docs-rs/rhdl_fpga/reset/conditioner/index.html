@@ -1,0 +1,500 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Reset Conditioner"><title>rhdl_fpga::reset::conditioner - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rhdl_fpga" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module conditioner</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../rhdl_fpga/index.html">rhdl_<wbr>fpga</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module conditioner</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#example" title="Example">Example</a></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In rhdl_<wbr>fpga::<wbr>reset</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">rhdl_fpga</a>::<wbr><a href="../index.html">reset</a></div><h1>Module <span>conditioner</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/rhdl_fpga/reset/conditioner.rs.html#1-303">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Reset Conditioner</p>
+<p>Given a reset signal in domain W that is asynchronous to
+the clock of domain R, generate a reset signal in domain R
+that is synchronous to the clock of domain R.</p>
+<p>Here is the schematic symbol for the reset conditioner</p>
+<p></p><div style="text-align:center;"><svg viewBox="0 0 310 105" width="310px" xmlns="http://www.w3.org/2000/svg">
+<path d="M55,7.5 M55,7.5 C58.505276,7.5,62.01055,7.5,65,7.5 M235,7.5 M235,7.5 C242.49123,7.5,249.98245,7.5,255,7.5 M5,37.5 M5,37.5 C14.714304,37.5,24.428608,37.5,45,37.5 M255,37.5 M255,37.5 C263.2137,37.5,271.42743,37.5,295,37.5 M265,67.5 M265,67.5 C273.29712,67.5,281.5942,67.5,305,67.5 M55,7.5 M55,7.5 C55,39.991337,55,72.48267,55,97.5 M255,7.5 M255,7.5 C255,42.89543,255,78.29086,255,97.5 M55,97.5 M55,97.5 C116.57454,97.5,178.14908,97.5,255,97.5 M45,33 M45,33 C48.7304,34.67868,52.4608,36.35736,55,37.5 M55,37.5 C52.483612,38.632374,49.967224,39.76475,45,42 M45,42 C45,38.839867,45,35.679737,45,33 M295,33 M295,33 C297.51587,34.13215,300.03177,35.264294,305,37.5 M305,37.5 C301.42316,39.109585,297.84628,40.71917,295,42 M295,42 C295,39.993202,295,37.986404,295,33 M265,63 M265,63 C262.8426,63.970833,260.68518,64.941666,255,67.5 M255,67.5 C257.02866,68.4129,259.05734,69.3258,265,72 M265,72 C265,69.69169,265,67.38338,265,63" fill="none" stroke="currentColor" stroke-width="1"/>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="7.5">
+R
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="7.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="7.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="7.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="7.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="125" y="7.5">
+C
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="135" y="7.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="145" y="7.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="155" y="7.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="165" y="7.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="175" y="7.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="7.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="195" y="7.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="205" y="7.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="215" y="7.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="225" y="7.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="37.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="37.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="37.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="37.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="37.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="195" y="37.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="205" y="37.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="215" y="37.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="225" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="67.5">
+c
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="195" y="67.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="205" y="67.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="215" y="67.5">
+c
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="225" y="67.5">
+k
+</text>
+</svg></div><p></p>
+<p>Internal circuitry</p>
+<p>The internal circuitry of the reset conditioner is
+show below.  The reset conditioner is essentially a
+[Sync1Bit] one-bit synchronizer, with a constant
+input (and inverted output).  The difference is that
+the resets of both flip flops are tied to the input
+reset.</p>
+<p></p><div style="text-align:center;"><svg viewBox="0 0 480 135" width="480px" xmlns="http://www.w3.org/2000/svg">
+<path d="M115.74456,7.8446527 M115.743996,7.3801293 C143.44586,9.29594,171.83606,8.785587,193.41696,7.2238307 M114.915375,7.7817225 C135.27408,6.4714265,155.82542,6.977507,194.59538,6.8722835 M254.4239,5.6656218 M256.02335,8.846221 C272.48862,9.93531,289.16635,7.6024084,336.17606,7.4141617 M255.60617,6.553427 C272.14203,8.570674,291.72504,9.121499,335.05496,8.310745 M74.66119,37.639706 M73.265625,35.648552 C81.81578,38.871487,86.49578,36.41698,104.156395,39.238876 M74.145454,36.985542 C84.93834,37.906853,96.86295,37.36103,105.5513,37.789204 M195.96246,36.064762 M196.71315,36.269863 C208.08728,39.89746,225.70502,39.58372,244.43524,38.952946 M194.80542,38.093372 C210.07388,38.159966,225.76962,37.77144,244.81136,38.372036 M334.5898,37.304516 M336.96298,37.981518 C352.11038,37.60142,366.90677,38.58905,384.84882,36.39453 M334.29395,38.43625 C351.6406,38.333,367.75693,37.481667,385.80115,36.7629 M395.21954,8.295328 M393.82483,9.257323 C401.1566,15.648354,406.4123,21.90136,413.2918,39.418694 M395.91254,8.337383 C401.48077,16.99178,407.29416,26.526276,414.30545,37.93201 M396.2918,69.12585 M395.69107,66.97416 C400.46222,59.427734,408.52512,47.999855,414.87903,36.06547 M394.94086,66.84516 C400.787,58.94039,404.43094,51.978035,415.5351,38.36293 M433.30957,35.792946 M434.63828,36.064163 C448.02042,35.672596,460.27127,37.94316,473.3113,39.493324 M435.75446,37.01277 C445.77737,35.958374,456.2082,37.525578,475.25708,37.356815 M396.54767,5.6205573 M394.78952,6.6295786 C395.11288,21.873579,394.1339,35.07783,393.40445,66.44158 M395.43634,8.089199 C396.8949,29.062103,396.42166,48.568653,394.02948,67.75037 M113.40811,7.359603 M116.468185,8.400138 C114.98424,36.419376,113.54266,63.675957,113.226456,81.76188 M115.909195,8.156117 C113.490005,34.496628,113.87411,63.43775,115.56632,82.56023 M193.54922,7.6661773 M196.83409,6.343752 C195.03523,33.722248,195.82402,57.775177,194.22339,83.89518 M194.71461,7.9138827 C194.37448,34.97212,194.00743,62.05825,194.00966,81.56998 M116.93698,83.64867 M115.734726,81.66842 C134.68951,82.17422,155.53249,80.32062,196.13725,80.984375 M114.80832,83.30498 C139.16753,82.69442,162.78036,84.01556,194.45334,82.23712 M255.6045,5.9176903 M256.8961,7.4284477 C251.7149,32.211338,253.76263,58.665855,256.42422,82.17359 M254.20558,7.3930435 C254.76729,36.576523,255.43312,65.558975,254.11507,82.45054 M336.96375,8.34218 M336.2044,7.037994 C333.16696,21.778452,335.9336,41.160736,334.20047,83.3394 M335.84592,6.7267327 C334.66833,36.95833,333.85812,66.52502,334.98212,81.72257 M253.98639,82.5466 M253.48866,82.37404 C273.42578,82.61932,296.07788,82.84797,333.94302,82.47905 M255.83093,82.321594 C282.5485,83.951324,307.76578,83.93388,334.85757,81.75282 M153.07097,97.452255 M153.15747,98.36102 C155.56267,104.57883,156.9835,114.56622,155.85098,128.19377 M155.75005,97.66253 C155.5723,104.689186,154.20654,112.983246,154.65584,127.85082 M296.39685,96.013466 M295.75558,96.00529 C293.01508,104.647514,295.99786,113.070885,295.3227,128.75691 M295.92578,98.44607 C294.41556,104.96243,295.27722,113.67127,295.68127,127.6822 M55.872883,129.21269 M55.55299,126.553734 C146.08986,126.315445,238.16249,125.8263,293.47833,127.85558 M55.29989,128.30708 C128.30171,127.06683,200.3584,127.256226,295.0606,127.2007 M106.98771,33.65899 M105.69126,32.694168 C109.076614,34.89731,112.55991,36.052193,114.89154,37.574226 M104.66714,32.929176 C107.48069,34.13016,110.33217,35.660492,114.98284,37.211338 M114.41808,36.90204 C111.07153,40.001442,109.191475,39.668514,104.898346,42.144947 M114.46844,37.110363 C112.29422,38.719894,109.09586,40.043972,104.93485,42.19458 M105.38882,41.41698 C104.324394,39.971584,104.53963,36.724674,105.28833,33.260983 M105.08564,41.69881 C105.26205,38.410984,105.25954,35.044724,105.2738,32.835014 M245.65189,31.084553 M245.99046,33.48346 C248.92036,33.79772,251.38814,37.43084,255.02426,36.858673 M244.72049,32.983147 C248.90248,34.382664,252.97594,36.24527,254.95439,37.71588 M256.0125,37.101948 C252.53967,38.08352,248.8012,40.075287,244.76857,41.777847 M255.53493,37.930218 C250.79329,39.616436,247.174,40.509975,244.68654,41.503056 M245.1891,42.104313 C244.42613,39.562027,245.75703,36.53961,245.43332,33.711685 M244.8473,42.362003 C245.06529,39.626144,245.53229,36.27776,245.26967,32.872368 M385.02603,33.38118 M384.88922,33.105446 C388.50668,34.18625,392.06204,36.95479,395.69196,37.312603 M384.98868,32.886726 C389.36606,34.615456,392.4377,36.4354,394.93338,37.82973 M394.63605,36.990273 C392.01147,37.71491,391.12927,39.78276,385.0702,41.774113 M395.49823,37.62272 C392.72128,38.366486,390.66385,39.124985,385.31674,41.848595 M385.62106,42.53656 C384.44525,39.591698,385.37756,38.483612,385.09375,33.238617 M384.8299,41.936634 C385.40677,39.256588,385.33792,36.32831,384.97488,32.8243 M473.4365,31.158842 M474.06976,32.974586 C478.5657,34.3637,480.99875,34.66235,483.94815,36.97473 M475.47708,33.1499 C477.73666,34.030296,481.25272,36.092422,485.39236,37.847702 M485.17648,36.52263 C482.1,38.258263,480.82068,38.594276,475.26724,41.466736 M485.48764,37.902782 C481.0013,38.691925,477.96283,40.712776,475.13544,42.222176 M475.876,41.813404 C475.02496,38.8287,474.36105,35.065876,475.41666,33.715866 M475.2946,41.678555 C474.95102,39.622658,474.9209,37.019894,474.68933,33.04267 M151.28897,96.9737 M148.96165,99.01152 C150.69969,93.0632,153.86746,85.02519,154.5395,81.08514 M150.61638,97.665596 C150.46304,94.96035,152.36263,91.20453,155.0837,82.9909 M154.71344,82.16875 C156.48053,86.990456,158.4443,89.658394,159.83965,98.12395 M154.4867,83.15244 C155.80797,86.086716,157.48477,91.164696,160.73064,96.94411 M160.84883,98.47288 C156.48967,97.200226,152.858,98.20709,150.79877,98.37767 M159.81927,97.413956 C157.12997,97.416016,152.99202,97.171715,149.87672,97.63209 M289.6135,98.91609 M288.71027,97.34868 C293.13214,92.91847,293.05585,89.10572,294.90335,81.4533 M289.6869,98.276825 C291.0428,93.938446,291.93652,90.50065,294.64215,83.23009 M296.1076,81.74389 C297.11456,85.62084,297.77283,89.2516,299.51166,96.02427 M295.67377,83.25517 C297.4982,86.77996,297.74832,92.625114,300.72092,98.141014 M300.76605,96.97833 C296.7821,96.93709,294.66528,96.79158,289.17123,98.15229 M300.45193,97.395294 C296.9636,97.59759,294.77353,96.87772,290.31555,97.71974" fill="none" stroke="currentColor" stroke-width="1"/>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="55" y="37.5">
+1
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="125" y="37.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="37.5">
+q
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="265" y="37.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="325" y="37.5">
+q
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="425" y="37.5">
+○
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="155" y="67.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="295" y="67.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="5" y="112.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="15" y="112.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="112.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="112.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="45" y="112.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="112.5">
+(
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="112.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="112.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="112.5">
+)
+</text>
+</svg></div><p></p>
+<p>Timing</p>
+<p>The behavior of the <a href="struct.ResetConditioner.html" title="struct rhdl_fpga::reset::conditioner::ResetConditioner">ResetConditioner</a> is roughly depicted
+below.</p>
+<p></p><div style="text-align:center;"><svg viewBox="0 0 490 135" width="490px" xmlns="http://www.w3.org/2000/svg">
+<path d="M195.74457,22.844652 M195.744,22.380129 C223.44586,24.29594,251.83606,23.785587,273.41696,22.223831 M194.91537,22.781723 C215.27408,21.471428,235.82542,21.977509,274.59537,21.872284 M194.4239,20.665623 M195.76752,23.509666 C195.39731,26.879725,194.9498,28.369001,195.88203,37.435623 M195.45462,21.79007 C194.30525,25.518257,195.51416,29.300959,195.04123,38.10806 M134.6612,37.639706 M133.26563,35.648552 C147.94551,38.93742,158.75523,36.482914,194.15639,39.238876 M134.14545,36.985542 C155.46504,37.70356,177.91637,37.157738,195.5513,37.789204 M275.96246,21.064762 M276.28488,21.577398 C273.5758,28.329102,275.71445,32.52366,274.57642,38.58971 M274.85406,22.94503 C274.3255,27.59368,274.23923,32.045525,274.85852,38.154026 M274.5898,37.304516 M276.73392,37.925327 C345.62338,36.538803,414.20282,37.411182,484.86646,36.523533 M274.37634,38.326996 C342.68414,39.550945,409.9052,38.798958,485.70764,36.848915 M185.21954,68.29533 M183.82483,69.257324 C198.1274,67.55333,210.89664,66.29282,233.29181,69.41869 M185.91255,68.33739 C200.66286,67.99216,216.04256,67.96035,234.30544,67.93201 M286.2918,69.12585 M285.69107,66.97416 C299.57254,68.23146,316.6925,65.86066,334.87903,66.065475 M284.94086,66.84516 C297.64838,65.76898,308.69742,66.21169,335.5351,68.36293 M383.30957,65.792946 M384.63828,66.06416 C401.03952,65.63705,416.30945,67.90761,433.3113,69.493324 M385.75446,67.01277 C398.3706,65.8158,411.39465,67.383,435.25708,67.35682 M186.54765,65.62056 M184.84213,66.84718 C184.63306,70.986496,183.89883,73.596,183.80333,81.706184 M185.32724,67.9419 C185.85292,73.33596,185.49802,77.63027,184.2721,82.687775 M133.40811,82.359604 M136.46819,83.40014 C154.52336,84.10739,171.20201,84.183655,183.22646,81.76188 M135.9092,83.15612 C152.77377,80.670135,171.71793,81.77117,185.56631,82.56023 M233.54922,67.666176 M236.37558,66.63281 C235.44774,73.807205,236.03932,78.48743,234.41754,83.54639 M234.78596,67.81041 C235.17453,73.02351,234.89925,78.25754,234.25723,81.80248 M286.93698,68.64867 M285.55106,66.87631 C284.8446,71.7219,285.68118,74.030624,285.85294,81.36328 M284.85623,68.10374 C284.8984,71.61269,284.36182,77.16511,284.59,82.30284 M235.6045,80.91769 M236.89609,82.42845 C250.04764,81.131355,268.93213,82.33073,286.42422,82.17359 M234.20558,82.39304 C253.9377,81.46908,274.0698,81.25211,284.11505,82.45054 M336.96375,68.34218 M335.90332,67.153496 C334.1184,69.383026,336.1934,75.093925,334.40036,83.12955 M335.63443,66.92005 C335.23135,73.517746,334.6237,79.61676,334.9866,81.91693 M383.9864,67.5466 M383.8665,67.40553 C383.56238,71.59984,385.5133,75.53087,384.20728,82.48429 M385.6232,67.366196 C385.66623,73.22999,384.5948,78.21301,384.8932,81.93961 M333.07095,82.452255 M333.15747,83.36102 C348.4665,81.20239,363.3654,83.102974,385.85098,83.19376 M335.75003,82.66253 C348.9331,81.890884,360.68408,82.314896,384.65582,82.85082 M436.39685,66.013466 M435.5667,66.37897 C433.51413,70.68692,435.75122,74.83073,435.242,83.44269 M435.69434,68.20955 C434.56094,71.043274,435.20718,75.52135,435.51096,82.63665 M435.8729,84.21269 M435.6636,81.36443 C454.14026,82.89832,474.45984,82.31133,483.17392,82.92672 M435.3599,83.46854 C450.80063,81.67754,465.10715,81.904816,485.07272,82.14082 M196.98772,113.15899 M196.26074,111.942215 C269.86404,114.009056,343.7258,112.88961,384.8022,112.635376 M194.39291,112.37083 C246.44655,110.60115,298.5442,111.15136,384.96872,111.973526 M195.2106,113.52269 M193.81105,113.99534 C195.32784,116.21008,194.70175,121.86147,195.33084,127.31288 M195.71951,112.26341 C195.45905,116.1692,194.62004,120.92019,194.74916,127.932976 M136.02147,128.36404 M134.20787,126.43924 C149.75395,127.58585,165.04858,126.66393,196.97485,127.88061 M135.50835,127.68815 C149.5926,127.317474,163.29424,126.72638,195.50034,126.88116 M383.15762,114.306465 M384.2383,113.9996 C385.16333,116.78406,386.16034,124.2312,385.47974,126.73532 M385.70834,112.48786 C385.00937,117.2492,385.30682,121.96417,384.58118,128.1925 M384.27402,128.93411 M384.5779,127.094826 C409.22662,127.92273,431.68802,129.98946,486.5693,125.82381 M384.4283,126.59365 C421.06577,129.7235,457.01135,129.45406,485.1159,126.958275" fill="none" stroke="currentColor" stroke-width="1"/>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="135" y="7.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="145" y="7.5">
+0
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="195" y="7.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="205" y="7.5">
+1
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="275" y="7.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="285" y="7.5">
+2
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="7.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="395" y="7.5">
+3
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="5" y="37.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="15" y="37.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="37.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="37.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="45" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="37.5">
+(
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="37.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="37.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="37.5">
+)
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="195" y="52.5">
+:
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="285" y="52.5">
+:
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="52.5">
+:
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="5" y="82.5">
+c
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="15" y="82.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="82.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="82.5">
+c
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="45" y="82.5">
+k
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="195" y="97.5">
+:
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="285" y="97.5">
+:
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="97.5">
+:
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="5" y="127.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="15" y="127.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="127.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="127.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="45" y="127.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="127.5">
+(
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="127.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="127.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="127.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="127.5">
+)
+</text>
+</svg></div><p></p>
+<p>The behavior is as follows.</p>
+<ul>
+<li>In steady state, the output is zero (due to the inverter) at <code>t0</code></li>
+<li>When the reset signal is asserted, both flops immediately go into reset
+and the output goes high (again, due to the inverter) at <code>t1</code></li>
+<li>When the reset is released, the circuit behaves like a 1-bit
+synchronizer that “sees” a transition from <code>0 -&gt; 1</code> at that
+instant at <code>t2</code>.</li>
+<li>Depending on the timing of that transition relative to the
+clock cycle, it may take either 1 or 2 clocks for the transition
+to propagate to the output.  This depends on the difference
+between <code>t2</code> and the next positive edge.  In this case, we assume
+it is missed (arrives too close to the edge)</li>
+<li>The <em>start</em> and <em>duration</em> of the reset pulse are thus not
+deterministic.</li>
+<li>The <em>end</em> of the reset pulse, however, is aligned to a clock
+edge, which is (generally) the important characteristic for an
+synchronous reset.  This is the time <code>t3</code></li>
+</ul>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
+<p>On it’s own, a <a href="struct.ResetConditioner.html" title="struct rhdl_fpga::reset::conditioner::ResetConditioner">ResetConditioner</a> is not particularly useful.<br />
+But here is an example of how it operates with resets generated
+in a different time domain from the one they are being crossed to.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>rand::{Rng, SeedableRng};
+<span class="kw">use </span>rhdl::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>rhdl_fpga::{
+    doc::write_svg_as_markdown,
+    reset::conditioner::{In, ResetConditioner},
+};
+
+<span class="kw">fn </span>sync_stream() -&gt; <span class="kw">impl </span>Iterator&lt;Item = TimedSample&lt;In&lt;Red, Blue&gt;&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>rng = rand::rngs::StdRng::seed_from_u64(<span class="number">0xdead_beef</span>);
+    <span class="comment">// Assume the red stuff comes on the edges of a clock
+    </span><span class="kw">let </span>red = (<span class="number">0</span>..)
+        .map(<span class="kw">move </span>|<span class="kw">_</span>| rng.random::&lt;u8&gt;() &gt; <span class="number">150</span>)
+        .take(<span class="number">100</span>)
+        .with_reset(<span class="number">1</span>)
+        .clock_pos_edge(<span class="number">50</span>);
+    <span class="kw">let </span>blue = std::iter::repeat(<span class="bool-val">false</span>).with_reset(<span class="number">1</span>).clock_pos_edge(<span class="number">79</span>);
+    red.merge(blue, |r, g| In {
+        reset: signal(reset(r.<span class="number">1</span>)),
+        clock: signal(g.<span class="number">0</span>.clock),
+    })
+}
+
+<span class="kw">fn </span>main() -&gt; <span class="prelude-ty">Result</span>&lt;(), RHDLError&gt; {
+    <span class="kw">let </span>uut = ResetConditioner::&lt;Red, Blue&gt;::default();
+    <span class="kw">let </span>input = sync_stream();
+    <span class="kw">let </span>vcd = uut
+        .run(input)<span class="question-mark">?
+        </span>.take_while(|t| t.time &lt; <span class="number">1400</span>)
+        .collect::&lt;Vcd&gt;();
+    write_svg_as_markdown(vcd, <span class="string">"reset_conditioner.md"</span>, SvgOptions::default())<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div>
+<p>The resulting trace file is here.</p>
+<p>
+<svg viewBox="0 0 1576 80" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<clipPath id="clip">
+<rect height="80" width="1576" x="0" y="0"/>
+</clipPath>
+</defs>
+<rect fill="#0B151D" height="80" stroke="darkblue" width="1576" x="0" y="0"/>
+<line stroke="#333333" stroke-width="1" x1="200" x2="200" y1="0" y2="80"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="200" y="10">
+0
+</text>
+<line stroke="#333333" stroke-width="1" x1="300" x2="300" y1="0" y2="80"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="300" y="10">
+100
+</text>
+<line stroke="#333333" stroke-width="1" x1="400" x2="400" y1="0" y2="80"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="400" y="10">
+200
+</text>
+<line stroke="#333333" stroke-width="1" x1="500" x2="500" y1="0" y2="80"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="500" y="10">
+300
+</text>
+<line stroke="#333333" stroke-width="1" x1="600" x2="600" y1="0" y2="80"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="600" y="10">
+400
+</text>
+<line stroke="#333333" stroke-width="1" x1="700" x2="700" y1="0" y2="80"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="700" y="10">
+500
+</text>
+<line stroke="#333333" stroke-width="1" x1="800" x2="800" y1="0" y2="80"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="800" y="10">
+600
+</text>
+<line stroke="#333333" stroke-width="1" x1="900" x2="900" y1="0" y2="80"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="900" y="10">
+700
+</text>
+<line stroke="#333333" stroke-width="1" x1="1000" x2="1000" y1="0" y2="80"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1000" y="10">
+800
+</text>
+<line stroke="#333333" stroke-width="1" x1="1100" x2="1100" y1="0" y2="80"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1100" y="10">
+900
+</text>
+<line stroke="#333333" stroke-width="1" x1="1200" x2="1200" y1="0" y2="80"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1200" y="10">
+1000
+</text>
+<line stroke="#333333" stroke-width="1" x1="1300" x2="1300" y1="0" y2="80"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1300" y="10">
+1100
+</text>
+<line stroke="#333333" stroke-width="1" x1="1400" x2="1400" y1="0" y2="80"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1400" y="10">
+1200
+</text>
+<line stroke="#333333" stroke-width="1" x1="1500" x2="1500" y1="0" y2="80"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1500" y="10">
+1300
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" y="10">
+Time:
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="30">
+.clock
+<title>top.clock</title>
+</text>
+<path d="M 200 30 L 200 37 L 239 37 L 239 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="37" x="240" y="23"/>
+<path d="M 239 30 L 239 23 L 278 23 L 278 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 278 30 L 278 37 L 317 37 L 317 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="37" x="318" y="23"/>
+<path d="M 317 30 L 317 23 L 356 23 L 356 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 356 30 L 356 37 L 395 37 L 395 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="37" x="396" y="23"/>
+<path d="M 395 30 L 395 23 L 434 23 L 434 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 434 30 L 434 37 L 473 37 L 473 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="37" x="474" y="23"/>
+<path d="M 473 30 L 473 23 L 512 23 L 512 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 512 30 L 512 37 L 551 37 L 551 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="37" x="552" y="23"/>
+<path d="M 551 30 L 551 23 L 590 23 L 590 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 590 30 L 590 37 L 629 37 L 629 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="37" x="630" y="23"/>
+<path d="M 629 30 L 629 23 L 668 23 L 668 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 668 30 L 668 37 L 707 37 L 707 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="37" x="708" y="23"/>
+<path d="M 707 30 L 707 23 L 746 23 L 746 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 746 30 L 746 37 L 785 37 L 785 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="37" x="786" y="23"/>
+<path d="M 785 30 L 785 23 L 824 23 L 824 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 824 30 L 824 37 L 863 37 L 863 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="37" x="864" y="23"/>
+<path d="M 863 30 L 863 23 L 902 23 L 902 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 902 30 L 902 37 L 941 37 L 941 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="37" x="942" y="23"/>
+<path d="M 941 30 L 941 23 L 980 23 L 980 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 980 30 L 980 37 L 1019 37 L 1019 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="37" x="1020" y="23"/>
+<path d="M 1019 30 L 1019 23 L 1058 23 L 1058 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1058 30 L 1058 37 L 1097 37 L 1097 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="37" x="1098" y="23"/>
+<path d="M 1097 30 L 1097 23 L 1136 23 L 1136 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1136 30 L 1136 37 L 1175 37 L 1175 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="37" x="1176" y="23"/>
+<path d="M 1175 30 L 1175 23 L 1214 23 L 1214 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1214 30 L 1214 37 L 1253 37 L 1253 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="37" x="1254" y="23"/>
+<path d="M 1253 30 L 1253 23 L 1292 23 L 1292 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1292 30 L 1292 37 L 1331 37 L 1331 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="37" x="1332" y="23"/>
+<path d="M 1331 30 L 1331 23 L 1370 23 L 1370 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1370 30 L 1370 37 L 1409 37 L 1409 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="37" x="1410" y="23"/>
+<path d="M 1409 30 L 1409 23 L 1448 23 L 1448 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1448 30 L 1448 37 L 1487 37 L 1487 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="37" x="1488" y="23"/>
+<path d="M 1487 30 L 1487 23 L 1526 23 L 1526 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1526 30 L 1526 37 L 1565 37 L 1565 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="9" x="1566" y="23"/>
+<path d="M 1565 30 L 1565 23 L 1576 23 L 1576 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="50">
+.output
+<title>top.output</title>
+</text>
+<path d="M 200 50 L 200 57 L 376 57 L 376 50" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="329" x="377" y="43"/>
+<path d="M 376 50 L 376 43 L 707 43 L 707 50" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 707 50 L 707 57 L 1126 57 L 1126 50" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="203" x="1127" y="43"/>
+<path d="M 1126 50 L 1126 43 L 1331 43 L 1331 50" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1331 50 L 1331 57 L 1376 57 L 1376 50" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="187" x="1377" y="43"/>
+<path d="M 1376 50 L 1376 43 L 1565 43 L 1565 50" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1565 50 L 1565 57 L 1576 57 L 1576 50" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="70">
+.reset
+<title>top.reset</title>
+</text>
+<path d="M 200 70 L 200 77 L 376 77 L 376 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="377" y="63"/>
+<path d="M 376 70 L 376 63 L 426 63 L 426 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 426 70 L 426 77 L 526 77 L 526 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="527" y="63"/>
+<path d="M 526 70 L 526 63 L 576 63 L 576 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 576 70 L 576 77 L 1126 77 L 1126 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1127" y="63"/>
+<path d="M 1126 70 L 1126 63 L 1176 63 L 1176 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1176 70 L 1176 77 L 1376 77 L 1376 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="98" x="1377" y="63"/>
+<path d="M 1376 70 L 1376 63 L 1476 63 L 1476 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1476 70 L 1476 77 L 1576 77 L 1576 70" fill="none" stroke="#56C126" stroke-width="1"/>
+</svg>
+</p></div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.In.html" title="struct rhdl_fpga::reset::conditioner::In">In</a></dt><dd>The inputs to the <a href="struct.ResetConditioner.html" title="struct rhdl_fpga::reset::conditioner::ResetConditioner">ResetConditioner</a>.</dd><dt><a class="struct" href="struct.ResetConditioner.html" title="struct rhdl_fpga::reset::conditioner::ResetConditioner">Reset<wbr>Conditioner</a></dt><dd>The <a href="struct.ResetConditioner.html" title="struct rhdl_fpga::reset::conditioner::ResetConditioner">ResetConditioner</a> circuit.  Here <code>W</code> is the
+domain where the <code>reset</code> circuit originates, and
+<code>R</code> is the domain where the reset is being sent to
+(i.e., is synchronous with).</dd></dl></section></div></main></body></html>

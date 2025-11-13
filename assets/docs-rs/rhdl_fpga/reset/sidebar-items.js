@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["conditioner","negating_conditioner","negation"]};

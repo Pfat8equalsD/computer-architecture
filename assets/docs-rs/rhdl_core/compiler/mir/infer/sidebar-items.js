@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["TypeOperationKind"],"fn":["infer"],"struct":["MirTypeInference","TypeBinOp","TypeIndex","TypeOperation","TypeSelect","TypeUnaryOp"]};

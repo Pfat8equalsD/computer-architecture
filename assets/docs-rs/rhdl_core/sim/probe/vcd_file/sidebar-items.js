@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["vcd_file"],"struct":["VCDFile"]};

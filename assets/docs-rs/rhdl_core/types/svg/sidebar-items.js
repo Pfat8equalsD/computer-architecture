@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["LayoutLabel","SvgOrientation"],"fn":["color_layout","fixed_color","generate_kind_layout","make_lsb_kind"],"mod":["kind_svg"],"struct":["KindLayout","SvgOptions"]};

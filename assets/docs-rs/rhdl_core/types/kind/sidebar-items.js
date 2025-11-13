@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["DiscriminantAlignment","DiscriminantType","Kind"],"struct":["Array","DiscriminantLayout","Enum","Field","Struct","Tuple","Variant"]};

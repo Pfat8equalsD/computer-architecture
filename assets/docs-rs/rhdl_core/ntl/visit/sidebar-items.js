@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["visit_object_wires","visit_object_wires_mut","visit_wires","visit_wires_mut"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["merge"],"struct":["Merge"],"trait":["MergeExt"]};

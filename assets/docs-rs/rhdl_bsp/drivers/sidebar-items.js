@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["get_clock_input","get_clock_output","get_untyped_input","get_untyped_output"],"mod":["lattice","xilinx"]};

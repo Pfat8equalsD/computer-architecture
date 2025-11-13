@@ -1,0 +1,747 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A Stream-to-FIFO buffer"><title>rhdl_fpga::stream::stream_to_fifo - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rhdl_fpga" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module stream_to_fifo</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../rhdl_fpga/index.html">rhdl_<wbr>fpga</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module stream_<wbr>to_<wbr>fifo</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#purpose" title="Purpose">Purpose</a></li><li><a href="#schematic-symbol" title="Schematic Symbol">Schematic Symbol</a></li><li><a href="#internals" title="Internals">Internals</a></li><li><a href="#example" title="Example">Example</a></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In rhdl_<wbr>fpga::<wbr>stream</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">rhdl_fpga</a>::<wbr><a href="../index.html">stream</a></div><h1>Module <span>stream_<wbr>to_<wbr>fifo</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/rhdl_fpga/stream/stream_to_fifo.rs.html#1-269">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A Stream-to-FIFO buffer</p>
+<h2 id="purpose"><a class="doc-anchor" href="#purpose">§</a>Purpose</h2>
+<p>A Stream-to-FIFO buffer is a highly specialized two element
+FIFO backed with a pair of registers instead of a BRAM.<br />
+Note that a FIFO cannot be interfaced to a stream by
+simply setting <code>ready = !full</code>.  This is because the FIFO
+interface contract says that setting <code>data = Some(_)</code> when
+<code>full = true</code> leads to an overflow. The particular use of this
+<a href="struct.StreamToFIFO.html" title="struct rhdl_fpga::stream::stream_to_fifo::StreamToFIFO">StreamToFIFO</a> buffer is to minimize the number of resources
+needed.  As it only requires a couple of registers, it is generally
+far less resource intensive than a full FIFO.</p>
+<h2 id="schematic-symbol"><a class="doc-anchor" href="#schematic-symbol">§</a>Schematic Symbol</h2>
+<p>Here is the schematic symbol for the <a href="struct.StreamToFIFO.html" title="struct rhdl_fpga::stream::stream_to_fifo::StreamToFIFO">StreamToFIFO</a> buffer</p>
+<p></p><div style="text-align:center;"><svg viewBox="0 0 240 120" width="240px" xmlns="http://www.w3.org/2000/svg">
+<path d="M55,7.5 M55,7.5 C58.505276,7.5,62.01055,7.5,65,7.5 M155,7.5 M155,7.5 C166.23685,7.5,177.4737,7.5,185,7.5 M5,37.5 M5,37.5 C14.714304,37.5,24.428608,37.5,45,37.5 M185,7.5 M185,7.5 C185,13.660282,185,19.820564,185,37.5 M185,37.5 M185,37.5 C195.37138,37.5,205.74277,37.5,235,37.5 M5,67.5 M5,67.5 C23.050743,67.5,41.101486,67.5,55,67.5 M195,67.5 M195,67.5 C210.73131,67.5,226.46262,67.5,235,67.5 M185,97.5 M185,97.5 C200.39363,97.5,215.78728,97.5,235,97.5 M55,7.5 M55,7.5 C55,46.669197,55,85.838394,55,112.5 M185,37.5 M185,37.5 C185,54.471752,185,71.443504,185,112.5 M55,112.5 M55,112.5 C106.47151,112.5,157.94302,112.5,185,112.5 M45,33 M45,33 C48.812927,34.715816,52.62585,36.431633,55,37.5 M55,37.5 C52.717262,38.52723,50.43453,39.554462,45,42 M45,42 C45,38.52336,45,35.046722,45,33 M235,33 M235,33 C238.99666,34.7985,242.99333,36.596996,245,37.5 M245,37.5 C242.14319,38.78557,239.28638,40.071133,235,42 M235,42 C235,40.01861,235,38.03722,235,33 M5,63 M5,63 C1.7496357,64.46266,-1.5007286,65.92533,-5,67.5 M-5,67.5 C-1.0923347,69.258446,2.8153305,71.0169,5,72 M5,72 C5,69.06818,5,66.13636,5,63 M195,63 M195,63 C191.15237,64.73143,187.30475,66.46286,185,67.5 M185,67.5 C187.7198,68.72391,190.4396,69.94782,195,72 M195,72 C195,68.986206,195,65.97241,195,63 M235,93 M235,93 C238.72264,94.675186,242.44528,96.35038,245,97.5 M245,97.5 C242.2719,98.727646,239.5438,99.95529,235,102 M235,102 C235,99.41061,235,96.82121,235,93" fill="none" stroke="currentColor" stroke-width="1"/>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="7.5">
+S
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="7.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="7.5">
+m
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="7.5">
+2
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="7.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="125" y="7.5">
+I
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="135" y="7.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="145" y="7.5">
+O
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="15" y="22.5">
+?
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="22.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="205" y="22.5">
+?
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="215" y="22.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="37.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="145" y="37.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="155" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="165" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="175" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="5" y="52.5">
+R
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="15" y="52.5">
+&lt;
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="52.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="52.5">
+&gt;
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="67.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="67.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="67.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="67.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="67.5">
+y
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="145" y="67.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="155" y="67.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="165" y="67.5">
+x
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="175" y="67.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="135" y="97.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="145" y="97.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="155" y="97.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="165" y="97.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="175" y="97.5">
+r
+</text>
+</svg></div><p></p>
+<h2 id="internals"><a class="doc-anchor" href="#internals">§</a>Internals</h2>
+<p>Effectively, the <a href="struct.StreamToFIFO.html" title="struct rhdl_fpga::stream::stream_to_fifo::StreamToFIFO">StreamToFIFO</a> buffer is simply a 2-element FIFO.
+It is implemented with a pair of registers and manual control logic,
+since the general FIFO logic doesn’t work with such small sizes.</p>
+<p>Roughly the internal circuitry is equivalent to this:</p>
+<p></p><div style="text-align:center;"><svg viewBox="0 0 350 75" width="350px" xmlns="http://www.w3.org/2000/svg">
+<path d="M145.74457,7.8446527 M145.744,7.3801293 C162.93004,8.9058075,180.8044,8.395453,193.41696,7.2238307 M144.91537,7.7817225 C157.77296,6.9187956,170.8232,7.424876,194.59538,6.8722835 M244.4239,5.6656218 M246.02335,8.846221 C256.0107,9.592455,266.21054,7.259554,296.17606,7.4141617 M245.60617,6.553427 C255.40286,7.9935083,268.2467,8.544333,295.05496,8.310745 M4.661188,22.639708 M3.265625,20.648552 C32.248203,24.091259,57.360638,21.636753,134.15639,24.238876 M4.1454515,21.985542 C50.027348,22.229202,97.04097,21.683382,135.5513,22.789204 M295.96246,21.064762 M296.71317,21.269863 C308.08728,24.897465,325.70502,24.583723,344.43524,23.952946 M294.80542,23.093374 C310.07385,23.159964,325.76965,22.771439,344.81134,23.372036 M4.589816,52.304516 M6.962986,52.981518 C25.45767,52.52707,43.601353,53.514698,64.848816,51.39453 M4.293954,53.43625 C24.83567,53.42606,44.14707,52.574726,65.80113,51.7629 M95.21955,53.29533 M93.82482,54.257324 C108.12739,52.553333,120.89664,51.29283,143.29181,54.418694 M95.912544,53.337383 C110.66287,52.992157,126.04254,52.96035,144.30544,52.93201 M306.2918,54.12585 M305.69107,51.974155 C316.55353,53.31591,330.65448,50.94511,344.87903,51.06547 M304.94086,51.84516 C315.18002,50.96114,323.7607,51.40385,345.5351,53.36293 M143.30957,5.792946 M144.63829,6.0641613 C146.8031,23.92937,146.97758,44.314487,143.31133,69.493324 M145.75447,7.012773 C144.22067,22.088089,144.27852,39.214714,145.25706,67.35682 M296.54767,5.6205573 M294.78952,6.6295786 C295.11288,21.873579,294.1339,35.07783,293.40445,66.44158 M295.43634,8.089199 C296.8949,29.062103,296.42166,48.568653,294.02948,67.75037 M143.40811,67.359604 M146.46819,68.40014 C200.76378,68.84404,253.68285,68.9203,293.22644,66.76188 M145.9092,68.15612 C199.89389,63.69732,255.95816,64.798355,295.5663,67.56023 M133.54922,18.166178 M136.00563,17.366037 C138.63202,20.646975,142.30316,21.97441,144.57419,23.264967 M134.84352,18.226929 C138.88437,19.619131,142.33902,21.081656,144.457,21.990074 M144.53627,23.201199 C141.48605,23.723059,137.09386,26.347164,135.59071,26.366018 M145.03474,22.228281 C141.25806,24.555454,137.70638,25.391823,134.51955,27.39622 M134.28796,27.330616 C134.14973,25.534359,135.90056,22.55178,134.1949,17.755293 M134.92656,27.401964 C135.02975,24.59224,134.58351,21.319126,134.76215,17.944696 M345.2745,17.320282 M345.46176,17.056488 C346.45502,18.958847,349.88605,19.45387,354.48663,21.530355 M345.23013,18.491936 C348.66656,20.271053,353.36462,21.179615,355.29675,22.625689 M354.1475,21.944242 C352.34552,23.184074,348.78928,25.18354,344.17136,26.930937 M355.18707,22.210236 C352.82724,23.7633,350.62585,24.404295,345.4556,26.902182 M345.865,26.871817 C344.1514,22.619545,344.80237,19.701271,345.86127,18.26065 M344.7732,27.317097 C345.12335,25.320606,345.0786,23.088781,344.81696,17.967714 M6.5000825,48.32506 M4.7183437,47.622597 C1.5070848,50.373356,-3.5090299,51.213295,-5.020469,52.221478 M4.5757976,48.27663 C1.0563056,49.4111,-1.4782805,50.69903,-4.9974074,52.249718 M-5.824392,52.800873 C-1.2710713,55.131115,3.1364799,56.629242,5.939056,57.864716 M-5.3113112,52.55414 C-1.445277,54.337246,1.6649344,54.877045,5.1169834,57.017544 M5.871685,57.57658 C4.202447,53.738316,4.406992,50.92513,4.6767435,48.89447 M4.833054,57.28367 C4.7070303,54.045513,4.8548727,50.8655,4.770464,47.955494 M95.135376,47.46071 M94.85835,47.52827 C92.20155,48.930115,89.95821,50.40628,84.422676,52.615467 M94.70102,47.565407 C92.040146,49.651997,87.66364,51.00325,85.07247,52.62093 M84.220726,53.55202 C87.50397,55.084187,90.12887,55.15134,95.38916,56.633244 M84.64481,52.151714 C88.84903,53.806225,91.909775,55.808826,95.159,57.49954 M94.39762,57.462543 C94.68418,54.911396,94.9916,52.455376,94.67003,48.293346 M94.585464,57.406452 C95.10834,55.35717,94.515305,53.095394,95.44988,48.009953 M303.83032,49.373585 M304.9663,48.26233 C300.66486,50.706295,297.1329,51.351967,295.43176,52.84368 M304.80096,48.393158 C300.80997,50.049107,297.3185,51.43661,294.88892,52.90683 M295.86044,51.580956 C298.62094,52.955235,299.98248,54.325993,304.0061,57.40637 M295.06354,52.202976 C298.89825,54.537563,302.38455,55.85356,305.43356,56.99108 M305.724,56.957493 C305.7921,55.62423,304.46606,53.00485,304.74472,48.01171 M304.6523,56.954544 C304.96146,54.174545,304.70364,51.344414,305.28366,48.28396" fill="none" stroke="currentColor" stroke-width="1"/>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="55" y="7.5">
+?
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="7.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="205" y="7.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="215" y="7.5">
+I
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="225" y="7.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="235" y="7.5">
+O
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="315" y="7.5">
+?
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="325" y="7.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="155" y="22.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="165" y="22.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="175" y="22.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="22.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="255" y="22.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="265" y="22.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="275" y="22.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="285" y="22.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="37.5">
+R
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="37.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="45" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="55" y="37.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="37.5">
+y
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="37.5">
+&lt;
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="37.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="37.5">
+&gt;
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="52.5">
+!
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="155" y="52.5">
+f
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="165" y="52.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="175" y="52.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="52.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="255" y="52.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="265" y="52.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="275" y="52.5">
+x
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="285" y="52.5">
+t
+</text>
+</svg></div><p></p>
+ Unlike the general FIFOs, it will not overflow, as it assumes that the
+ data signal will be held until the `Ready` signal is provided.  This is
+ different from normal FIFOs, which will overflow under those conditions.
+  The FIFO will signal that it is `ready` as long as it is not `full`.
+ The consumer can use the `next` signal to accept the current `data`
+ element.
+<p>Note that there are no combinatorial paths between the inputs and
+outputs, and a test is used to verify this property.</p>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
+<p>Here is an example of the buffer in action.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>rhdl::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>rhdl_fpga::{rng::xorshift::XorShift128, stream::stream_to_fifo::StreamToFIFO};
+
+<span class="kw">fn </span>main() -&gt; <span class="prelude-ty">Result</span>&lt;(), RHDLError&gt; {
+    <span class="comment">// The buffer will manage items of 4 bits
+    </span><span class="kw">let </span>uut = StreamToFIFO::&lt;b4&gt;::default();
+    <span class="comment">// The test harness will include a consumer that
+    // randomly pauses the upstream producer.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>need_reset = <span class="bool-val">true</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>source_rng = XorShift128::default().map(|x| bits((x &amp; <span class="number">0xF</span>) <span class="kw">as </span>u128));
+    <span class="kw">let </span><span class="kw-2">mut </span>dest_rng = source_rng.clone();
+    <span class="kw">let </span><span class="kw-2">mut </span>source_datum = source_rng.next();
+    <span class="kw">let </span>vcd = uut
+        .run_fn(
+            |out| {
+                <span class="kw">if </span>need_reset {
+                    need_reset = <span class="bool-val">false</span>;
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(rhdl::core::sim::ResetOrData::Reset);
+                }
+                <span class="kw">let </span><span class="kw-2">mut </span>input = rhdl_fpga::stream::stream_to_fifo::In::&lt;b4&gt;::dont_care();
+                <span class="kw">let </span>may_accept = rand::random::&lt;u8&gt;() &gt; <span class="number">150</span>;
+                <span class="kw">let </span>will_accept = may_accept &amp; out.data.is_some();
+                input.next = <span class="bool-val">false</span>;
+                <span class="kw">if </span>will_accept {
+                    <span class="macro">assert_eq!</span>(out.data, dest_rng.next());
+                    input.next = <span class="bool-val">true</span>;
+                }
+                <span class="kw">let </span>will_offer = rand::random::&lt;u8&gt;() &gt; <span class="number">150</span>;
+                <span class="kw">if </span>will_offer {
+                    input.data = source_datum;
+                } <span class="kw">else </span>{
+                    input.data = <span class="prelude-val">None</span>;
+                }
+                <span class="kw">let </span>will_advance = will_offer &amp; out.ready.raw;
+                <span class="kw">if </span>will_advance {
+                    source_datum = source_rng.next();
+                }
+                <span class="prelude-val">Some</span>(rhdl::core::sim::ResetOrData::Data(input))
+            },
+            <span class="number">100</span>,
+        )
+        .take_while(|t| t.time &lt; <span class="number">1500</span>)
+        .collect::&lt;Vcd&gt;();
+    rhdl_fpga::doc::write_svg_as_markdown(
+        vcd,
+        <span class="string">"rv_to_fifo.md"</span>,
+        SvgOptions::default().with_io_filter(),
+    )<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div>
+<p>With the output.</p>
+<p>
+<svg viewBox="0 0 1700 320" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<clipPath id="clip">
+<rect height="320" width="1700" x="0" y="0"/>
+</clipPath>
+</defs>
+<rect fill="#0B151D" height="320" stroke="darkblue" width="1700" x="0" y="0"/>
+<line stroke="#333333" stroke-width="1" x1="200" x2="200" y1="0" y2="320"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="200" y="10">
+0
+</text>
+<line stroke="#333333" stroke-width="1" x1="300" x2="300" y1="0" y2="320"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="300" y="10">
+100
+</text>
+<line stroke="#333333" stroke-width="1" x1="400" x2="400" y1="0" y2="320"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="400" y="10">
+200
+</text>
+<line stroke="#333333" stroke-width="1" x1="500" x2="500" y1="0" y2="320"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="500" y="10">
+300
+</text>
+<line stroke="#333333" stroke-width="1" x1="600" x2="600" y1="0" y2="320"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="600" y="10">
+400
+</text>
+<line stroke="#333333" stroke-width="1" x1="700" x2="700" y1="0" y2="320"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="700" y="10">
+500
+</text>
+<line stroke="#333333" stroke-width="1" x1="800" x2="800" y1="0" y2="320"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="800" y="10">
+600
+</text>
+<line stroke="#333333" stroke-width="1" x1="900" x2="900" y1="0" y2="320"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="900" y="10">
+700
+</text>
+<line stroke="#333333" stroke-width="1" x1="1000" x2="1000" y1="0" y2="320"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1000" y="10">
+800
+</text>
+<line stroke="#333333" stroke-width="1" x1="1100" x2="1100" y1="0" y2="320"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1100" y="10">
+900
+</text>
+<line stroke="#333333" stroke-width="1" x1="1200" x2="1200" y1="0" y2="320"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1200" y="10">
+1000
+</text>
+<line stroke="#333333" stroke-width="1" x1="1300" x2="1300" y1="0" y2="320"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1300" y="10">
+1100
+</text>
+<line stroke="#333333" stroke-width="1" x1="1400" x2="1400" y1="0" y2="320"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1400" y="10">
+1200
+</text>
+<line stroke="#333333" stroke-width="1" x1="1500" x2="1500" y1="0" y2="320"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1500" y="10">
+1300
+</text>
+<line stroke="#333333" stroke-width="1" x1="1600" x2="1600" y1="0" y2="320"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1600" y="10">
+1400
+</text>
+<line stroke="#333333" stroke-width="1" x1="1700" x2="1700" y1="0" y2="320"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1700" y="10">
+1500
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" y="10">
+Time:
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="30">
+.clock
+<title>top.clock</title>
+</text>
+<path d="M 200 30 L 200 37 L 250 37 L 250 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="251" y="23"/>
+<path d="M 250 30 L 250 23 L 300 23 L 300 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 300 30 L 300 37 L 350 37 L 350 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="351" y="23"/>
+<path d="M 350 30 L 350 23 L 400 23 L 400 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 400 30 L 400 37 L 450 37 L 450 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="451" y="23"/>
+<path d="M 450 30 L 450 23 L 500 23 L 500 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 500 30 L 500 37 L 550 37 L 550 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="551" y="23"/>
+<path d="M 550 30 L 550 23 L 600 23 L 600 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 600 30 L 600 37 L 650 37 L 650 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="651" y="23"/>
+<path d="M 650 30 L 650 23 L 700 23 L 700 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 700 30 L 700 37 L 750 37 L 750 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="751" y="23"/>
+<path d="M 750 30 L 750 23 L 800 23 L 800 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 800 30 L 800 37 L 850 37 L 850 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="851" y="23"/>
+<path d="M 850 30 L 850 23 L 900 23 L 900 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 900 30 L 900 37 L 950 37 L 950 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="951" y="23"/>
+<path d="M 950 30 L 950 23 L 1000 23 L 1000 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1000 30 L 1000 37 L 1050 37 L 1050 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1051" y="23"/>
+<path d="M 1050 30 L 1050 23 L 1100 23 L 1100 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1100 30 L 1100 37 L 1150 37 L 1150 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1151" y="23"/>
+<path d="M 1150 30 L 1150 23 L 1200 23 L 1200 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1200 30 L 1200 37 L 1250 37 L 1250 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1251" y="23"/>
+<path d="M 1250 30 L 1250 23 L 1300 23 L 1300 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1300 30 L 1300 37 L 1350 37 L 1350 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1351" y="23"/>
+<path d="M 1350 30 L 1350 23 L 1400 23 L 1400 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1400 30 L 1400 37 L 1450 37 L 1450 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1451" y="23"/>
+<path d="M 1450 30 L 1450 23 L 1500 23 L 1500 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1500 30 L 1500 37 L 1550 37 L 1550 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1551" y="23"/>
+<path d="M 1550 30 L 1550 23 L 1600 23 L 1600 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1600 30 L 1600 37 L 1650 37 L 1650 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1651" y="23"/>
+<path d="M 1650 30 L 1650 23 L 1700 23 L 1700 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="50">
+.input
+<title>top.input</title>
+</text>
+<path d="M 200 50 L 203 43 L 548 43 L 551 50 L 548 57 L 203 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="375" xml:space="preserve" y="50">
+{data: None, next: 0}
+<title>{data: None, next: 0}</title>
+</text>
+<path d="M 551 50 L 554 43 L 648 43 L 651 50 L 648 57 L 554 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="601" xml:space="preserve" y="50">
+{data: ...
+<title>{data: Some(2), next: 0}</title>
+</text>
+<path d="M 651 50 L 654 43 L 748 43 L 751 50 L 748 57 L 654 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="701" xml:space="preserve" y="50">
+{data: ...
+<title>{data: None, next: 1}</title>
+</text>
+<path d="M 751 50 L 754 43 L 848 43 L 851 50 L 848 57 L 754 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="801" xml:space="preserve" y="50">
+{data: ...
+<title>{data: None, next: 0}</title>
+</text>
+<path d="M 851 50 L 854 43 L 948 43 L 951 50 L 948 57 L 854 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="901" xml:space="preserve" y="50">
+{data: ...
+<title>{data: Some(5), next: 0}</title>
+</text>
+<path d="M 951 50 L 954 43 L 1048 43 L 1051 50 L 1048 57 L 954 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1001" xml:space="preserve" y="50">
+{data: ...
+<title>{data: None, next: 0}</title>
+</text>
+<path d="M 1051 50 L 1054 43 L 1148 43 L 1151 50 L 1148 57 L 1054 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1101" xml:space="preserve" y="50">
+{data: ...
+<title>{data: None, next: 1}</title>
+</text>
+<path d="M 1151 50 L 1154 43 L 1248 43 L 1251 50 L 1248 57 L 1154 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1201" xml:space="preserve" y="50">
+{data: ...
+<title>{data: None, next: 0}</title>
+</text>
+<path d="M 1251 50 L 1254 43 L 1348 43 L 1351 50 L 1348 57 L 1254 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1301" xml:space="preserve" y="50">
+{data: ...
+<title>{data: Some(6), next: 0}</title>
+</text>
+<path d="M 1351 50 L 1354 43 L 1448 43 L 1451 50 L 1448 57 L 1354 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1401" xml:space="preserve" y="50">
+{data: ...
+<title>{data: Some(2), next: 0}</title>
+</text>
+<path d="M 1451 50 L 1454 43 L 1648 43 L 1651 50 L 1648 57 L 1454 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1551" xml:space="preserve" y="50">
+{data: Some(a), n...
+<title>{data: Some(a), next: 1}</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="70">
+   .data
+<title>top.input.data</title>
+</text>
+<path d="M 200 70 L 203 63 L 548 63 L 551 70 L 548 77 L 203 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="375" xml:space="preserve" y="70">
+None
+<title>None</title>
+</text>
+<path d="M 551 70 L 554 63 L 648 63 L 651 70 L 648 77 L 554 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="601" xml:space="preserve" y="70">
+Some(2)
+<title>Some(2)</title>
+</text>
+<path d="M 651 70 L 654 63 L 848 63 L 851 70 L 848 77 L 654 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="751" xml:space="preserve" y="70">
+None
+<title>None</title>
+</text>
+<path d="M 851 70 L 854 63 L 948 63 L 951 70 L 948 77 L 854 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="901" xml:space="preserve" y="70">
+Some(5)
+<title>Some(5)</title>
+</text>
+<path d="M 951 70 L 954 63 L 1248 63 L 1251 70 L 1248 77 L 954 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1101" xml:space="preserve" y="70">
+None
+<title>None</title>
+</text>
+<path d="M 1251 70 L 1254 63 L 1348 63 L 1351 70 L 1348 77 L 1254 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1301" xml:space="preserve" y="70">
+Some(6)
+<title>Some(6)</title>
+</text>
+<path d="M 1351 70 L 1354 63 L 1448 63 L 1451 70 L 1448 77 L 1354 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1401" xml:space="preserve" y="70">
+Some(2)
+<title>Some(2)</title>
+</text>
+<path d="M 1451 70 L 1454 63 L 1648 63 L 1651 70 L 1648 77 L 1454 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1551" xml:space="preserve" y="70">
+Some(a)
+<title>Some(a)</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="90">
+      #None
+<title>top.input.data#None</title>
+</text>
+<path d="M 200 90 L 203 83 L 548 83 L 551 90 L 548 97 L 203 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="375" xml:space="preserve" y="90">
+<title></title>
+</text>
+<path d="M 651 90 L 654 83 L 848 83 L 851 90 L 848 97 L 654 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="751" xml:space="preserve" y="90">
+<title></title>
+</text>
+<path d="M 951 90 L 954 83 L 1248 83 L 1251 90 L 1248 97 L 954 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1101" xml:space="preserve" y="90">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="110">
+      #Some.0
+<title>top.input.data#Some.0</title>
+</text>
+<path d="M 551 110 L 554 103 L 648 103 L 651 110 L 648 117 L 554 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="601" xml:space="preserve" y="110">
+2
+<title>2</title>
+</text>
+<path d="M 851 110 L 854 103 L 948 103 L 951 110 L 948 117 L 854 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="901" xml:space="preserve" y="110">
+5
+<title>5</title>
+</text>
+<path d="M 1251 110 L 1254 103 L 1348 103 L 1351 110 L 1348 117 L 1254 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1301" xml:space="preserve" y="110">
+6
+<title>6</title>
+</text>
+<path d="M 1351 110 L 1354 103 L 1448 103 L 1451 110 L 1448 117 L 1354 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1401" xml:space="preserve" y="110">
+2
+<title>2</title>
+</text>
+<path d="M 1451 110 L 1454 103 L 1648 103 L 1651 110 L 1648 117 L 1454 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1551" xml:space="preserve" y="110">
+a
+<title>a</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="130">
+   .next
+<title>top.input.next</title>
+</text>
+<path d="M 200 130 L 200 137 L 651 137 L 651 130" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="98" x="652" y="123"/>
+<path d="M 651 130 L 651 123 L 751 123 L 751 130" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 751 130 L 751 137 L 1051 137 L 1051 130" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="98" x="1052" y="123"/>
+<path d="M 1051 130 L 1051 123 L 1151 123 L 1151 130" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1151 130 L 1151 137 L 1451 137 L 1451 130" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="198" x="1452" y="123"/>
+<path d="M 1451 130 L 1451 123 L 1651 123 L 1651 130" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="150">
+.outputs
+<title>top.outputs</title>
+</text>
+<path d="M 200 150 L 203 143 L 647 143 L 650 150 L 647 157 L 203 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="425" xml:space="preserve" y="150">
+{data: None, ready: {raw: 1}, error: 0}
+<title>{data: None, ready: {raw: 1}, error: 0}</title>
+</text>
+<path d="M 650 150 L 653 143 L 747 143 L 750 150 L 747 157 L 653 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="700" xml:space="preserve" y="150">
+{data: ...
+<title>{data: Some(2), ready: {raw: 1}, error: 0}</title>
+</text>
+<path d="M 750 150 L 753 143 L 947 143 L 950 150 L 947 157 L 753 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="850" xml:space="preserve" y="150">
+{data: None, read...
+<title>{data: None, ready: {raw: 1}, error: 0}</title>
+</text>
+<path d="M 950 150 L 953 143 L 1147 143 L 1150 150 L 1147 157 L 953 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1050" xml:space="preserve" y="150">
+{data: Some(5), r...
+<title>{data: Some(5), ready: {raw: 1}, error: 0}</title>
+</text>
+<path d="M 1150 150 L 1153 143 L 1347 143 L 1350 150 L 1347 157 L 1153 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1250" xml:space="preserve" y="150">
+{data: None, read...
+<title>{data: None, ready: {raw: 1}, error: 0}</title>
+</text>
+<path d="M 1350 150 L 1353 143 L 1447 143 L 1450 150 L 1447 157 L 1353 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1400" xml:space="preserve" y="150">
+{data: ...
+<title>{data: Some(6), ready: {raw: 1}, error: 0}</title>
+</text>
+<path d="M 1450 150 L 1453 143 L 1547 143 L 1550 150 L 1547 157 L 1453 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1500" xml:space="preserve" y="150">
+{data: ...
+<title>{data: Some(6), ready: {raw: 0}, error: 0}</title>
+</text>
+<path d="M 1550 150 L 1553 143 L 1647 143 L 1650 150 L 1647 157 L 1553 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1600" xml:space="preserve" y="150">
+{data: ...
+<title>{data: Some(2), ready: {raw: 1}, error: 0}</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="170">
+   .data
+<title>top.outputs.data</title>
+</text>
+<path d="M 200 170 L 203 163 L 647 163 L 650 170 L 647 177 L 203 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="425" xml:space="preserve" y="170">
+None
+<title>None</title>
+</text>
+<path d="M 650 170 L 653 163 L 747 163 L 750 170 L 747 177 L 653 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="700" xml:space="preserve" y="170">
+Some(2)
+<title>Some(2)</title>
+</text>
+<path d="M 750 170 L 753 163 L 947 163 L 950 170 L 947 177 L 753 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="850" xml:space="preserve" y="170">
+None
+<title>None</title>
+</text>
+<path d="M 950 170 L 953 163 L 1147 163 L 1150 170 L 1147 177 L 953 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1050" xml:space="preserve" y="170">
+Some(5)
+<title>Some(5)</title>
+</text>
+<path d="M 1150 170 L 1153 163 L 1347 163 L 1350 170 L 1347 177 L 1153 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1250" xml:space="preserve" y="170">
+None
+<title>None</title>
+</text>
+<path d="M 1350 170 L 1353 163 L 1547 163 L 1550 170 L 1547 177 L 1353 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1450" xml:space="preserve" y="170">
+Some(6)
+<title>Some(6)</title>
+</text>
+<path d="M 1550 170 L 1553 163 L 1647 163 L 1650 170 L 1647 177 L 1553 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1600" xml:space="preserve" y="170">
+Some(2)
+<title>Some(2)</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="190">
+      #None
+<title>top.outputs.data#None</title>
+</text>
+<path d="M 200 190 L 203 183 L 647 183 L 650 190 L 647 197 L 203 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="425" xml:space="preserve" y="190">
+<title></title>
+</text>
+<path d="M 750 190 L 753 183 L 947 183 L 950 190 L 947 197 L 753 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="850" xml:space="preserve" y="190">
+<title></title>
+</text>
+<path d="M 1150 190 L 1153 183 L 1347 183 L 1350 190 L 1347 197 L 1153 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1250" xml:space="preserve" y="190">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="210">
+      #Some.0
+<title>top.outputs.data#Some.0</title>
+</text>
+<path d="M 650 210 L 653 203 L 747 203 L 750 210 L 747 217 L 653 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="700" xml:space="preserve" y="210">
+2
+<title>2</title>
+</text>
+<path d="M 950 210 L 953 203 L 1147 203 L 1150 210 L 1147 217 L 953 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1050" xml:space="preserve" y="210">
+5
+<title>5</title>
+</text>
+<path d="M 1350 210 L 1353 203 L 1547 203 L 1550 210 L 1547 217 L 1353 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1450" xml:space="preserve" y="210">
+6
+<title>6</title>
+</text>
+<path d="M 1550 210 L 1553 203 L 1647 203 L 1650 210 L 1647 217 L 1553 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1600" xml:space="preserve" y="210">
+2
+<title>2</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="230">
+   .ready
+<title>top.outputs.ready</title>
+</text>
+<rect fill="#1C400C" height="14" stroke="none" width="1248" x="201" y="223"/>
+<path d="M 200 230 L 200 223 L 1450 223 L 1450 230" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1450 230 L 1450 237 L 1550 237 L 1550 230" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="99" x="1551" y="223"/>
+<path d="M 1550 230 L 1550 223 L 1651 223 L 1651 230" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="250">
+      .marker
+<title>top.outputs.ready.marker</title>
+</text>
+<path d="M 200 250 L 203 243 L 1648 243 L 1651 250 L 1648 257 L 203 257 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="925" xml:space="preserve" y="250">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="270">
+      .raw
+<title>top.outputs.ready.raw</title>
+</text>
+<rect fill="#1C400C" height="14" stroke="none" width="1248" x="201" y="263"/>
+<path d="M 200 270 L 200 263 L 1450 263 L 1450 270" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1450 270 L 1450 277 L 1550 277 L 1550 270" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="99" x="1551" y="263"/>
+<path d="M 1550 270 L 1550 263 L 1651 263 L 1651 270" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="290">
+   .error
+<title>top.outputs.error</title>
+</text>
+<path d="M 200 290 L 200 297 L 1651 297 L 1651 290" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="310">
+.reset
+<title>top.reset</title>
+</text>
+<rect fill="#1C400C" height="14" stroke="none" width="49" x="201" y="303"/>
+<path d="M 200 310 L 200 303 L 251 303 L 251 310" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 251 310 L 251 317 L 1651 317 L 1651 310" fill="none" stroke="#56C126" stroke-width="1"/>
+</svg>
+</p></div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.In.html" title="struct rhdl_fpga::stream::stream_to_fifo::In">In</a></dt><dd>Inputs to the <a href="struct.StreamToFIFO.html" title="struct rhdl_fpga::stream::stream_to_fifo::StreamToFIFO">StreamToFIFO</a> buffer</dd><dt><a class="struct" href="struct.Out.html" title="struct rhdl_fpga::stream::stream_to_fifo::Out">Out</a></dt><dd>Outputs from the <a href="struct.StreamToFIFO.html" title="struct rhdl_fpga::stream::stream_to_fifo::StreamToFIFO">StreamToFIFO</a> buffer</dd><dt><a class="struct" href="struct.StreamToFIFO.html" title="struct rhdl_fpga::stream::stream_to_fifo::StreamToFIFO">Stream<wbr>ToFIFO</a></dt><dd>The <a href="struct.StreamToFIFO.html" title="struct rhdl_fpga::stream::stream_to_fifo::StreamToFIFO">StreamToFIFO</a> Buffer Core</dd></dl></section></div></main></body></html>

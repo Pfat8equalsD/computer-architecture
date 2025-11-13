@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["AppType","Const","SignFlag","TypeKind","UnifyError"],"fn":["make_variant_tag"],"struct":["AppArray","AppBits","AppEnum","AppSignal","AppStruct","AppTuple","ModificationState","TypeId","UnifyContext","VarNum","VariantTag"],"trait":["AppTypeKind"]};

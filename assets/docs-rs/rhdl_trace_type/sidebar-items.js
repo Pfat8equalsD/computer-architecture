@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Color","DiscriminantAlignment","DiscriminantType","RTT","TraceType"],"fn":["make_array","make_discriminant_layout","make_enum","make_field","make_signal","make_struct","make_tuple","make_variant"],"struct":["Array","DiscriminantLayout","Enum","Field","Struct","Tuple","Variant"]};

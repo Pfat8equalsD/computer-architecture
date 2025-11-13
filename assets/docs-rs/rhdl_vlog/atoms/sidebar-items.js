@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ConstExpr","Direction","HDLKind","Sensitivity","SignedWidth"],"struct":["BitRange","DeclKind","Declaration","DeclarationList","LitVerilog","NegEdgeSensitivity","Port","PosEdgeSensitivity","SensitivityList","WidthSpec"]};

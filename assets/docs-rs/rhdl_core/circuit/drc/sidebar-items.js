@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["no_combinatorial_paths"],"struct":["CombinatorialPath"]};

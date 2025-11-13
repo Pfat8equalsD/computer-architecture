@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":["op"],"mod":["const_generics","consts","prelude","unsigned"],"trait":["IsEqualTo","IsGreaterThan","IsGreaterThanOrEqualTo","IsLessThan","IsLessThanOrEqualTo","Max","Min"],"type":["Add1","Diff","Maximum","Minimum","Sum"]};

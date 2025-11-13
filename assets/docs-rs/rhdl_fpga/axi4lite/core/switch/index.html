@@ -1,0 +1,103 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Cores used to implement AXI4Lite Switches"><title>rhdl_fpga::axi4lite::core::switch - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="rhdl_fpga" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module switch</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../rhdl_fpga/index.html">rhdl_<wbr>fpga</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module switch</a></h2><h3><a href="#modules">Module Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In rhdl_<wbr>fpga::<wbr>axi4lite::<wbr>core</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">rhdl_fpga</a>::<wbr><a href="../../index.html">axi4lite</a>::<wbr><a href="../index.html">core</a></div><h1>Module <span>switch</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../src/rhdl_fpga/axi4lite/core/switch/mod.rs.html#1-34">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Cores used to implement AXI4Lite Switches</p>
+<p>These cores are used to build AXI4L switches.
+The switches contain both read switches and
+write switches.  A switch is simply a multiplexor
+for a set of masters and endpoints.  Roughly, something
+like this:</p>
+<p></p><div style="text-align:center;"><svg viewBox="0 0 450 165" width="450px" xmlns="http://www.w3.org/2000/svg">
+<path d="M175.74457,7.8446527 M175.744,7.3801293 C182.41422,8.515675,189.77274,8.005321,193.41696,7.2238307 M174.91537,7.7817225 C180.27185,7.3661647,185.82097,7.8722453,194.59538,6.8722835 M264.42392,5.6656218 M266.02335,8.846221 C271.6921,9.363886,277.57333,7.030985,296.17606,7.4141617 M265.60617,6.553427 C270.9101,7.6087313,279.26114,8.159556,295.05496,8.310745 M54.66119,37.639706 M53.265625,35.648552 C61.815777,38.871487,66.49578,36.41698,84.156395,39.238876 M54.14545,36.985542 C64.93834,37.906853,76.86295,37.36103,85.5513,37.789204 M125.96247,36.064762 M126.71316,36.269863 C135.13405,39.7911,149.79854,39.47736,164.43524,38.952946 M124.80543,38.093372 C136.91171,38.12142,149.44531,37.732895,164.81136,38.372036 M304.5898,37.304516 M306.96298,37.981518 C322.11038,37.60142,336.90677,38.58905,354.84882,36.39453 M304.29395,38.43625 C321.6406,38.333,337.75693,37.481667,355.80115,36.7629 M395.21954,38.29533 M393.82483,39.257324 C408.1274,37.553333,420.89664,36.29283,443.2918,39.418694 M395.91254,38.337383 C410.66287,37.992157,426.04254,37.96035,444.30545,37.93201 M306.2918,84.12585 M305.69107,81.97416 C319.57254,83.23146,336.6925,80.86066,354.87903,81.065475 M304.94086,81.84516 C317.64838,80.76898,328.69742,81.21169,355.5351,83.36293 M393.30957,80.792946 M394.63828,81.06416 C411.03952,80.63705,426.30945,82.90761,443.3113,84.493324 M395.75446,82.01277 C408.3706,80.8158,421.39465,82.383,445.25708,82.35682 M306.54767,125.62056 M304.78952,126.62958 C316.3658,127.43967,327.54297,126.05655,353.40445,126.44158 M305.43634,128.0892 C322.98444,128.49051,339.7372,127.325836,354.02948,127.75037 M393.4081,127.359604 M396.46817,128.40013 C414.52338,129.10739,431.202,129.18365,443.22644,126.76188 M395.9092,128.15611 C412.77377,125.670135,431.71793,126.77117,445.5663,127.56023 M173.54922,7.6661773 M176.83409,6.343752 C174.26923,58.01221,175.05801,106.3551,174.22339,158.89517 M174.71461,7.9138827 C173.2042,62.391342,172.83714,116.896706,174.00966,156.56998 M296.93698,8.648664 M295.73474,6.6684203 C293.6933,45.186485,294.80872,80.32205,296.13727,155.98438 M294.80832,8.304979 C295.0293,52.517113,294.3138,99.45386,294.45334,157.23712 M175.6045,155.9177 M176.89609,157.42845 C213.6191,154.97655,256.07504,156.17592,296.42422,157.17358 M174.20558,157.39305 C221.19049,155.19785,268.57538,154.98088,294.11505,157.45053 M56.963734,33.84218 M55.660374,32.746685 C52.29322,33.030277,51.670555,35.821846,44.561623,37.960236 M55.46381,32.576023 C51.34717,35.036022,47.00573,36.974873,44.990196,37.073742 M44.200333,37.729183 C46.666637,38.651604,49.097446,40.091373,55.5352,42.374138 M44.98031,37.337982 C47.92617,38.448215,50.437008,40.194736,54.71164,42.52696 M54.978516,41.726048 C55.995773,39.688835,54.305355,37.243824,54.994816,32.546402 M55.156097,41.83051 C54.736626,38.63352,55.257183,35.40475,55.367355,32.69361 M163.90118,32.4863 M164.18494,32.888466 C167.66695,33.77692,170.75754,34.431034,173.91782,36.651596 M165.34457,32.856384 C168.42528,34.294487,172.4348,36.64053,174.67801,37.087803 M175.1998,37.978596 C172.64154,39.974438,168.72542,41.108353,165.36386,41.377377 M175.07956,36.999386 C172.05772,39.06941,169.0675,40.40263,165.19733,42.531044 M164.39265,42.065456 C164.83913,39.61789,165.45892,36.284176,165.43758,32.666107 M165.02234,41.858593 C164.82066,38.68816,165.08066,35.343987,164.931,33.22521 M303.78583,32.74166 M305.60654,32.965683 C301.85312,34.230034,300.42136,35.330643,294.4181,36.90204 M304.68143,32.949173 C302.95483,34.179184,300.6066,34.896957,294.46844,37.110363 M294.40372,37.369713 C299.32013,38.714985,303.5234,41.423515,305.47375,41.289635 M294.7092,37.675655 C297.56082,39.142902,299.67285,40.248913,305.10434,41.633022 M305.16934,42.547607 C304.69766,39.130802,304.16568,36.125214,304.44305,32.170925 M304.60538,41.771492 C305.37054,38.497044,304.65747,35.283237,305.42258,33.143925 M443.98044,32.938526 M444.98224,32.908775 C448.6361,34.612434,452.25705,35.11406,456.0125,37.101948 M444.85245,32.88429 C448.54068,35.013622,452.33716,36.609203,455.53494,37.930218 M454.04382,36.873085 C451.89548,38.75636,451.25336,40.003754,445.2304,42.127098 M455.36957,37.763985 C453.03482,38.784718,449.87933,39.38474,444.81393,42.44108 M444.29697,42.53935 C444.62012,39.354218,445.04694,37.094055,444.39908,32.304646 M444.78546,42.087475 C445.26636,39.67487,444.9058,37.223766,444.63855,33.394466 M304.95874,77.586815 M305.05365,77.86678 C301.82718,78.52051,296.42227,81.60286,294.63605,81.99027 M305.1883,78.035095 C302.60867,78.545425,299.98608,79.720215,295.49823,82.62272 M294.75916,83.13348 C297.48697,82.70419,299.5542,85.1489,305.7567,87.653755 M295.06223,82.557106 C297.28366,83.44233,299.43866,84.60958,304.79272,86.92279 M304.45636,86.949776 C304.666,82.71584,304.18887,79.809364,304.78006,78.228 M305.03247,87.03542 C304.61127,84.63183,304.78864,83.08488,304.94754,78.110344 M446.74026,78.54679 M446.0512,78.78474 C448.3672,78.40699,450.05948,79.50052,455.17648,81.52263 M444.5336,78.13363 C447.2946,79.386856,450.62222,80.31593,455.48764,82.90279 M454.79404,82.7709 C453.17062,84.05781,451.27914,84.90671,446.06732,86.772644 M454.57928,82.75384 C452.2673,83.62259,448.6513,84.91116,445.35892,86.60834 M444.61597,86.378654 C445.07864,84.988464,444.75647,82.54517,445.1223,78.40381 M445.37622,87.028175 C444.54266,84.75998,444.42523,82.37675,445.0271,78.27344 M306.55933,123.41893 M305.08752,123.11609 C303.4763,123.947716,299.5919,125.13913,294.80127,127.27026 M304.50406,122.94439 C302.03702,124.45153,298.68393,126.50657,294.644,127.95249 M295.34912,128.51346 C296.3546,128.85622,299.20947,130.2418,305.93082,133.06683 M295.3203,127.93796 C298.1827,129.05444,300.14105,129.57698,304.80182,131.90564 M304.74857,131.77809 C305.2001,128.25783,305.59958,124.933174,304.56912,122.34708 M304.9892,131.95299 C305.23505,130.0066,304.71933,127.824356,305.07867,122.89485 M444.2079,124.965225 M445.4873,122.503624 C448.8551,124.04232,451.37183,124.730156,455.76816,126.9756 M444.52292,122.83066 C447.80093,124.734795,451.85556,126.10074,455.4673,128.02374 M455.00897,128.49995 C451.89688,128.99884,447.93567,131.4473,445.84006,131.42795 M454.54993,127.0456 C452.58316,128.64319,449.44733,129.68556,445.49557,131.88518 M444.11786,132.568 C445.3128,130.04668,444.76993,127.22335,445.2796,122.8906 M444.81378,131.69283 C445.55374,129.10405,444.74783,126.219086,444.93417,123.10055" fill="none" stroke="currentColor" stroke-width="1"/>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="205" y="7.5">
+S
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="215" y="7.5">
+w
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="225" y="7.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="235" y="7.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="245" y="7.5">
+c
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="255" y="7.5">
+h
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="5" y="37.5">
+M
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="15" y="37.5">
+0
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="37.5">
+A
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="37.5">
+X
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="37.5">
+I
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="37.5">
+S
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="195" y="37.5">
+0
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="275" y="37.5">
+M
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="285" y="37.5">
+0
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="37.5">
+A
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="37.5">
+X
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="37.5">
+I
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="275" y="82.5">
+M
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="285" y="82.5">
+1
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="82.5">
+A
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="82.5">
+X
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="82.5">
+I
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="275" y="127.5">
+M
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="285" y="127.5">
+2
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="127.5">
+A
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="127.5">
+X
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="127.5">
+I
+</text>
+</svg></div><p></p>
+<p>The switch operates by forming a temporary <code>channel</code> to connect
+a request stream to an AXI endpoint, and will keep that channel
+in place until the incoming request requires a channel change.
+At that point, to guarantee ordering of requests, the switch will
+wait for the pending transactions to complete before moving
+the channel to a different endpoint.  Internally, the switch is
+similar to the [BlockReadWriteController], in that it must track
+the number of pending transactions to know when it is safe to
+switch channels.</p>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="read/index.html" title="mod rhdl_fpga::axi4lite::core::switch::read">read</a></dt><dd>AXI4Lite Read Switch</dd></dl></section></div></main></body></html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="This crate provides two types that are important for working with hardware designs.  The Bits type is a fixed-size unsigned integer type with a variable number of bits.  The SignedBits type is a fixed-size signed integer type with a variable number of bits.  Both types are designed to mimic the behavior of fixed width binary-represented integers as typically are synthesized in hardware designs."><title>rhdl_bits - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="rhdl_bits" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../static.files/storage-e2aeef58.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Crate rhdl_bits</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../rhdl_bits/index.html">rhdl_<wbr>bits</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#using-the-type-aliases-to-save-keystrokes" title="Using the type aliases to save keystrokes">Using the type aliases to save keystrokes</a></li><li><a href="#constructing-bits" title="Constructing Bits">Constructing Bits</a></li><li><a href="#constructing-signedbits" title="Constructing SignedBits">Constructing SignedBits</a></li><li><a href="#operations" title="Operations">Operations</a><ul><li><a href="#bit-widths-and-binary-operators" title="Bit Widths and Binary Operators">Bit Widths and Binary Operators</a></li><li><a href="#addition" title="Addition">Addition</a></li><li><a href="#subtraction" title="Subtraction">Subtraction</a></li><li><a href="#bitwise-logical-operators" title="Bitwise Logical Operators">Bitwise Logical Operators</a></li><li><a href="#shifting" title="Shifting">Shifting</a></li><li><a href="#comparison-operators" title="Comparison Operators">Comparison Operators</a></li></ul></li></ul><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>rhdl_<wbr>bits</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/rhdl_bits/lib.rs.html#1-518">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This crate provides two types that are important for working with hardware
+designs.  The <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> type is a fixed-size unsigned integer type with a variable
+number of bits.  The <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a> type is a fixed-size signed integer type with
+a variable number of bits.  Both types are designed to mimic the behavior of
+fixed width binary-represented integers as typically are synthesized in hardware
+designs.</p>
+<p><strong>Note</strong>
+This crate is not meant to provide a general bit-width integer type for use
+in your Rust applications.  There are several better alternatives for that
+available on &lt;crates.io&gt;.  Instead, this crate is meant to provide types that
+behave the same way as hardware fixed-width integers.</p>
+<p>One significant difference between hardware design and software programming is the need
+(and indeed ability) to easily manipulate collections of bits that are of various lengths.
+While Rust has built in types to represent 8, 16, 32, 64, and 128 bits (at the time of this
+writing, anyway), it is difficult to represent a 5 bit type. Or a 256 bit type.  Or indeed
+any bit length that is not a power of two or is larger than 128 bits.</p>
+<p>The <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> and <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a> types are designed to fill this gap.  They are generic over
+the number of bits they represent, and can be used to represent any number of bits from 1
+to 128.  The <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> type is an unsigned integer type, and the <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a> type is a signed
+integer type.  Both types implement the standard Rust traits for integer types, including
+<a href="https://doc.rust-lang.org/1.91.1/core/ops/arith/trait.Add.html" title="trait core::ops::arith::Add">Add</a>, <a href="https://doc.rust-lang.org/1.91.1/core/ops/arith/trait.Sub.html" title="trait core::ops::arith::Sub">Sub</a>, <a href="https://doc.rust-lang.org/1.91.1/core/ops/bit/trait.BitAnd.html" title="trait core::ops::bit::BitAnd">BitAnd</a>,
+<a href="https://doc.rust-lang.org/1.91.1/core/ops/bit/trait.BitOr.html" title="trait core::ops::bit::BitOr">BitOr</a>, <a href="https://doc.rust-lang.org/1.91.1/core/ops/bit/trait.BitXor.html" title="trait core::ops::bit::BitXor">BitXor</a>, <a href="https://doc.rust-lang.org/1.91.1/core/ops/bit/trait.Shl.html" title="trait core::ops::bit::Shl">Shl</a>,
+<a href="https://doc.rust-lang.org/1.91.1/core/ops/bit/trait.Shr.html" title="trait core::ops::bit::Shr">Shr</a>, <a href="https://doc.rust-lang.org/1.91.1/core/ops/bit/trait.Not.html" title="trait core::ops::bit::Not">Not</a>, <a href="https://doc.rust-lang.org/1.91.1/core/cmp/trait.Eq.html" title="trait core::cmp::Eq">Eq</a>, <a href="https://doc.rust-lang.org/1.91.1/core/cmp/trait.Ord.html" title="trait core::cmp::Ord">Ord</a>, <a href="https://doc.rust-lang.org/1.91.1/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a>, <a href="https://doc.rust-lang.org/1.91.1/core/cmp/trait.PartialOrd.html" title="trait core::cmp::PartialOrd">PartialOrd</a>,
+<a href="https://doc.rust-lang.org/1.91.1/core/fmt/trait.Display.html" title="trait core::fmt::Display">Display</a>, <a href="https://doc.rust-lang.org/1.91.1/core/fmt/trait.LowerHex.html" title="trait core::fmt::LowerHex">LowerHex</a>,
+<a href="https://doc.rust-lang.org/1.91.1/core/fmt/trait.UpperHex.html" title="trait core::fmt::UpperHex">UpperHex</a>, and <a href="https://doc.rust-lang.org/1.91.1/core/fmt/trait.Binary.html" title="trait core::fmt::Binary">Binary</a>.<br />
+The <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a> type also implements <a href="https://doc.rust-lang.org/1.91.1/core/ops/arith/trait.Neg.html" title="trait core::ops::arith::Neg">Neg</a>.  Note that in all cases,
+these types implement 2-s complement wrapping arithmetic, just as you would find in
+hardware designs.  They do not panic on underflow or overflow, but simply wrap around.
+This is the behavior that best mimics real hardware design.  You can, of course,
+implement detection for overflow and underflow in your designs, but this is not the
+default behavior.</p>
+<p>The two types are also <a href="https://doc.rust-lang.org/1.91.1/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a>, which makes them easy to use just like intrinsic integer types.
+Some general advice.  Hardware manipulation of bit vectors can seem counterintuitive if you
+have not done it before.  The <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> and <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a> types are designed to mimic the behavior
+of hardware designs, and so they may not behave the way you expect.  If you are not familiar
+with 2’s complement arithmetic, you should read up on it before using these types.</p>
+<h2 id="using-the-type-aliases-to-save-keystrokes"><a class="doc-anchor" href="#using-the-type-aliases-to-save-keystrokes">§</a>Using the type aliases to save keystrokes</h2>
+<p>The <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> and <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a> types are generic over the number of bits they represent.  This
+means that you will need to specify the number of bits in the type name.  For example, if you
+want to represent a 32 bit value, you will need to use the type <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a>&lt;32&gt;.  This can be
+tedious to type, so this crate provides a set of type aliases that you can use to save
+keystrokes.  These type aliases are named <code>b1</code> through <code>b128</code> for <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a>, and <code>s1</code> through
+<code>s128</code> for <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a>.  So, for example, if you want to represent a 32 bit value, you can
+use the type alias <code>b32</code> instead of the full type name <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a>&lt;32&gt;.  For example:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>rhdl_bits::alias::<span class="kw-2">*</span>;
+<span class="kw">let </span>bits: b32 = <span class="number">0xDEAD_BEEF</span>.into();
+<span class="kw">let </span>signed_bits: s4 = (-<span class="number">2</span>).into();</code></pre></div>
+<p>Note that in order to avoid differences in behavior between Rust arithmetic and hardware
+arithmetic, that you should use <code>b8, b16, b32, b64, b128</code> instead of <code>u8, u16, u32, u64, u128</code>.
+Similarly, use <code>s8, s16, s32, s64, s128</code> instead of <code>i8, i16, i32, i64, i128</code>.</p>
+<p>Note also that <code>b1</code> is <em>not</em> the same as <code>bool</code>.  <code>b1</code> is a 1 bit unsigned integer type, and
+<code>bool</code> is a 1 bit boolean type.  The two types are not interchangeable.  When making comparisons
+or using other Rust constructs that require a boolean type, you cannot simply substitute <code>b1</code>.</p>
+<p>On the other hand, you <em>can</em> use <code>bool</code> in your design instead of <code>b1</code>.  The two types <em>behave</em>
+the same way, even though they are different.</p>
+<h2 id="constructing-bits"><a class="doc-anchor" href="#constructing-bits">§</a>Constructing <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a></h2>
+<p>There are several ways to construct a <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> value.  The simplest is to use the
+<a href="https://doc.rust-lang.org/1.91.1/core/convert/trait.From.html" title="trait core::convert::From">From</a> trait, and convert from integer literals.  For example:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>rhdl_bits::{Bits, consts::U8, alias::<span class="kw-2">*</span>};
+<span class="kw">let </span>bits: Bits&lt;U8&gt; = <span class="number">0b1101_1010</span>.into(); <span class="comment">// Long form
+</span><span class="kw">let </span>bits: b8 = <span class="number">0b1101_1010</span>.into(); <span class="comment">// Short form (not the same as u8)</span></code></pre></div>
+<p>This will work for any integer literal that is in the range of the <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> type.
+If the literal is outside the range of the <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> type, Rust will panic.</p>
+<p>You can also construct a <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> value from a <a href="https://doc.rust-lang.org/1.91.1/std/primitive.u128.html" title="primitive u128">u128</a> value:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>bits: Bits&lt;U8&gt; = <span class="number">0b1101_1010_u128</span>.into(); <span class="comment">// Long form
+</span><span class="kw">let </span>bits: b8 = <span class="number">0b1101_1010_u128</span>.into(); <span class="comment">// Short form (not the same as u8)</span></code></pre></div>
+<p>Note that the <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> type only supports up to 128 bit values.  Larger bit vectors
+can easily be constructed using data structures (arrays, structs, enums, tuples).
+But arithmetic on them is not supported by default.  You will need to provide your
+own arithmetic implementations for these types.  This is a limitation of the
+<a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> type, but it is a limitation that is not likely to be a problem in practice.
+Practical hardware limitations can mean that performing arithmetic on very long
+bit vectors is likely to be very slow.</p>
+<h2 id="constructing-signedbits"><a class="doc-anchor" href="#constructing-signedbits">§</a>Constructing <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a></h2>
+<p>The <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a> type can be constructed in the same way as the <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> type.  The
+only difference is that the <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a> type can be constructed from a <a href="https://doc.rust-lang.org/1.91.1/std/primitive.i128.html" title="primitive i128">i128</a> value:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>bits: SignedBits&lt;U8&gt; = <span class="number">0b0101_1010_i128</span>.into(); <span class="comment">// Long form
+</span><span class="kw">let </span>bits: s8 = <span class="number">0b0101_1010_i128</span>.into(); <span class="comment">// Short form</span></code></pre></div>
+<p>Likewise, you can construct a <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a> from a signed literal</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>bits: SignedBits&lt;U8&gt; = (-<span class="number">42</span>).into(); <span class="comment">// Long form
+</span><span class="kw">let </span>bits: s8 = (-<span class="number">42</span>).into(); <span class="comment">// Short form</span></code></pre></div>
+<p><em>Note the parenthesis!</em>  Because of the order of operations, the negation has a lower
+precedence than the <code>.into()</code>.  As a result, if you omit the parenthesis, you will
+get a Rust complaint about not being able to decide what type the integer literal must
+assume.  This is unfortunate, but unavoidable.</p>
+<h2 id="operations"><a class="doc-anchor" href="#operations">§</a>Operations</h2>
+<p>Only a subset of operations are defined for <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> and <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a>.  These are
+the operations that can be synthesized in hardware without surprises (generally
+speaking).  In Rust, you can operate between <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> types and other <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> types
+of the <em>same width</em>, or you can use integer literals, which will be converted to
+<a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> types of the appropriate width.  For example:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>bits: Bits&lt;U8&gt; = <span class="number">0b1101_1010</span>.into();  <span class="comment">// Long form
+</span><span class="kw">let </span>result = bits &amp; <span class="number">0b1111_0000</span>;
+<span class="macro">assert_eq!</span>(result, <span class="number">0b1101_0000</span>);
+<span class="kw">let </span>bits: b8 = <span class="number">0b1101_1010</span>.into();  <span class="comment">// Short form
+</span><span class="kw">let </span>result = bits &amp; <span class="number">0b1111_0000</span>;
+<span class="macro">assert_eq!</span>(result, <span class="number">0b1101_0000</span>);</code></pre></div>
+<p>Note that in case the <code>result</code> is being directly compared to an integer literal.</p>
+<p>You can also operate on <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> types of different widths, but you will need to
+convert them to the same width first.</p>
+<h3 id="bit-widths-and-binary-operators"><a class="doc-anchor" href="#bit-widths-and-binary-operators">§</a>Bit Widths and Binary Operators</h3>
+<p>All of the binary operators follow the same rules:</p>
+<ul>
+<li>Both operands must be of the same width.</li>
+<li>Both operands must be of the same type (e.g., <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a> or <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a>).</li>
+<li>One of the operands may be a literal, in which case it will be converted to
+the appropriate type before the operator is applied.</li>
+</ul>
+<p>These rules are entirely enforced in the Rust type system.  So there is nothing
+special about following these rules that you are not already accustomed to.  The
+following, for example, will fail to compile:</p>
+
+<div class="example-wrap compile_fail"><a href="#" class="tooltip" title="This example deliberately fails to compile">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">let </span>x: Bits&lt;U0&gt; = <span class="number">0x1234</span>.into();
+<span class="kw">let </span>y: Bits&lt;U1&gt; = <span class="number">0x5123</span>.into();
+<span class="kw">let </span>z = x + y; <span class="comment">// This will fail to compile.</span></code></pre></div><h3 id="addition"><a class="doc-anchor" href="#addition">§</a>Addition</h3>
+<p>Addition is supported for <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> and <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a> types.  You can add two
+<a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> values together, or you can add a <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> value to an integer literal.
+For example:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>x: b32 = <span class="number">0xDEAD_BEEE</span>.into();
+<span class="kw">let </span>y: b32 = x + <span class="number">1</span>;
+<span class="macro">assert_eq!</span>(y, <span class="number">0xDEAD_BEEF</span>);</code></pre></div>
+<p>The order of the arguments does not matter:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>x: b32 = <span class="number">0xDEAD_BEEE</span>.into();
+<span class="kw">let </span>y: b32 = <span class="number">1 </span>+ x;
+<span class="macro">assert_eq!</span>(y, <span class="number">0xDEAD_BEEF</span>);</code></pre></div>
+<p>Or using two <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> values:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>x: b32 = <span class="number">0xDEAD_0000</span>.into();
+<span class="kw">let </span>y: b32 = <span class="number">0xBEEF</span>.into();
+<span class="kw">let </span>z: b32 = x + y;
+<span class="macro">assert_eq!</span>(z, <span class="number">0xDEAD_BEEF</span>);</code></pre></div>
+<p>The <a href="https://doc.rust-lang.org/1.91.1/core/ops/arith/trait.AddAssign.html" title="trait core::ops::arith::AddAssign">AddAssign</a> trait is also implemented for <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> and
+<a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a>, so you can use the <code>+=</code> operator as well:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span><span class="kw-2">mut </span>x: b32 = <span class="number">0xDEAD_0000</span>.into();
+x += <span class="number">0xBEEF</span>;
+<span class="macro">assert_eq!</span>(x, <span class="number">0xDEAD_BEEF</span>);</code></pre></div>
+<p>Note that the addition operation os 2’s complement wrapping addition.  This is
+the behavior that is most useful for hardware designs.  If you want to detect
+overflow, you will need to implement that yourself.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span><span class="kw-2">mut </span>x: Bits&lt;U8&gt; = <span class="number">0b1111_1111</span>.into();
+x += <span class="number">1</span>;
+<span class="macro">assert_eq!</span>(x, <span class="number">0</span>);</code></pre></div>
+<p>In this case, the addition of 1 caused <code>x</code> to wrap to all zeros.  This is totally normal,
+and what one would expect from hardware addition (without a carry).  If you <em>need</em> the
+carry bit, then the solution is to first cast to 1 higher bit, and then add, or alternately,
+to compute the carry directly.</p>
+<h3 id="subtraction"><a class="doc-anchor" href="#subtraction">§</a>Subtraction</h3>
+<p>Hardware subtraction is defined using 2s complement arithmetic.  This is pretty
+much the universal standard for representing negative numbers and subtraction in
+hardware.  The <a href="https://doc.rust-lang.org/1.91.1/core/ops/arith/trait.Sub.html" title="trait core::ops::arith::Sub">Sub</a> trait is implemented for <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> and <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a>,
+and operates much like the <a href="https://doc.rust-lang.org/1.91.1/core/num/wrapping/struct.Wrapping.html" title="struct core::num::wrapping::Wrapping">Wrapping</a> trait does for the
+built in integers in Rust.  Note that overflow and underflow are <em>not</em> detected
+in RHDL (nor are they detected in hardware either).  You will need to explicitly
+check for overflow or underflow conditions if you want to take action in those
+circumstances.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>x: Bits&lt;U8&gt; = <span class="number">0b0000_0001</span>.into();
+<span class="kw">let </span>y: Bits&lt;U8&gt; = <span class="number">0b0000_0010</span>.into();
+<span class="kw">let </span>z: Bits&lt;U8&gt; = x - y; <span class="comment">// 1 - 2 = -1
+</span><span class="macro">assert_eq!</span>(z, <span class="number">0b1111_1111</span>);</code></pre></div>
+<p>Note that in this case, we subtracted 2 from 1, and the result was -1.  However,
+-1 in 2s complement is <code>0xFF</code>, which is stored in <code>z</code> as an unsigned value of 255.
+This is the same behavior that you experience with <code>u8</code> in standard Rust if you
+use Wrapping arithmetic:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>x : u8 = <span class="number">1</span>;
+<span class="kw">let </span>y : u8 = <span class="number">2</span>;
+<span class="kw">let </span>z = u8::wrapping_sub(x, y);
+<span class="macro">assert_eq!</span>(z, <span class="number">0b1111_1111</span>);</code></pre></div>
+<p>I don’t want to belabor the point, but wrapping arithmetic and 2s complement
+representations can catch people by surprise if they are unfamiliar with
+hardware implementations of arithmetic.</p>
+<p>For <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a>, the result is the same, but interpreted correctly:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>x: s8 = <span class="number">0b0000_0001</span>.into();
+<span class="kw">let </span>y: s8 = <span class="number">0b0000_0010</span>.into();
+<span class="kw">let </span>z: s8 = x - y; <span class="comment">// 1 - 2 = -1
+</span><span class="macro">assert_eq!</span>(z, -<span class="number">1</span>);</code></pre></div>
+<p>The <a href="https://doc.rust-lang.org/1.91.1/core/ops/arith/trait.SubAssign.html" title="trait core::ops::arith::SubAssign">SubAssign</a> trait is implemented for both <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> and <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a>,
+so you can use the <code>-=</code> operator as well:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span><span class="kw-2">mut </span>x: Bits&lt;U8&gt; = <span class="number">0b0000_0001</span>.into();
+x -= <span class="number">1</span>;
+<span class="macro">assert_eq!</span>(x, <span class="number">0</span>);</code></pre></div><h3 id="bitwise-logical-operators"><a class="doc-anchor" href="#bitwise-logical-operators">§</a>Bitwise Logical Operators</h3>
+<p>All four of the standard Rust logical operators are supported for both <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> and <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a>.
+They operate bitwise, and are implemented using the standard Rust traits.  For completeness,
+the list of supported bitwise operators is:</p>
+<ul>
+<li><a href="https://doc.rust-lang.org/1.91.1/core/ops/bit/trait.BitOr.html" title="trait core::ops::bit::BitOr">Or</a> and <a href="https://doc.rust-lang.org/1.91.1/core/ops/bit/trait.BitOrAssign.html" title="trait core::ops::bit::BitOrAssign">OrAssign</a> for <code>|</code> and <code>|=</code></li>
+<li><a href="https://doc.rust-lang.org/1.91.1/core/ops/bit/trait.BitAnd.html" title="trait core::ops::bit::BitAnd">And</a> and <a href="https://doc.rust-lang.org/1.91.1/core/ops/bit/trait.BitAndAssign.html" title="trait core::ops::bit::BitAndAssign">AndAssign</a> for <code>&amp;</code> and <code>&amp;=</code></li>
+<li><a href="https://doc.rust-lang.org/1.91.1/core/ops/bit/trait.BitXor.html" title="trait core::ops::bit::BitXor">Xor</a> and <a href="https://doc.rust-lang.org/1.91.1/core/ops/bit/trait.BitXorAssign.html" title="trait core::ops::bit::BitXorAssign">XorAssign</a> for <code>^</code> and <code>^=</code></li>
+<li><a href="https://doc.rust-lang.org/1.91.1/core/ops/bit/trait.Not.html" title="trait core::ops::bit::Not">Not</a> for <code>!</code></li>
+</ul>
+<p>Other, more exotic binary operators (like Xnor or Nand) are not supported.  If you need these,
+you will need to implement them in terms of these more basic operators.</p>
+<p>Here is an example of the binary operators in action:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>x: Bits&lt;U8&gt; = <span class="number">0b1101_1010</span>.into();
+<span class="kw">let </span>y: Bits&lt;U8&gt; = <span class="number">0b1111_0000</span>.into();
+<span class="kw">let </span>z: Bits&lt;U8&gt; = x | y;
+<span class="macro">assert_eq!</span>(z, <span class="number">0b1111_1010</span>);
+<span class="kw">let </span>z: Bits&lt;U8&gt; = x &amp; y;
+<span class="macro">assert_eq!</span>(z, <span class="number">0b1101_0000</span>);
+<span class="kw">let </span>z: Bits&lt;U8&gt; = x ^ y;
+<span class="macro">assert_eq!</span>(z, <span class="number">0b0010_1010</span>);
+<span class="kw">let </span>z: Bits&lt;U8&gt; = !x;
+<span class="macro">assert_eq!</span>(z, <span class="number">0b0010_0101</span>);</code></pre></div>
+<p>Note that you can apply these operators to <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a> as well.  The meaning of the result is up
+to you to interpret.  The bitwise operators simply manipulate the bits, and do not care about
+the sign of the value.  This is also true for Rust and intrinsic types.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>x: i8 = -<span class="number">0b0101_1010</span>;
+<span class="kw">let </span>y: i8 = -<span class="number">0b0111_0000</span>;
+<span class="kw">let </span>z = x ^ y; <span class="comment">// This will be positive
+</span><span class="macro">assert_eq!</span>(z, <span class="number">54</span>);</code></pre></div><h3 id="shifting"><a class="doc-anchor" href="#shifting">§</a>Shifting</h3>
+<p>Shifting is a fairly complex topic, since it involves a few additional details:</p>
+<ul>
+<li>The behavior of <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> and <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a> are identical under left shifting.</li>
+<li>The behavior of <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> and <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a> are different under right shifting.</li>
+<li>Right shifting a <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> will cause <code>0</code> to be inserted on the “left” of the value (the MSB).</li>
+<li>Right shifting a <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a> will cause the MSB to be replicated on the “left” of the value.</li>
+</ul>
+<p>The net effect of these differences is that left shifting (to a point) will preserve the
+sign of the value, until all the bits are shifted out of the value.  Right shifting will
+preserve the sign of the value.  If you want to right shift a <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a> value with 0 insertion
+at the MSB, then convert it to a <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> first.</p>
+<p>The <a href="https://doc.rust-lang.org/1.91.1/core/ops/bit/trait.Shl.html" title="trait core::ops::bit::Shl">Shl</a> and <a href="https://doc.rust-lang.org/1.91.1/core/ops/bit/trait.ShlAssign.html" title="trait core::ops::bit::ShlAssign">ShlAssign</a> traits are implemented for both
+<a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> and <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a>.  The <a href="https://doc.rust-lang.org/1.91.1/core/ops/bit/trait.Shr.html" title="trait core::ops::bit::Shr">Shr</a> and <a href="https://doc.rust-lang.org/1.91.1/core/ops/bit/trait.ShrAssign.html" title="trait core::ops::bit::ShrAssign">ShrAssign</a> traits
+are also implemented for both.  Note that unlike the other operators, the shift operators allow
+you to use a <em>different</em> bit width for the shift amount.  This is because in hardware designs,
+the amount of the shift is often controlled dynamically (using circuitry known as a Barrel Shifter).
+And the number of bits used to encode the shift will be related to the base-2 log of the number
+of bits in the register.  For example, if you have a 32 bit register, you will need 5 bits to
+encode the shift amount.  If you have a 64 bit register, you will need 6 bits to encode the
+shift amount.  And so on.</p>
+<p>In order to model this, the shift operators are generic over both the number of bits in the value
+being shifted, <em>and</em> the number of bits in the value that controls the shift.  For example:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>x: Bits&lt;U8&gt; = <span class="number">0b1101_1010</span>.into();
+<span class="kw">let </span>y: Bits&lt;U3&gt; = <span class="number">0b101</span>.into();
+<span class="kw">let </span>z: Bits&lt;U8&gt; = x &gt;&gt; y;
+<span class="macro">assert_eq!</span>(z, <span class="number">0b0000_0110</span>);</code></pre></div>
+<p>You can also use an integer literal to control the shift amount</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>x: Bits&lt;U8&gt; = <span class="number">0b1101_1010</span>.into();
+<span class="kw">let </span>z: Bits&lt;U8&gt; = x &gt;&gt; <span class="number">3</span>;
+<span class="macro">assert_eq!</span>(z, <span class="number">0b0001_1011</span>);</code></pre></div>
+<p>There is one critical difference between shift operators on <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a>/<a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a> and the wrapping
+Rust operators on intrinsic integers.  Rust will do nothing if you shift by more bits than are
+in the value.  For example:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>x: u8 = <span class="number">0b1101_1010</span>;
+<span class="kw">let </span>y = u8::wrapping_shl(x,<span class="number">10</span>);
+<span class="macro">assert_ne!</span>(y, <span class="number">0b1101_1010</span>); <span class="comment">// Note that this is _not_ zero - the result is not even clearly defined.</span></code></pre></div>
+<p>This is not the case for <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> and <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a>.  If you shift by more bits than are in the value,
+the result will simply be zero (unless you are right shifting a <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a> value, in which case it
+will converge to either zero or -1, depending on the sign bit).  This is an odd case to cover, and
+it is not clear what the “correct” behavior should be.  But this is the behavior that is implemented
+in RHDL.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>x: Bits&lt;U8&gt; = <span class="number">0b1101_1010</span>.into();
+<span class="kw">let </span>z: Bits&lt;U8&gt; = x &gt;&gt; <span class="number">10</span>;
+<span class="macro">assert_eq!</span>(z, <span class="number">0</span>);</code></pre></div><h3 id="comparison-operators"><a class="doc-anchor" href="#comparison-operators">§</a>Comparison Operators</h3>
+<p>The standard Rust comparison operators are implemented for both <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> and <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a>.  These
+operators are:</p>
+<ul>
+<li><a href="https://doc.rust-lang.org/1.91.1/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a>, <a href="https://doc.rust-lang.org/1.91.1/core/cmp/trait.Eq.html" title="trait core::cmp::Eq">Eq</a> for <code>==</code> and <code>!=</code></li>
+<li><a href="https://doc.rust-lang.org/1.91.1/core/cmp/trait.Ord.html" title="trait core::cmp::Ord">Ord</a> and <a href="https://doc.rust-lang.org/1.91.1/core/cmp/trait.PartialOrd.html" title="trait core::cmp::PartialOrd">PartialOrd</a> for <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, and <code>&gt;=</code></li>
+</ul>
+<p>Note that the comparison operators are implemented using signed arithmetic for <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a>, and
+unsigned arithmetic for <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a>.  This is the same behavior that you would see in hardware designs.
+For example, with <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>x: Bits&lt;U8&gt; = <span class="number">0b1111_1111</span>.into();
+<span class="kw">let </span>y: Bits&lt;U8&gt; = <span class="number">0b0000_0000</span>.into();
+<span class="macro">assert!</span>(x &gt; y);</code></pre></div>
+<p>On the other hand with <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>x: s8 = (-<span class="number">0b0000_0001</span>).into();
+<span class="kw">let </span>y: s8 = <span class="number">0b0000_0000</span>.into();
+<span class="macro">assert!</span>(x &lt; y);
+<span class="macro">assert_eq!</span>(x.as_unsigned(), <span class="number">0b1111_1111</span>);</code></pre></div></div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="alias/index.html" title="mod rhdl_bits::alias">alias</a></dt><dd>Type Aliases</dd></dl><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><dl class="item-table"><dt><a class="macro" href="macro.impl_assign_op.html" title="macro rhdl_bits::impl_assign_op">impl_<wbr>assign_<wbr>op</a></dt><dt><a class="macro" href="macro.impl_assigned_signed_op.html" title="macro rhdl_bits::impl_assigned_signed_op">impl_<wbr>assigned_<wbr>signed_<wbr>op</a></dt><dt><a class="macro" href="macro.impl_binop.html" title="macro rhdl_bits::impl_binop">impl_<wbr>binop</a></dt><dt><a class="macro" href="macro.impl_signed_binop.html" title="macro rhdl_bits::impl_signed_binop">impl_<wbr>signed_<wbr>binop</a></dt><dt><a class="macro" href="macro.test_binop.html" title="macro rhdl_bits::test_binop">test_<wbr>binop</a></dt></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a></dt><dd>The <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> type is a fixed-sized bit vector.  It is meant to
+imitate the behavior of bit vectors in hardware.  Due to the
+design of the <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> type, you can only create a <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> type of
+up to 128 bits in length for now.  However, you can easily express
+larger constructs in hardware using arrays, tuples and structs.
+The only real limitation of the <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> type being 128 bits is that
+you cannot perform arbitrary arithmetic on longer bit values in your
+hardware designs.  I don’t think this is a significant issue, but
+the <a href="struct.Bits.html" title="struct rhdl_bits::Bits">Bits</a> design of the <code>rust-hdl</code> crate was much slower and harder
+to maintain and use.  I think this is a good trade-off.</dd><dt><a class="struct" href="struct.Const.html" title="struct rhdl_bits::Const">Const</a></dt><dt><a class="struct" href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">Signed<wbr>Bits</a></dt><dd>The <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a> type is a fixed-size bit vector.  It is
+meant to imitate the behavior of signed bit vectors in hardware.
+Due to the design of the <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a> type, you can only create a
+signed bit vector of up to 128 bits in lnegth for now.  However,
+you can easily express larger constructs in hardware using arrays,
+tuples and structs.  The only real limitation of the <a href="struct.SignedBits.html" title="struct rhdl_bits::SignedBits">SignedBits</a>
+type being 128 bits is that you cannot perform arbitrary arithmetic
+on longer bit values in your hardware designs.</dd><dt><a class="struct" href="struct.bits.html" title="struct rhdl_bits::bits">bits</a></dt><dt><a class="struct" href="struct.signed.html" title="struct rhdl_bits::signed">signed</a></dt></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.BitWidth.html" title="trait rhdl_bits::BitWidth">BitWidth</a></dt></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.bits.html" title="fn rhdl_bits::bits">bits</a></dt><dd>Helper function for creating a bits value from
+a constant.</dd><dt><a class="fn" href="fn.signed.html" title="fn rhdl_bits::signed">signed</a></dt><dd>Helper function for creating a signed bits value
+from a constant.</dd></dl></section></div></main></body></html>

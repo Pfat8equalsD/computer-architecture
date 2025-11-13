@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["PathElement","PathError"],"fn":["bit_range","leaf_paths","path_star","sub_kind","sub_trace_type"],"struct":["Path"]};

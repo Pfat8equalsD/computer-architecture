@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["binary_string","binary_string_nibbles","clog2","delim_list_optional_strings","hash_id","id","splice","terminate_list_optional_strings"],"struct":["IndentingFormatter"]};

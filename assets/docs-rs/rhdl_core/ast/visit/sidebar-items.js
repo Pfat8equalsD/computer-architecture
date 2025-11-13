@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["visit_block","visit_expr","visit_kernel_fn","visit_local","visit_match_arm","visit_pat","visit_stmt"],"trait":["Visitor"]};

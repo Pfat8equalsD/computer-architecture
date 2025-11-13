@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["inspect_digital"],"struct":["DigitalSignature","NoKernel2","NoKernel3"],"trait":["Describable","DigitalFn","DigitalFn0","DigitalFn1","DigitalFn2","DigitalFn3","DigitalFn4","DigitalFn5","DigitalFn6"]};

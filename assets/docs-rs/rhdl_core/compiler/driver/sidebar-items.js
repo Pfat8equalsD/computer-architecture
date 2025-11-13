@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["compile_design","compile_design_stage1","compile_design_stage2"]};

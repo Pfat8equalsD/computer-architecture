@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["edge_time"],"struct":["EdgeTime"]};

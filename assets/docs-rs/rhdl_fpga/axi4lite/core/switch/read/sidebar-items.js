@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["State"],"struct":["In","Out","ReadSwitch"],"type":["Command"]};

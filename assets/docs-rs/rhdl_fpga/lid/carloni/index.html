@@ -1,0 +1,1982 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A Carloni Relay station (aka Skid Buffer)"><title>rhdl_fpga::lid::carloni - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rhdl_fpga" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module carloni</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../rhdl_fpga/index.html">rhdl_<wbr>fpga</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module carloni</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#schematic-symbol" title="Schematic symbol">Schematic symbol</a></li><li><a href="#internal-details" title="Internal details">Internal details</a></li><li><a href="#example" title="Example">Example</a></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In rhdl_<wbr>fpga::<wbr>lid</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">rhdl_fpga</a>::<wbr><a href="../index.html">lid</a></div><h1>Module <span>carloni</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/rhdl_fpga/lid/carloni.rs.html#1-288">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A Carloni Relay station (aka Skid Buffer)</p>
+<p>Implement a Carloni Relay station.  As described in the
+paper “From Latency-Insensitive Design to Communication-Based
+System-Level Design” by Carloni. Proceedings of the IEEE, 2015.</p>
+<p>This is an implementation of the relay station as shown in Figure 4.
+A relay station is essentially a set of flip flops that can
+be inserted into a Ready-Valid bus to break long paths.  They
+add latency, but do not affect overall throughput.</p>
+<h2 id="schematic-symbol"><a class="doc-anchor" href="#schematic-symbol">§</a>Schematic symbol</h2>
+<p>Here is a symbol for the buffer, as depicted in the original paper.</p>
+<p></p><div style="text-align:center;"><svg viewBox="0 0 320 105" width="320px" xmlns="http://www.w3.org/2000/svg">
+<path d="M55,7.5 M55,7.5 C76.03166,7.5,97.063324,7.5,115,7.5 M195,7.5 M195,7.5 C224.96492,7.5,254.92984,7.5,275,7.5 M5,22.5 M5,22.5 C14.714304,22.5,24.428608,22.5,45,22.5 M275,22.5 M275,22.5 C283.2137,22.5,291.42743,22.5,315,22.5 M15,52.5 M15,52.5 C23.297104,52.5,31.594208,52.5,55,52.5 M285,52.5 M285,52.5 C295.83044,52.5,306.6609,52.5,315,52.5 M275,7.5 M275,7.5 C275,31.096956,275,54.693913,275,67.5 M5,82.5 M5,82.5 C17.314909,82.5,29.629818,82.5,45,82.5 M275,82.5 M275,82.5 C289.9216,82.5,304.8432,82.5,315,82.5 M55,7.5 M55,7.5 C55,27.866102,55,48.232204,55,97.5 M275,67.5 M275,67.5 C275,79.378044,275,91.25608,275,97.5 M55,97.5 M55,97.5 C138.88435,97.5,222.7687,97.5,275,97.5 M45,18 M45,18 C47.09387,18.94224,49.187737,19.884481,55,22.5 M55,22.5 C52.853527,23.465912,50.707054,24.431826,45,27 M45,27 C45,23.403004,45,19.806007,45,18 M315,18 M315,18 C317.06027,18.927126,319.12054,19.85425,325,22.5 M325,22.5 C322.5292,23.611855,320.0584,24.723711,315,27 M315,27 C315,24.074673,315,21.149343,315,18 M15,48 M15,48 C12.369059,49.18392,9.738117,50.367847,5,52.5 M5,52.5 C8.060229,53.8771,11.120459,55.254208,15,57 M15,57 C15,53.537136,15,50.074272,15,48 M285,48 M285,48 C282.93002,48.931488,280.86005,49.86298,275,52.5 M275,52.5 C277.42184,53.589836,279.84372,54.679672,285,57 M285,57 C285,53.64962,285,50.29924,285,48 M45,78 M45,78 C48.32779,79.497505,51.655582,80.99501,55,82.5 M55,82.5 C52.33986,83.69707,49.679718,84.89413,45,87 M45,87 C45,85.09582,45,83.191635,45,78 M315,78 M315,78 C318.56683,79.60508,322.13367,81.21015,325,82.5 M325,82.5 C321.77313,83.95209,318.54626,85.404175,315,87 M315,87 C315,83.41933,315,79.83865,315,78" fill="none" stroke="currentColor" stroke-width="1"/>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="125" y="7.5">
+C
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="135" y="7.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="145" y="7.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="155" y="7.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="165" y="7.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="175" y="7.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="7.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="22.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="22.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="22.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="22.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="22.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="125" y="22.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="135" y="22.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="22.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="195" y="22.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="205" y="22.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="215" y="22.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="225" y="22.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="235" y="22.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="245" y="22.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="255" y="22.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="52.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="52.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="52.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="52.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="52.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="125" y="52.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="135" y="52.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="145" y="52.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="52.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="195" y="52.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="205" y="52.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="215" y="52.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="225" y="52.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="235" y="52.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="245" y="52.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="82.5">
+v
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="82.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="82.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="82.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="82.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="125" y="82.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="135" y="82.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="82.5">
+v
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="195" y="82.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="205" y="82.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="215" y="82.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="225" y="82.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="235" y="82.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="245" y="82.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="255" y="82.5">
+t
+</text>
+</svg></div><p></p>
+ The `void` signal indicates the validity of the data line,
+ and `stop` is an active-high flow control mechanism.
+<h2 id="internal-details"><a class="doc-anchor" href="#internal-details">§</a>Internal details</h2>
+<p>The details of the buffer are well explained in the paper.  Here is
+rough sketch of the internals of the buffer component.</p>
+<p></p><div style="text-align:center;"><svg viewBox="0 0 580 330" width="580px" xmlns="http://www.w3.org/2000/svg">
+<path d="M245.74457,7.8446527 M245.372,7.4400644 C248.7071,8.007837,252.38638,7.7526603,254.20848,7.361915 M244.95769,7.6408615 C247.63591,7.433082,250.41048,7.6861224,254.79768,7.1861415 M304.42392,5.6656218 M305.5117,8.17311 C307.2664,8.374801,309.12735,7.20835,315.588,7.457081 M305.30307,7.026714 C306.83188,7.4581714,309.8842,7.733584,315.0275,7.9053726 M14.661188,37.639706 M13.265625,35.648552 C46.33469,39.135216,75.53361,36.68071,164.15639,39.238876 M14.145452,36.985542 C67.04515,37.093674,121.07658,36.54785,165.5513,37.789204 M175.96246,6.0647626 M176.71315,6.269863 C178.89755,18.438103,187.65558,26.984085,194.43524,38.952946 M174.80542,8.093374 C180.34378,17.530817,186.55304,26.628773,194.81136,38.372036 M64.58981,52.304516 M65.98149,52.740757 C68.534256,52.662235,70.91152,53.15605,74.92441,51.947266 M64.64698,52.968124 C68.52769,52.776917,71.793236,52.35125,75.400566,52.13145 M115.21955,53.29533 M114.412415,53.378662 C117.80694,52.81742,120.43481,52.18717,124.145905,53.459347 M115.456276,52.918694 C118.04828,52.462738,120.95497,52.446835,124.65272,52.716003 M196.29182,54.12585 M195.69107,51.974155 C206.55353,53.31591,220.65446,50.94511,234.87903,51.06547 M194.94087,51.84516 C205.18005,50.96114,213.76068,51.40385,235.5351,53.36293 M313.30957,50.792946 M314.63828,51.064163 C328.02042,50.672596,340.27127,52.94316,353.3113,54.493324 M315.75446,52.01277 C325.77737,50.958374,336.2082,52.525578,355.25708,52.356815 M26.547655,35.620556 M24.789513,36.629578 C24.66128,44.57989,23.682304,50.49046,23.404446,66.44158 M25.436327,38.0892 C26.326643,48.726494,25.85343,57.897434,24.029465,67.75037 M23.40811,67.359604 M26.468184,68.40014 C37.27528,69.160065,46.705837,69.23633,53.226456,66.76188 M25.909195,68.15612 C35.349754,66.0647,46.869884,67.16573,55.56632,67.56023 M123.549225,67.666176 M126.8341,66.34375 C138.75589,69.95277,152.49931,69.71573,164.22339,68.89518 M124.714615,67.91388 C140.16837,67.3328,154.42491,66.99972,164.00966,66.56998 M196.93698,38.648666 M195.73473,36.66842 C194.70822,45.595154,195.82364,51.13938,196.13725,65.984375 M194.80832,38.304977 C194.87723,46.024628,194.16174,56.46889,194.45334,67.23712 M175.6045,95.91769 M176.89609,97.42845 C180.54398,86.524216,189.3264,77.62153,196.42424,67.17359 M174.20558,97.39304 C182.13959,85.33413,190.59193,73.43739,194.11507,67.45054 M246.96373,8.34218 M246.20442,7.037994 C243.16693,21.778452,245.93356,41.160736,244.20047,83.3394 M245.84592,6.7267327 C244.66832,36.95833,243.85811,66.52502,244.98212,81.72257 M313.9864,7.5465984 M313.48868,7.37404 C312.28104,26.751434,314.88226,45.777794,313.94302,82.47905 M315.83093,7.321594 C315.8488,33.459007,314.42023,58.422054,314.85757,81.75282 M243.07097,82.452255 M243.15747,83.36102 C263.85773,81.08655,284.14783,82.98713,315.85098,83.19376 M245.75005,82.66253 C264.17978,81.919586,281.1775,82.3436,314.65582,82.85082 M176.39685,6.013466 M175.7556,6.0052896 C172.99266,32.037254,175.97545,57.850365,175.3227,98.75692 M175.92577,8.446066 C174.42125,31.390858,175.28288,56.528126,175.68127,97.6822 M345.8729,99.21269 M345.6636,96.36443 C352.7746,98.18567,361.72852,97.59868,363.17392,97.92672 M345.3599,98.46854 C351.70465,96.62976,356.9152,96.85703,365.07272,97.14082 M446.9877,98.15899 M446.26074,96.942215 C476.6299,98.19288,507.25754,97.07343,524.8022,97.635376 M444.3929,97.37083 C466.41266,96.70217,488.4764,97.25238,524.9687,96.973526 M65.210594,53.522686 M63.414738,54.493786 C65.01257,69.664375,64.177795,89.417175,65.44112,112.25051 M65.95936,52.184547 C64.836464,68.264305,63.7178,85.471,64.66554,113.0773 M126.02146,53.364044 M124.20787,51.439236 C124.87847,67.19317,126.0599,80.38446,126.97485,112.88061 M125.50835,52.688152 C126.22518,66.117516,125.94267,79.510574,125.500336,111.88116 M63.15761,114.306465 M63.98441,114.499466 C85.68948,112.38268,107.664085,115.430466,125.639656,111.48043 M65.94446,112.48381 C82.73239,113.35866,100.94457,113.70676,124.44158,113.42333 M284.27402,113.93411 M284.5779,112.094826 C300.12955,112.70744,313.49393,114.77417,346.5693,110.82381 M284.4283,111.59365 C306.7877,114.02592,328.45517,113.75647,345.1159,111.958275 M526.3234,129.37413 M524.96747,126.53833 C541.4913,126.03058,563.3494,126.61478,576.38446,129.48106 M525.013,127.69059 C536.5487,127.11593,546.41583,127.68262,575.0961,127.602394 M184.04651,142.88878 M186.9642,140.8936 C244.8387,143.00562,300.75784,144.71104,344.99573,140.84329 M184.05318,141.66708 C234.07426,140.24368,282.10068,139.79097,344.30026,142.78323 M95.686844,127.628006 M93.79521,129.31735 C94.613525,139.63484,94.36293,152.26535,94.56076,173.65536 M95.09851,128.19008 C94.70545,138.9556,93.443695,152.24889,95.11352,172.60416 M95.530266,172.49985 M94.77001,174.098 C174.49796,175.3917,253.32494,173.95244,344.3623,171.22319 M95.20688,171.80725 C146.96661,173.95992,199.02997,173.5621,344.28696,171.71669 M34.041992,202.31303 M35.39184,202.08339 C123.788574,199.81067,215.14618,199.65958,345.9089,201.65306 M34.361282,202.19644 C118.78736,202.2197,202.20657,201.95963,344.65152,202.95589 M286.7676,97.93225 M283.2215,98.06758 C286.38742,144.66693,287.5735,191.78297,286.36157,218.18507 M284.94495,96.92619 C283.73508,145.64287,285.29782,192.51987,284.97083,216.91351 M346.30927,96.07134 M344.1466,96.119225 C345.27872,133.34317,344.56277,168.22685,345.27182,218.39735 M345.83606,97.562614 C346.66043,125.32828,346.39948,152.83832,345.0602,218.10764 M526.5593,97.91893 M525.1596,97.71173 C528.2759,124.59709,525.35126,152.26851,524.6375,217.081 M524.09546,97.39858 C525.69336,135.62306,525.397,175.0391,524.3507,218.32527 M343.3815,216.05426 M343.5937,217.99963 C390.12497,215.40164,437.3378,216.11868,524.479,216.65471 M345.8777,217.85239 C386.8905,213.68147,429.51352,214.45236,525.9647,217.70923 M183.7871,96.941246 M186.41609,97.654816 C184.75577,133.22052,184.08188,171.65152,186.83391,232.45198 M184.33801,96.95801 C186.48183,136.35591,185.91096,176.66176,184.83076,232.62915 M243.8134,233.38875 M246.27423,230.79253 C264.23245,231.99065,281.4004,231.70047,314.87482,230.7598 M245.31757,232.60272 C264.69028,232.9284,283.5802,230.99384,314.08514,232.50818 M146.82376,264.12164 M146.5321,261.45667 C150.29047,260.9244,157.78311,260.63336,163.34248,263.8046 M145.90385,262.2906 C149.58748,263.224,155.86761,261.78424,165.6311,262.93948 M175.174,232.1726 M175.60579,230.68419 C180.40762,238.34293,182.65036,247.5271,195.34073,260.65298 M174.4034,233.42038 C180.74252,243.20822,189.10172,252.90077,194.4133,262.39914 M196.13266,278.82074 M196.27533,276.16757 C208.96939,278.69342,223.57176,275.4197,236.89195,279.37485 M195.63097,277.208 C204.40681,278.51358,212.73767,276.9789,235.53438,278.02902 M314.97308,276.35468 M313.98044,279.00122 C325.7677,276.73352,337.24146,276.7249,355.8495,277.76752 M314.4942,277.17618 C331.4989,277.615,346.17648,275.9122,355.46912,278.49652 M133.54857,290.5804 M136.43782,290.63287 C143.5048,290.81183,147.87979,293.50555,163.93019,294.47632 M135.96114,291.54053 C142.10059,293.14355,150.31476,291.78464,165.4596,291.68954 M194.66592,263.30472 M194.90216,263.4196 C194.677,272.03577,194.22165,284.69223,196.25266,292.54382 M194.73781,263.09085 C194.84016,269.30304,194.70859,277.5852,195.58711,292.23535 M175.9573,324.31992 M176.06667,320.80188 C180.56793,313.36496,185.28604,304.88037,196.46123,290.58398 M174.91754,323.29318 C179.64697,315.74866,182.72598,310.6192,194.87807,292.1749 M246.31308,233.13223 M246.53062,232.86398 C245.305,253.40495,243.18576,272.40186,245.17262,308.98813 M245.25578,232.4855 C245.90283,260.14233,245.68994,287.3434,244.24168,308.12698 M243.17949,307.96936 M244.84264,307.02405 C248.16422,308.2261,252.50652,308.13858,254.32321,307.692 M245.11188,307.20224 C248.67264,307.32608,253.11905,307.61954,254.64786,307.25653 M314.64587,232.81645 M314.45657,232.70761 C315.51913,253.66698,313.59348,270.61078,315.63858,308.08838 M315.16617,233.35081 C315.0137,259.37097,314.77457,285.18558,314.19952,307.51642 M305.39523,306.7717 M304.22055,307.16953 C306.94373,306.45786,309.59546,307.8675,315.40704,307.19595 M305.48895,307.41382 C308.64526,307.00272,312.3234,307.4708,314.80533,307.68127 M173.41635,232.20445 M175.49995,231.17387 C172.35493,250.38995,174.1608,271.89035,173.83943,321.1428 M174.60175,232.997 C175.58139,264.45688,175.61656,294.82925,174.23198,321.625 M163.89406,32.758526 M165.57324,33.433334 C169.28676,35.465607,172.61523,35.928658,174.69952,37.394955 M165.32089,32.916622 C167.59622,34.4508,169.05254,34.53525,174.94969,37.099686 M175.11346,37.94527 C171.07278,38.034897,169.79195,40.948288,165.92474,41.88123 M175.06343,37.71126 C171.19623,39.165188,167.92326,40.63054,165.03262,41.878826 M165.24937,41.818817 C165.355,40.197887,165.36432,38.82245,165.35268,32.30845 M165.14543,41.60202 C164.67268,39.945763,165.17331,37.30699,165.06178,33.058598 M236.84195,46.19411 M234.16629,48.671986 C237.1018,48.474674,239.3558,49.358727,244.44135,52.491646 M234.64827,47.718895 C238.17148,49.163128,240.69615,50.10475,245.01608,52.378582 M244.73831,53.548054 C242.53194,54.27432,238.6702,55.308544,235.52257,56.754265 M245.41023,52.912907 C242.87794,53.022137,241.07759,53.91635,235.28848,57.250614 M235.25589,57.86387 C234.80435,54.4059,235.54707,50.90417,234.1682,47.24398 M235.3513,57.311363 C235.49567,54.550987,234.81519,51.8344,235.10802,48.0367 M356.9491,46.358116 M354.13672,48.45753 C357.59286,49.850376,361.46924,51.64239,365.19098,53.198162 M354.966,48.043114 C358.13907,49.33586,360.5854,50.17936,365.0693,52.565426 M365.6331,53.036053 C361.58197,53.730667,358.05884,55.05685,354.36633,57.514957 M364.66898,52.726696 C363.04126,53.519165,361.25107,54.682083,355.17734,57.22982 M354.34937,56.272537 C355.52872,53.33699,354.74957,51.045303,354.42328,48.01956 M355.20438,57.392555 C354.8887,54.998055,354.94702,52.507126,355.36093,48.052727 M55.77081,64.90614 M55.998375,62.95284 C56.41532,63.698677,59.23419,63.744087,64.5137,67.80592 M55.362118,62.885914 C58.63337,64.77115,61.03473,65.793274,65.405945,67.927536 M64.90824,68.29579 C60.76441,68.30162,58.086376,71.19614,54.98724,71.71 M64.5611,67.24443 C61.363483,69.12437,56.795128,71.4156,54.76503,72.06289 M55.50815,72.26679 C55.1073,69.33675,53.96052,67.685165,54.48354,62.722157 M55.116825,71.55153 C55.24111,68.86529,54.837925,65.05615,54.682743,62.738056 M165.05107,61.3879 M164.69147,62.438232 C167.84258,65.196754,170.57376,66.46047,175.34056,67.625595 M164.65456,62.71696 C168.58699,64.521904,172.65927,66.689064,175.08685,67.25081 M175.75682,66.79689 C171.53429,67.76548,169.65193,70.142746,165.22023,71.32737 M175.32913,67.978294 C171.17673,68.75597,167.04851,71.22665,165.34471,71.64607 M165.83493,71.5596 C165.68187,68.91651,164.73325,66.41318,164.35005,62.720924 M164.56787,71.69371 C165.26746,69.001045,165.11649,65.91255,165.38835,62.602924 M576.28485,122.29567 M575.2438,122.44732 C578.36993,124.39861,581.38,126.172356,585.2677,127.86572 M575.3794,123.50457 C577.0611,124.310844,579.32556,124.50256,585.2801,127.038704 M585.9716,128.14316 C583.06445,128.5819,579.35815,129.56209,575.7024,132.02492 M585.08093,127.89917 C580.80493,129.14124,577.6427,130.73492,575.3943,132.43477 M575.60187,131.43925 C574.9113,130.34807,574.74176,128.14603,574.73456,122.92455 M575.4221,131.94594 C575.1768,129.5991,575.1102,127.76058,574.5765,123.37847 M89.39029,125.90194 M90.99483,126.38262 C90.54371,121.555145,94.327286,115.14078,94.55087,111.94765 M90.60772,126.9783 C92.29289,123.2932,93.282845,117.98647,94.80046,111.7907 M94.44189,111.73977 C97.31293,116.176285,98.07331,118.41701,98.59082,127.556984 M94.86593,112.04506 C97.03611,118.162125,98.128845,123.59916,99.58751,127.58125 M100.228004,127.104355 C97.09597,128.02501,92.2164,127.42084,90.48463,128.21326 M99.68619,127.42637 C97.79223,127.42911,95.33636,127.479904,89.59515,127.409676 M34.817574,198.78442 M35.911366,197.5121 C31.300095,198.83755,28.480251,201.82628,23.967894,203.29173 M35.47908,197.71642 C31.65348,199.30936,29.34679,200.89185,25.317867,202.1615 M25.322832,203.57195 C28.68446,205.04765,32.53103,206.08908,36.093754,206.02481 M24.864296,202.0141 C28.417831,204.36723,32.429905,205.928,35.470066,207.05695 M34.390327,206.95209 C34.16014,204.07932,35.60721,199.53188,35.62685,198.71898 M34.675938,207.03159 C34.880974,204.23058,34.75399,201.26819,35.27817,197.89673 M279.37738,98.90378 M279.0473,96.00648 C280.59915,92.59732,283.01608,87.62002,286.25772,81.02449 M280.22287,97.341385 C280.50977,92.97576,282.058,90.04775,285.2325,82.57046 M285.32388,82.7821 C285.79294,87.694435,287.4436,90.122375,289.08453,96.44059 M284.65076,81.991234 C285.93564,86.85809,288.30933,90.51737,290.40677,96.83001 M290.31332,97.31391 C286.78925,97.81067,282.29572,98.09672,279.68127,98.423065 M290.41446,97.94685 C286.17392,97.05939,282.3155,97.397934,279.67337,97.316925 M280.08838,217.56358 M280.42166,216.57025 C281.68878,222.0994,282.48776,229.45114,283.50116,231.45773 M279.82068,217.87827 C282.01224,223.6289,284,228.25624,285.49066,232.446 M285.75473,231.2903 C286.1757,229.03516,288.63608,226.72763,290.03677,216.65846 M284.50974,231.87383 C285.5224,228.08055,287.45444,224.67429,289.67706,217.76244 M289.8513,217.11154 C285.76804,217.1994,283.45248,216.95763,280.3968,217.76749 M290.01398,217.02979 C288.1721,217.43965,286.11932,217.73206,280.1034,217.64688 M179.80025,95.988655 M179.95737,98.87036 C182.74507,93.879814,180.98582,89.83135,185.86952,82.37057 M180.3187,96.85681 C181.41335,92.19192,183.09302,86.46559,184.77422,82.993744 M186.34546,82.22897 C186.94943,88.91381,190.60596,93.86979,190.08984,97.68974 M185.45526,81.882965 C186.30719,87.5538,189.43286,93.48773,189.73334,97.21208 M190.62337,98.27672 C185.97038,96.5085,182.60866,96.33963,180.93796,98.426056 M190.4465,97.49812 C186.8568,97.38704,183.34033,97.96072,180.32076,97.514984 M180.42555,232.2976 M181.1366,231.67836 C179.8031,235.7345,181.53545,239.67186,184.42316,245.9808 M179.66055,233.21645 C181.33319,236.49281,182.38971,241.04561,185.66742,247.81653 M185.8129,248.44905 C188.18507,241.35242,189.85956,237.4736,188.74811,231.24005 M185.39645,246.71307 C187.70897,241.50105,188.45596,237.1615,190.15707,231.82973 M189.73082,232.79869 C187.79274,233.17078,185.02145,231.82326,180.3485,232.28654 M190.40973,232.62321 C187.04648,232.71829,184.83757,232.36938,179.97626,232.01845 M165.24252,257.3085 M165.71198,258.08597 C168.29845,258.86203,169.69638,259.77264,174.27602,261.72522 M164.5035,258.15173 C167.86623,259.6638,170.99875,260.68454,175.50235,262.42377 M175.81435,262.05014 C171.34598,264.4869,168.33385,266.28,163.96646,266.6715 M175.07614,262.02234 C171.33437,264.92212,166.97008,266.2437,165.01155,266.80637 M164.37898,266.26144 C164.22255,263.74213,164.58093,260.9649,164.10411,258.4085 M165.34926,266.92285 C164.68742,264.1941,165.03883,261.41992,165.37535,257.60553 M234.99178,272.60037 M234.0212,272.12393 C236.9412,273.65488,239.34944,275.59363,244.26851,277.1717 M234.90173,273.44556 C237.81573,274.14325,241.02312,275.34927,244.87967,277.24463 M244.48735,276.59015 C243.61739,278.3434,240.03703,278.74557,235.47449,281.72266 M245.3638,277.51495 C241.82544,279.17188,238.02663,280.77325,234.6312,282.5232 M234.67416,281.13394 C234.17195,279.15997,235.16968,274.6763,234.64217,273.3362 M235.36098,282.32074 C234.60243,279.77777,234.9653,278.657,234.79776,272.92795 M356.1438,273.02377 M354.88263,272.5796 C359.09088,275.21332,361.6366,276.17493,363.9635,277.7093 M355.27954,273.31882 C357.59586,273.99472,358.9878,275.1981,365.1024,277.61346 M364.6409,277.71002 C360.69186,278.77005,357.7088,281.59195,354.6771,282.1898 M365.4039,278.0355 C361.9242,279.53903,359.0512,280.37262,354.5886,282.30838 M354.72473,281.43097 C354.66998,278.782,355.0536,277.2869,355.58948,272.55917 M354.67258,281.83844 C355.20285,279.6158,354.99112,276.5198,354.9106,272.5507 M164.82738,288.87366 M163.95857,287.44827 C167.34787,288.96173,170.71835,292.08734,174.65381,293.1436 M164.89545,288.12137 C167.77837,288.68964,169.84076,289.6468,175.36353,292.20807 M174.74722,292.43542 C173.0375,293.63153,168.8285,295.4498,166.04407,296.64407 M174.88551,292.69962 C172.77419,294.08426,169.9402,294.41602,164.72208,296.7528 M165.12195,297.33197 C164.77507,294.62677,164.19548,292.1333,165.27153,287.1536 M165.0468,296.71707 C164.58769,294.68805,164.81593,292.80756,165.3664,287.92465" fill="none" stroke="currentColor" stroke-width="1"/>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="265" y="7.5">
+m
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="275" y="7.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="285" y="7.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="295" y="7.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="5" y="22.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="15" y="22.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="22.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="22.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="45" y="22.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="55" y="22.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="22.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="265" y="22.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="275" y="22.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="37.5">
+0
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="52.5">
+A
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="52.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="52.5">
+x
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="255" y="52.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="305" y="52.5">
+q
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="52.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="52.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="395" y="52.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="52.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="52.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="425" y="52.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="435" y="52.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="445" y="52.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="67.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="67.5">
+q
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="67.5">
+1
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="275" y="67.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="285" y="67.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="82.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="82.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="97.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="97.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="97.5">
+C
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="97.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="395" y="97.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="97.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="97.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="425" y="97.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="435" y="97.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="195" y="112.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="205" y="112.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="215" y="112.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="112.5">
+m
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="112.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="112.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="395" y="112.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="112.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="112.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="425" y="112.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="445" y="127.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="455" y="127.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="465" y="127.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="475" y="127.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="485" y="127.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="495" y="127.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="505" y="127.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="142.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="142.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="142.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="172.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="172.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="172.5">
+x
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="395" y="172.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="172.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="172.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="202.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="202.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="202.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="395" y="202.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="202.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="202.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="425" y="202.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="435" y="202.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="195" y="217.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="205" y="217.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="215" y="217.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="275" y="247.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="285" y="247.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="262.5">
+v
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="262.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="262.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="262.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="262.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="262.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="125" y="262.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="262.5">
+0
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="255" y="277.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="305" y="277.5">
+q
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="277.5">
+v
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="277.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="395" y="277.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="277.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="277.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="425" y="277.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="435" y="277.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="445" y="277.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="292.5">
+0
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="292.5">
+1
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="265" y="292.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="275" y="292.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="265" y="307.5">
+v
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="275" y="307.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="285" y="307.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="295" y="307.5">
+d
+</text>
+</svg></div><p></p>
+<p>Note that the flip flops in this design have enable
+signals.  The logic of the control block is shown below.</p>
+<p></p><div style="text-align:center;"><svg viewBox="0 0 540 375" width="540px" xmlns="http://www.w3.org/2000/svg">
+<path d="M5.744561,37.844654 M5.644777,37.396114 C82.46591,40.63425,159.88358,40.19196,223.62808,37.260662 M4.926661,37.744152 C60.24314,34.799297,115.72657,35.23789,224.64934,36.955997 M304.42392,35.665623 M306.02335,38.846222 C339.76303,40.849586,373.71515,38.516685,466.17606,37.41416 M305.60617,36.55343 C340.11316,40.109783,377.66727,40.660606,465.05496,38.310745 M204.6612,52.639706 M203.26563,50.648552 C222.032,53.981373,236.9282,51.526867,284.1564,54.238876 M204.14545,51.985542 C232.48285,52.568027,261.95197,52.022205,285.5513,52.789204 M175.96246,66.064766 M176.71315,66.26987 C179.22755,69.57838,187.98558,69.26463,194.43524,68.95294 M174.80542,68.093376 C180.5874,68.04434,186.79666,67.655815,194.81136,68.37204 M294.5898,67.30452 M296.96298,67.981514 C302.0685,67.82447,306.82303,68.8121,314.84882,66.39453 M294.29395,68.43625 C302.05536,68.05383,308.5865,67.2025,315.80115,66.7629 M175.21954,68.29533 M173.82483,69.257324 C176.41891,79.79278,176.66565,89.802536,173.29181,114.41869 M175.91255,68.33739 C175.29535,81.39715,174.7312,95.71479,174.30544,112.93201 M176.29182,114.12585 M175.69107,111.97416 C183.5345,113.40036,194.61641,111.02956,204.87903,111.065475 M174.94087,111.84516 C182.71169,111.1533,188.82397,111.59601,205.5351,113.36293 M313.30957,65.792946 M314.63828,66.06416 C316.58835,79.400734,316.76282,95.25721,313.3113,114.493324 M315.75446,67.01277 C314.5166,78.198235,314.57446,91.435005,315.25708,112.35682 M286.54767,110.62056 M284.78952,111.62958 C291.50336,112.37828,297.81805,110.99516,313.40445,111.44158 M285.43634,113.0892 C296.09402,113.45066,305.9564,112.28599,314.02948,112.75037 M203.40811,52.359604 M206.46819,53.40014 C204.98424,81.41938,203.54268,108.67596,203.22646,126.76188 M205.9092,53.156116 C203.49,79.49663,203.8741,108.43775,205.56631,127.56023 M283.54922,52.666176 M286.8341,51.34375 C285.03525,78.72225,285.82404,102.77518,284.2234,128.89517 M284.71463,52.913883 C284.37448,79.972115,284.00745,107.05826,284.00964,126.56998 M206.93698,128.64867 M205.73473,126.66842 C224.68951,127.17422,245.53249,125.32062,286.13727,125.984375 M204.80832,128.30498 C229.16753,127.69443,252.78036,129.01556,284.45334,127.23712 M55.604515,155.9177 M56.896088,157.42845 C96.98646,154.81158,142.80975,156.01096,186.42424,157.17358 M54.205585,157.39305 C105.08375,155.01624,156.3619,154.79927,184.11507,157.45053 M296.96375,188.34218 M296.2044,187.038 C330.43674,185.10074,369.57642,188.4361,464.20047,188.3394 M295.84592,186.72673 C361.79388,185.06723,427.23627,185.40483,464.98212,186.72256 M263.9864,127.5466 M263.48868,127.37404 C261.62473,158.03006,264.22595,188.33505,263.94302,247.47905 M265.83093,127.321594 C265.81644,168.4473,264.38788,208.39862,264.85757,246.75282 M223.07097,142.45226 M223.15747,143.36102 C227.28523,173.83928,228.70607,208.08713,225.85098,263.19376 M225.75005,142.66254 C224.84013,173.29933,223.47438,205.20354,224.65584,262.85083 M206.39685,261.01346 M205.7556,261.00528 C226.21259,261.359,252.3817,261.08752,285.3227,263.75693 M205.92577,263.44608 C226.3173,262.4786,249.0835,262.97324,285.68127,262.6822 M295.8729,294.21268 M295.6636,291.36444 C310.35168,292.9941,326.88275,292.4071,333.17392,292.92673 M295.3599,293.46854 C307.76865,291.66162,319.04315,291.8889,335.07272,292.14084 M366.9877,308.159 M366.26074,306.9422 C432.0033,308.8607,498.00427,307.7412,534.8022,307.63538 M364.3929,307.37082 C410.98584,305.80133,457.62277,306.35153,534.9687,306.97354 M335.2106,293.52267 M333.41473,294.49377 C335.17178,305.0828,334.337,320.254,335.4411,337.25052 M335.95935,292.18454 C335.12732,304.1873,334.00867,317.317,334.66556,338.0773 M286.02145,338.36404 M284.2079,336.43924 C297.40173,337.6682,310.3442,336.74628,336.97485,337.8806 M285.50836,337.68814 C297.26193,337.28677,308.63284,336.69568,335.50034,336.88116 M203.15761,264.30646 M203.9844,264.49948 C205.82512,292.2982,207.15446,326.31387,205.63966,351.48044 M205.94446,262.48383 C205.34741,289.61713,205.74402,316.6886,204.44159,353.42334 M284.27402,263.9341 M284.5779,262.09482 C287.07693,282.8529,286.79572,305.388,286.5693,350.8238 M284.4283,261.59366 C284.2648,295.10522,284.51517,326.9615,285.1159,351.95828 M206.32343,354.37415 M204.96747,351.53833 C232.51343,350.55612,265.3938,351.14032,286.38446,354.48108 M205.01302,352.69058 C223.20525,352.2861,239.72893,352.85278,285.09616,352.6024 M194.04651,63.388786 M196.07697,62.119225 C199.64839,64.64522,202.09094,67.21395,204.99767,66.591644 M194.48087,62.54332 C198.1978,64.06976,200.83203,65.193565,204.61633,67.65529 M203.98369,66.45972 C201.00175,69.95978,198.56436,70.227615,195.10805,71.79125 M204.45735,66.99177 C202.32562,69.0743,199.8181,69.50751,194.63507,72.12838 M194.99994,72.16761 C195.27344,68.857605,194.85452,67.27624,194.91304,63.742867 M194.64821,71.58574 C194.9953,69.73368,195.12404,67.30557,194.98958,63.254623 M295.1443,63.15742 M294.8975,62.87216 C293.0557,64.81545,290.95978,64.4996,284.54282,68.40032 M294.676,62.83919 C290.71893,64.99644,286.6585,66.45732,284.90765,67.83261 M285.6976,68.46917 C287.4083,69.53979,290.12625,68.647514,294.02487,72.3112 M285.25693,67.873276 C288.02222,69.21811,290.53293,70.039764,294.96982,71.68539 M294.69403,71.973755 C294.38882,70.57977,294.27377,67.87277,295.0334,62.83129 M295.29,71.881584 C295.48843,69.7452,295.32617,67.07255,295.43018,62.66868 M261.6721,247.62523 M258.5758,247.59523 C262.05643,252.37138,262.60995,253.55077,266.34003,263.06284 M259.89194,246.83484 C261.5826,251.91434,262.94595,256.82797,265.09842,262.9167 M264.74155,262.65527 C267.60556,258.29074,268.43076,254.89462,268.85706,246.73755 M265.1975,262.42288 C266.8676,258.2638,268.81027,252.40923,269.66586,246.99217 M270.3524,246.95302 C265.4728,247.31407,262.6595,248.64026,260.20923,246.89355 M269.90338,247.85402 C267.31808,247.31346,264.196,247.14499,259.95215,247.95848 M219.95198,142.29105 M219.14304,142.7764 C221.39093,136.71385,225.05608,131.84637,225.2042,126.561905 M219.74754,143.0037 C221.18304,137.79489,223.20213,132.36607,224.50723,127.45052 M225.59499,128.0021 C226.1347,132.1357,228.54759,135.41257,228.45154,141.0535 M224.94589,128.09985 C227.22214,132.53682,227.86932,136.2171,229.46608,142.91776 M229.66507,142.3823 C227.15985,143.53432,225.43233,141.8878,220.45958,142.70735 M230.0435,142.41815 C227.5838,142.74323,225.89954,142.73933,219.54605,142.70166 M294.17242,286.6348 M295.40036,287.83963 C291.39297,288.9014,288.2899,290.30905,285.7701,293.29944 M295.31052,288.36206 C291.95245,289.8799,288.46616,291.299,284.6347,292.4304 M286.03735,293.52795 C287.7576,294.4922,292.14282,296.69724,294.6798,297.8795 M285.293,292.79007 C288.88712,294.0547,292.5786,295.5879,295.4553,296.7205 M295.2782,296.95016 C295.3862,293.74484,295.88864,289.78018,295.87958,287.54477 M294.69064,296.63733 C295.10904,295.03986,294.57138,291.75098,294.72293,287.75446" fill="none" stroke="currentColor" stroke-width="1"/>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="15" y="7.5">
+!
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="7.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="7.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="45" y="7.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="55" y="7.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="7.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="7.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="7.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="7.5">
++
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="15" y="22.5">
+(
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="22.5">
+!
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="22.5">
+v
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="45" y="22.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="55" y="22.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="22.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="22.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="22.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="22.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="22.5">
+&amp;
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="135" y="22.5">
+v
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="145" y="22.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="155" y="22.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="165" y="22.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="175" y="22.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="22.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="195" y="22.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="205" y="22.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="215" y="22.5">
+)
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="305" y="22.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="315" y="22.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="325" y="22.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="335" y="22.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="345" y="22.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="355" y="22.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="22.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="22.5">
+&amp;
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="22.5">
+v
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="22.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="425" y="22.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="435" y="22.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="445" y="22.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="455" y="22.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="465" y="22.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="15" y="52.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="52.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="52.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="55" y="52.5">
+=
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="52.5">
+0
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="345" y="52.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="355" y="52.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="52.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="52.5">
+=
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="52.5">
+0
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="15" y="67.5">
+m
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="67.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="67.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="45" y="67.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="55" y="67.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="67.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="67.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="67.5">
+=
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="67.5">
+1
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="345" y="67.5">
+m
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="355" y="67.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="67.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="67.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="67.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="395" y="67.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="67.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="425" y="67.5">
+=
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="445" y="67.5">
+0
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="15" y="82.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="82.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="82.5">
+x
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="45" y="82.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="55" y="82.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="82.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="82.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="82.5">
+=
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="82.5">
+0
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="345" y="82.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="355" y="82.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="82.5">
+x
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="82.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="82.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="395" y="82.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="82.5">
+=
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="435" y="82.5">
+0
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="15" y="97.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="97.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="97.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="45" y="97.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="55" y="97.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="97.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="97.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="97.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="97.5">
+=
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="125" y="97.5">
+0
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="235" y="97.5">
+R
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="245" y="97.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="255" y="97.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="345" y="97.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="355" y="97.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="97.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="97.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="97.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="395" y="97.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="97.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="97.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="435" y="97.5">
+=
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="455" y="97.5">
+0
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="142.5">
+!
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="142.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="142.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="142.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="142.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="125" y="142.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="135" y="142.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="145" y="142.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="295" y="157.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="305" y="157.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="315" y="157.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="325" y="157.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="335" y="157.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="345" y="157.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="355" y="157.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="157.5">
+&amp;
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="395" y="157.5">
+!
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="157.5">
+v
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="157.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="425" y="157.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="435" y="157.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="445" y="157.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="455" y="157.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="465" y="157.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="172.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="172.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="172.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="172.5">
+=
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="135" y="172.5">
+1
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="295" y="172.5">
+&amp;
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="315" y="172.5">
+!
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="325" y="172.5">
+v
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="335" y="172.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="345" y="172.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="355" y="172.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="172.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="172.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="172.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="395" y="172.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="187.5">
+m
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="187.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="187.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="187.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="187.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="125" y="187.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="135" y="187.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="155" y="187.5">
+=
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="175" y="187.5">
+1
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="202.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="202.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="202.5">
+x
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="202.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="202.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="125" y="202.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="145" y="202.5">
+=
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="165" y="202.5">
+0
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="335" y="202.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="345" y="202.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="355" y="202.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="202.5">
+=
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="395" y="202.5">
+0
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="217.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="217.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="217.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="217.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="217.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="125" y="217.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="135" y="217.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="145" y="217.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="165" y="217.5">
+=
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="217.5">
+1
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="335" y="217.5">
+m
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="345" y="217.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="355" y="217.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="217.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="217.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="217.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="395" y="217.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="217.5">
+=
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="435" y="217.5">
+0
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="335" y="232.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="345" y="232.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="355" y="232.5">
+x
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="232.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="232.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="232.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="232.5">
+=
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="425" y="232.5">
+1
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="335" y="247.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="345" y="247.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="355" y="247.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="247.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="247.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="247.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="395" y="247.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="247.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="425" y="247.5">
+=
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="445" y="247.5">
+0
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="292.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="292.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="292.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="395" y="292.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="292.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="292.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="425" y="292.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="225" y="307.5">
+S
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="235" y="307.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="245" y="307.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="255" y="307.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="265" y="307.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="322.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="322.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="425" y="322.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="445" y="322.5">
+=
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="465" y="322.5">
+0
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="337.5">
+m
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="337.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="425" y="337.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="435" y="337.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="445" y="337.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="455" y="337.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="465" y="337.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="485" y="337.5">
+=
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="505" y="337.5">
+0
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="352.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="352.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="425" y="352.5">
+x
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="435" y="352.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="445" y="352.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="455" y="352.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="475" y="352.5">
+=
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="495" y="352.5">
+0
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="367.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="367.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="425" y="367.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="435" y="367.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="445" y="367.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="455" y="367.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="465" y="367.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="475" y="367.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="495" y="367.5">
+=
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="515" y="367.5">
+1
+</text>
+</svg></div><p></p>
+ For more details, see the paper.
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
+<p>The following example uses the <code>run_fn</code> method on
+<a href="../../../rhdl_core/circuit/synchronous/trait.Synchronous.html" title="trait rhdl_core::circuit::synchronous::Synchronous">Synchronous</a> circuits to provide a feedback-type test
+harness (i.e., the input depends on the outputs of the
+circuit at the last clock edge).</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>rhdl::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>rhdl_fpga::{
+    lid::carloni::{<span class="self">self</span>, Carloni},
+    rng::xorshift::XorShift128,
+};
+
+<span class="kw">fn </span>main() -&gt; <span class="prelude-ty">Result</span>&lt;(), RHDLError&gt; {
+    <span class="comment">// The buffer will manage items of 4 bits
+    </span><span class="kw">let </span>uut = Carloni::&lt;b4&gt;::default();
+    <span class="comment">// The test harness will include a consumer that
+    // randomly pauses the upstream producer.  The producer
+    // will also randomly pause it's output.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>need_reset = <span class="bool-val">true</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>source_rng = XorShift128::default();
+    <span class="kw">let </span>vcd = uut
+        .run_fn(
+            |out| {
+                <span class="kw">if </span>need_reset {
+                    need_reset = <span class="bool-val">false</span>;
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(rhdl::core::sim::ResetOrData::Reset);
+                }
+                <span class="kw">let </span><span class="kw-2">mut </span>input = carloni::In::&lt;b4&gt;::dont_care();
+                <span class="comment">// See if we want to pause the stream as the consumer
+                </span><span class="kw">let </span>want_to_pause = rand::random::&lt;u8&gt;() &gt; <span class="number">200</span>;
+                input.stop_in = want_to_pause;
+                <span class="comment">// Decide if the producer will generate a data item
+                </span><span class="kw">let </span>want_to_send = rand::random::&lt;u8&gt;() &lt; <span class="number">200</span>;
+                input.void_in = <span class="bool-val">true</span>;
+                input.data_in = bits(<span class="number">0</span>);
+                <span class="kw">if </span>!out.stop_out &amp;&amp; want_to_send {
+                    <span class="comment">// The receiver did not tell us to stop, and
+                    // we want to send something.
+                    </span>input.data_in = bits((source_rng.next().unwrap() &amp; <span class="number">0xF</span>) <span class="kw">as </span>u128);
+                    input.void_in = <span class="bool-val">false</span>;
+                }
+                <span class="prelude-val">Some</span>(rhdl::core::sim::ResetOrData::Data(input))
+            },
+            <span class="number">100</span>,
+        )
+        .take_while(|t| t.time &lt; <span class="number">1500</span>)
+        .collect::&lt;Vcd&gt;();
+    rhdl_fpga::doc::write_svg_as_markdown(vcd, <span class="string">"carloni.md"</span>, SvgOptions::default())<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div>
+<p>Here is the trace</p>
+<p>
+<svg viewBox="0 0 1700 460" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<clipPath id="clip">
+<rect height="460" width="1700" x="0" y="0"/>
+</clipPath>
+</defs>
+<rect fill="#0B151D" height="460" stroke="darkblue" width="1700" x="0" y="0"/>
+<line stroke="#333333" stroke-width="1" x1="200" x2="200" y1="0" y2="460"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="200" y="10">
+0
+</text>
+<line stroke="#333333" stroke-width="1" x1="300" x2="300" y1="0" y2="460"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="300" y="10">
+100
+</text>
+<line stroke="#333333" stroke-width="1" x1="400" x2="400" y1="0" y2="460"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="400" y="10">
+200
+</text>
+<line stroke="#333333" stroke-width="1" x1="500" x2="500" y1="0" y2="460"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="500" y="10">
+300
+</text>
+<line stroke="#333333" stroke-width="1" x1="600" x2="600" y1="0" y2="460"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="600" y="10">
+400
+</text>
+<line stroke="#333333" stroke-width="1" x1="700" x2="700" y1="0" y2="460"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="700" y="10">
+500
+</text>
+<line stroke="#333333" stroke-width="1" x1="800" x2="800" y1="0" y2="460"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="800" y="10">
+600
+</text>
+<line stroke="#333333" stroke-width="1" x1="900" x2="900" y1="0" y2="460"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="900" y="10">
+700
+</text>
+<line stroke="#333333" stroke-width="1" x1="1000" x2="1000" y1="0" y2="460"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1000" y="10">
+800
+</text>
+<line stroke="#333333" stroke-width="1" x1="1100" x2="1100" y1="0" y2="460"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1100" y="10">
+900
+</text>
+<line stroke="#333333" stroke-width="1" x1="1200" x2="1200" y1="0" y2="460"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1200" y="10">
+1000
+</text>
+<line stroke="#333333" stroke-width="1" x1="1300" x2="1300" y1="0" y2="460"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1300" y="10">
+1100
+</text>
+<line stroke="#333333" stroke-width="1" x1="1400" x2="1400" y1="0" y2="460"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1400" y="10">
+1200
+</text>
+<line stroke="#333333" stroke-width="1" x1="1500" x2="1500" y1="0" y2="460"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1500" y="10">
+1300
+</text>
+<line stroke="#333333" stroke-width="1" x1="1600" x2="1600" y1="0" y2="460"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1600" y="10">
+1400
+</text>
+<line stroke="#333333" stroke-width="1" x1="1700" x2="1700" y1="0" y2="460"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1700" y="10">
+1500
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" y="10">
+Time:
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="30">
+.aux_ff.dff.input
+<title>top.aux_ff.dff.input</title>
+</text>
+<path d="M 200 30 L 203 23 L 447 23 L 450 30 L 447 37 L 203 37 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="325" xml:space="preserve" y="30">
+0
+<title>0</title>
+</text>
+<path d="M 451 30 L 454 23 L 747 23 L 750 30 L 747 37 L 454 37 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="600" xml:space="preserve" y="30">
+0
+<title>0</title>
+</text>
+<path d="M 751 30 L 754 23 L 1648 23 L 1651 30 L 1648 37 L 754 37 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1201" xml:space="preserve" y="30">
+0
+<title>0</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="50">
+.aux_ff.dff.output
+<title>top.aux_ff.dff.output</title>
+</text>
+<path d="M 200 50 L 203 43 L 1648 43 L 1651 50 L 1648 57 L 203 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="925" xml:space="preserve" y="50">
+0
+<title>0</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="70">
+.clock
+<title>top.clock</title>
+</text>
+<path d="M 200 70 L 200 77 L 250 77 L 250 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="251" y="63"/>
+<path d="M 250 70 L 250 63 L 300 63 L 300 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 300 70 L 300 77 L 350 77 L 350 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="351" y="63"/>
+<path d="M 350 70 L 350 63 L 400 63 L 400 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 400 70 L 400 77 L 450 77 L 450 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="451" y="63"/>
+<path d="M 450 70 L 450 63 L 500 63 L 500 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 500 70 L 500 77 L 550 77 L 550 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="551" y="63"/>
+<path d="M 550 70 L 550 63 L 600 63 L 600 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 600 70 L 600 77 L 650 77 L 650 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="651" y="63"/>
+<path d="M 650 70 L 650 63 L 700 63 L 700 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 700 70 L 700 77 L 750 77 L 750 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="751" y="63"/>
+<path d="M 750 70 L 750 63 L 800 63 L 800 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 800 70 L 800 77 L 850 77 L 850 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="851" y="63"/>
+<path d="M 850 70 L 850 63 L 900 63 L 900 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 900 70 L 900 77 L 950 77 L 950 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="951" y="63"/>
+<path d="M 950 70 L 950 63 L 1000 63 L 1000 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1000 70 L 1000 77 L 1050 77 L 1050 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1051" y="63"/>
+<path d="M 1050 70 L 1050 63 L 1100 63 L 1100 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1100 70 L 1100 77 L 1150 77 L 1150 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1151" y="63"/>
+<path d="M 1150 70 L 1150 63 L 1200 63 L 1200 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1200 70 L 1200 77 L 1250 77 L 1250 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1251" y="63"/>
+<path d="M 1250 70 L 1250 63 L 1300 63 L 1300 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1300 70 L 1300 77 L 1350 77 L 1350 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1351" y="63"/>
+<path d="M 1350 70 L 1350 63 L 1400 63 L 1400 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1400 70 L 1400 77 L 1450 77 L 1450 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1451" y="63"/>
+<path d="M 1450 70 L 1450 63 L 1500 63 L 1500 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1500 70 L 1500 77 L 1550 77 L 1550 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1551" y="63"/>
+<path d="M 1550 70 L 1550 63 L 1600 63 L 1600 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1600 70 L 1600 77 L 1650 77 L 1650 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1651" y="63"/>
+<path d="M 1650 70 L 1650 63 L 1700 63 L 1700 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="90">
+.input
+<title>top.input</title>
+</text>
+<path d="M 200 90 L 203 83 L 248 83 L 251 90 L 248 97 L 203 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="225" xml:space="preserve" y="90">
+{d...
+<title>{data_in: 0, void_in: 0, stop_in: 0}</title>
+</text>
+<path d="M 251 90 L 254 83 L 348 83 L 351 90 L 348 97 L 254 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="301" xml:space="preserve" y="90">
+{data_i...
+<title>{data_in: 0, void_in: 1, stop_in: 0}</title>
+</text>
+<path d="M 351 90 L 354 83 L 448 83 L 451 90 L 448 97 L 354 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="401" xml:space="preserve" y="90">
+{data_i...
+<title>{data_in: 2, void_in: 0, stop_in: 1}</title>
+</text>
+<path d="M 451 90 L 454 83 L 548 83 L 551 90 L 548 97 L 454 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="501" xml:space="preserve" y="90">
+{data_i...
+<title>{data_in: 5, void_in: 0, stop_in: 0}</title>
+</text>
+<path d="M 551 90 L 554 83 L 648 83 L 651 90 L 648 97 L 554 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="601" xml:space="preserve" y="90">
+{data_i...
+<title>{data_in: 0, void_in: 1, stop_in: 0}</title>
+</text>
+<path d="M 651 90 L 654 83 L 748 83 L 751 90 L 748 97 L 654 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="701" xml:space="preserve" y="90">
+{data_i...
+<title>{data_in: 6, void_in: 0, stop_in: 1}</title>
+</text>
+<path d="M 751 90 L 754 83 L 848 83 L 851 90 L 848 97 L 754 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="801" xml:space="preserve" y="90">
+{data_i...
+<title>{data_in: 2, void_in: 0, stop_in: 0}</title>
+</text>
+<path d="M 851 90 L 854 83 L 948 83 L 951 90 L 948 97 L 854 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="901" xml:space="preserve" y="90">
+{data_i...
+<title>{data_in: a, void_in: 0, stop_in: 0}</title>
+</text>
+<path d="M 951 90 L 954 83 L 1048 83 L 1051 90 L 1048 97 L 954 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1001" xml:space="preserve" y="90">
+{data_i...
+<title>{data_in: 0, void_in: 1, stop_in: 0}</title>
+</text>
+<path d="M 1051 90 L 1054 83 L 1148 83 L 1151 90 L 1148 97 L 1054 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1101" xml:space="preserve" y="90">
+{data_i...
+<title>{data_in: 0, void_in: 1, stop_in: 1}</title>
+</text>
+<path d="M 1151 90 L 1154 83 L 1248 83 L 1251 90 L 1248 97 L 1154 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1201" xml:space="preserve" y="90">
+{data_i...
+<title>{data_in: 1, void_in: 0, stop_in: 0}</title>
+</text>
+<path d="M 1251 90 L 1254 83 L 1348 83 L 1351 90 L 1348 97 L 1254 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1301" xml:space="preserve" y="90">
+{data_i...
+<title>{data_in: c, void_in: 0, stop_in: 0}</title>
+</text>
+<path d="M 1351 90 L 1354 83 L 1448 83 L 1451 90 L 1448 97 L 1354 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1401" xml:space="preserve" y="90">
+{data_i...
+<title>{data_in: 0, void_in: 1, stop_in: 1}</title>
+</text>
+<path d="M 1451 90 L 1454 83 L 1548 83 L 1551 90 L 1548 97 L 1454 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1501" xml:space="preserve" y="90">
+{data_i...
+<title>{data_in: c, void_in: 0, stop_in: 0}</title>
+</text>
+<path d="M 1551 90 L 1554 83 L 1648 83 L 1651 90 L 1648 97 L 1554 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1601" xml:space="preserve" y="90">
+{data_i...
+<title>{data_in: 0, void_in: 1, stop_in: 0}</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="110">
+   .data_in
+<title>top.input.data_in</title>
+</text>
+<path d="M 200 110 L 203 103 L 348 103 L 351 110 L 348 117 L 203 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="275" xml:space="preserve" y="110">
+0
+<title>0</title>
+</text>
+<path d="M 351 110 L 354 103 L 448 103 L 451 110 L 448 117 L 354 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="401" xml:space="preserve" y="110">
+2
+<title>2</title>
+</text>
+<path d="M 451 110 L 454 103 L 548 103 L 551 110 L 548 117 L 454 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="501" xml:space="preserve" y="110">
+5
+<title>5</title>
+</text>
+<path d="M 551 110 L 554 103 L 648 103 L 651 110 L 648 117 L 554 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="601" xml:space="preserve" y="110">
+0
+<title>0</title>
+</text>
+<path d="M 651 110 L 654 103 L 748 103 L 751 110 L 748 117 L 654 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="701" xml:space="preserve" y="110">
+6
+<title>6</title>
+</text>
+<path d="M 751 110 L 754 103 L 848 103 L 851 110 L 848 117 L 754 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="801" xml:space="preserve" y="110">
+2
+<title>2</title>
+</text>
+<path d="M 851 110 L 854 103 L 948 103 L 951 110 L 948 117 L 854 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="901" xml:space="preserve" y="110">
+a
+<title>a</title>
+</text>
+<path d="M 951 110 L 954 103 L 1148 103 L 1151 110 L 1148 117 L 954 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1051" xml:space="preserve" y="110">
+0
+<title>0</title>
+</text>
+<path d="M 1151 110 L 1154 103 L 1248 103 L 1251 110 L 1248 117 L 1154 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1201" xml:space="preserve" y="110">
+1
+<title>1</title>
+</text>
+<path d="M 1251 110 L 1254 103 L 1348 103 L 1351 110 L 1348 117 L 1254 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1301" xml:space="preserve" y="110">
+c
+<title>c</title>
+</text>
+<path d="M 1351 110 L 1354 103 L 1448 103 L 1451 110 L 1448 117 L 1354 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1401" xml:space="preserve" y="110">
+0
+<title>0</title>
+</text>
+<path d="M 1451 110 L 1454 103 L 1548 103 L 1551 110 L 1548 117 L 1454 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1501" xml:space="preserve" y="110">
+c
+<title>c</title>
+</text>
+<path d="M 1551 110 L 1554 103 L 1648 103 L 1651 110 L 1648 117 L 1554 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1601" xml:space="preserve" y="110">
+0
+<title>0</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="130">
+   .void_in
+<title>top.input.void_in</title>
+</text>
+<path d="M 200 130 L 200 137 L 251 137 L 251 130" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="98" x="252" y="123"/>
+<path d="M 251 130 L 251 123 L 351 123 L 351 130" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 351 130 L 351 137 L 551 137 L 551 130" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="98" x="552" y="123"/>
+<path d="M 551 130 L 551 123 L 651 123 L 651 130" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 651 130 L 651 137 L 951 137 L 951 130" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="198" x="952" y="123"/>
+<path d="M 951 130 L 951 123 L 1151 123 L 1151 130" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1151 130 L 1151 137 L 1351 137 L 1351 130" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="98" x="1352" y="123"/>
+<path d="M 1351 130 L 1351 123 L 1451 123 L 1451 130" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1451 130 L 1451 137 L 1551 137 L 1551 130" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="98" x="1552" y="123"/>
+<path d="M 1551 130 L 1551 123 L 1651 123 L 1651 130" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="150">
+   .stop_in
+<title>top.input.stop_in</title>
+</text>
+<path d="M 200 150 L 200 157 L 351 157 L 351 150" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="98" x="352" y="143"/>
+<path d="M 351 150 L 351 143 L 451 143 L 451 150" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 451 150 L 451 157 L 651 157 L 651 150" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="98" x="652" y="143"/>
+<path d="M 651 150 L 651 143 L 751 143 L 751 150" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 751 150 L 751 157 L 1051 157 L 1051 150" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="98" x="1052" y="143"/>
+<path d="M 1051 150 L 1051 143 L 1151 143 L 1151 150" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1151 150 L 1151 157 L 1351 157 L 1351 150" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="98" x="1352" y="143"/>
+<path d="M 1351 150 L 1351 143 L 1451 143 L 1451 150" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1451 150 L 1451 157 L 1651 157 L 1651 150" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="170">
+.main_ff.dff.input
+<title>top.main_ff.dff.input</title>
+</text>
+<path d="M 200 170 L 203 163 L 348 163 L 351 170 L 348 177 L 203 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="275" xml:space="preserve" y="170">
+0
+<title>0</title>
+</text>
+<path d="M 351 170 L 354 163 L 448 163 L 451 170 L 448 177 L 354 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="401" xml:space="preserve" y="170">
+2
+<title>2</title>
+</text>
+<path d="M 451 170 L 454 163 L 548 163 L 551 170 L 548 177 L 454 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="501" xml:space="preserve" y="170">
+5
+<title>5</title>
+</text>
+<path d="M 551 170 L 554 163 L 648 163 L 651 170 L 648 177 L 554 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="601" xml:space="preserve" y="170">
+0
+<title>0</title>
+</text>
+<path d="M 651 170 L 654 163 L 748 163 L 751 170 L 748 177 L 654 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="701" xml:space="preserve" y="170">
+6
+<title>6</title>
+</text>
+<path d="M 751 170 L 754 163 L 848 163 L 851 170 L 848 177 L 754 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="801" xml:space="preserve" y="170">
+2
+<title>2</title>
+</text>
+<path d="M 851 170 L 854 163 L 948 163 L 951 170 L 948 177 L 854 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="901" xml:space="preserve" y="170">
+a
+<title>a</title>
+</text>
+<path d="M 951 170 L 954 163 L 1148 163 L 1151 170 L 1148 177 L 954 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1051" xml:space="preserve" y="170">
+0
+<title>0</title>
+</text>
+<path d="M 1151 170 L 1154 163 L 1248 163 L 1251 170 L 1248 177 L 1154 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1201" xml:space="preserve" y="170">
+1
+<title>1</title>
+</text>
+<path d="M 1251 170 L 1254 163 L 1548 163 L 1551 170 L 1548 177 L 1254 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1401" xml:space="preserve" y="170">
+c
+<title>c</title>
+</text>
+<path d="M 1551 170 L 1554 163 L 1648 163 L 1651 170 L 1648 177 L 1554 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1601" xml:space="preserve" y="170">
+0
+<title>0</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="190">
+.main_ff.dff.output
+<title>top.main_ff.dff.output</title>
+</text>
+<path d="M 200 190 L 203 183 L 447 183 L 450 190 L 447 197 L 203 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="325" xml:space="preserve" y="190">
+0
+<title>0</title>
+</text>
+<path d="M 450 190 L 453 183 L 547 183 L 550 190 L 547 197 L 453 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="500" xml:space="preserve" y="190">
+2
+<title>2</title>
+</text>
+<path d="M 550 190 L 553 183 L 647 183 L 650 190 L 647 197 L 553 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="600" xml:space="preserve" y="190">
+5
+<title>5</title>
+</text>
+<path d="M 650 190 L 653 183 L 747 183 L 750 190 L 747 197 L 653 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="700" xml:space="preserve" y="190">
+0
+<title>0</title>
+</text>
+<path d="M 750 190 L 753 183 L 847 183 L 850 190 L 847 197 L 753 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="800" xml:space="preserve" y="190">
+6
+<title>6</title>
+</text>
+<path d="M 850 190 L 853 183 L 947 183 L 950 190 L 947 197 L 853 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="900" xml:space="preserve" y="190">
+2
+<title>2</title>
+</text>
+<path d="M 950 190 L 953 183 L 1047 183 L 1050 190 L 1047 197 L 953 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1000" xml:space="preserve" y="190">
+a
+<title>a</title>
+</text>
+<path d="M 1050 190 L 1053 183 L 1247 183 L 1250 190 L 1247 197 L 1053 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1150" xml:space="preserve" y="190">
+0
+<title>0</title>
+</text>
+<path d="M 1250 190 L 1253 183 L 1347 183 L 1350 190 L 1347 197 L 1253 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1300" xml:space="preserve" y="190">
+1
+<title>1</title>
+</text>
+<path d="M 1350 190 L 1353 183 L 1647 183 L 1650 190 L 1647 197 L 1353 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1500" xml:space="preserve" y="190">
+c
+<title>c</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="210">
+.outputs
+<title>top.outputs</title>
+</text>
+<path d="M 200 210 L 203 203 L 248 203 L 251 210 L 248 217 L 203 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="225" xml:space="preserve" y="210">
+{d...
+<title>{data_out: 0, void_out: 1, stop_out: 1}</title>
+</text>
+<path d="M 251 210 L 254 203 L 447 203 L 450 210 L 447 217 L 254 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="350" xml:space="preserve" y="210">
+{data_out: 0, vo...
+<title>{data_out: 0, void_out: 1, stop_out: 0}</title>
+</text>
+<path d="M 450 210 L 453 203 L 547 203 L 550 210 L 547 217 L 453 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="500" xml:space="preserve" y="210">
+{data_o...
+<title>{data_out: 2, void_out: 0, stop_out: 0}</title>
+</text>
+<path d="M 550 210 L 553 203 L 647 203 L 650 210 L 647 217 L 553 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="600" xml:space="preserve" y="210">
+{data_o...
+<title>{data_out: 5, void_out: 0, stop_out: 0}</title>
+</text>
+<path d="M 650 210 L 653 203 L 747 203 L 750 210 L 747 217 L 653 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="700" xml:space="preserve" y="210">
+{data_o...
+<title>{data_out: 0, void_out: 1, stop_out: 0}</title>
+</text>
+<path d="M 750 210 L 753 203 L 847 203 L 850 210 L 847 217 L 753 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="800" xml:space="preserve" y="210">
+{data_o...
+<title>{data_out: 6, void_out: 0, stop_out: 0}</title>
+</text>
+<path d="M 850 210 L 853 203 L 947 203 L 950 210 L 947 217 L 853 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="900" xml:space="preserve" y="210">
+{data_o...
+<title>{data_out: 2, void_out: 0, stop_out: 0}</title>
+</text>
+<path d="M 950 210 L 953 203 L 1047 203 L 1050 210 L 1047 217 L 953 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1000" xml:space="preserve" y="210">
+{data_o...
+<title>{data_out: a, void_out: 0, stop_out: 0}</title>
+</text>
+<path d="M 1050 210 L 1053 203 L 1247 203 L 1250 210 L 1247 217 L 1053 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1150" xml:space="preserve" y="210">
+{data_out: 0, voi...
+<title>{data_out: 0, void_out: 1, stop_out: 0}</title>
+</text>
+<path d="M 1250 210 L 1253 203 L 1347 203 L 1350 210 L 1347 217 L 1253 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1300" xml:space="preserve" y="210">
+{data_o...
+<title>{data_out: 1, void_out: 0, stop_out: 0}</title>
+</text>
+<path d="M 1350 210 L 1353 203 L 1647 203 L 1650 210 L 1647 217 L 1353 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1500" xml:space="preserve" y="210">
+{data_out: c, void_out: 0, ...
+<title>{data_out: c, void_out: 0, stop_out: 0}</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="230">
+   .data_out
+<title>top.outputs.data_out</title>
+</text>
+<path d="M 200 230 L 203 223 L 447 223 L 450 230 L 447 237 L 203 237 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="325" xml:space="preserve" y="230">
+0
+<title>0</title>
+</text>
+<path d="M 450 230 L 453 223 L 547 223 L 550 230 L 547 237 L 453 237 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="500" xml:space="preserve" y="230">
+2
+<title>2</title>
+</text>
+<path d="M 550 230 L 553 223 L 647 223 L 650 230 L 647 237 L 553 237 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="600" xml:space="preserve" y="230">
+5
+<title>5</title>
+</text>
+<path d="M 650 230 L 653 223 L 747 223 L 750 230 L 747 237 L 653 237 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="700" xml:space="preserve" y="230">
+0
+<title>0</title>
+</text>
+<path d="M 750 230 L 753 223 L 847 223 L 850 230 L 847 237 L 753 237 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="800" xml:space="preserve" y="230">
+6
+<title>6</title>
+</text>
+<path d="M 850 230 L 853 223 L 947 223 L 950 230 L 947 237 L 853 237 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="900" xml:space="preserve" y="230">
+2
+<title>2</title>
+</text>
+<path d="M 950 230 L 953 223 L 1047 223 L 1050 230 L 1047 237 L 953 237 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1000" xml:space="preserve" y="230">
+a
+<title>a</title>
+</text>
+<path d="M 1050 230 L 1053 223 L 1247 223 L 1250 230 L 1247 237 L 1053 237 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1150" xml:space="preserve" y="230">
+0
+<title>0</title>
+</text>
+<path d="M 1250 230 L 1253 223 L 1347 223 L 1350 230 L 1347 237 L 1253 237 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1300" xml:space="preserve" y="230">
+1
+<title>1</title>
+</text>
+<path d="M 1350 230 L 1353 223 L 1647 223 L 1650 230 L 1647 237 L 1353 237 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1500" xml:space="preserve" y="230">
+c
+<title>c</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="250">
+   .void_out
+<title>top.outputs.void_out</title>
+</text>
+<rect fill="#1C400C" height="14" stroke="none" width="248" x="201" y="243"/>
+<path d="M 200 250 L 200 243 L 450 243 L 450 250" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 450 250 L 450 257 L 650 257 L 650 250" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="98" x="651" y="243"/>
+<path d="M 650 250 L 650 243 L 750 243 L 750 250" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 750 250 L 750 257 L 1050 257 L 1050 250" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="198" x="1051" y="243"/>
+<path d="M 1050 250 L 1050 243 L 1250 243 L 1250 250" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1250 250 L 1250 257 L 1650 257 L 1650 250" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="270">
+   .stop_out
+<title>top.outputs.stop_out</title>
+</text>
+<rect fill="#1C400C" height="14" stroke="none" width="49" x="201" y="263"/>
+<path d="M 200 270 L 200 263 L 251 263 L 251 270" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 251 270 L 251 277 L 1651 277 L 1651 270" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="290">
+.reset
+<title>top.reset</title>
+</text>
+<rect fill="#1C400C" height="14" stroke="none" width="49" x="201" y="283"/>
+<path d="M 200 290 L 200 283 L 251 283 L 251 290" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 251 290 L 251 297 L 1651 297 L 1651 290" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="310">
+.state_ff.dff.input
+<title>top.state_ff.dff.input</title>
+</text>
+<path d="M 200 310 L 200 317 L 450 317 L 450 310" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 451 310 L 451 317 L 750 317 L 750 310" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 751 310 L 751 317 L 1651 317 L 1651 310" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="330">
+   #Run
+<title>top.state_ff.dff.input#Run</title>
+</text>
+<path d="M 200 330 L 203 323 L 447 323 L 450 330 L 447 337 L 203 337 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="325" xml:space="preserve" y="330">
+<title></title>
+</text>
+<path d="M 451 330 L 454 323 L 747 323 L 750 330 L 747 337 L 454 337 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="600" xml:space="preserve" y="330">
+<title></title>
+</text>
+<path d="M 751 330 L 754 323 L 1648 323 L 1651 330 L 1648 337 L 754 337 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1201" xml:space="preserve" y="330">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="350">
+   #Stall
+<title>top.state_ff.dff.input#Stall</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="370">
+.state_ff.dff.output
+<title>top.state_ff.dff.output</title>
+</text>
+<path d="M 200 370 L 200 377 L 1651 377 L 1651 370" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="390">
+   #Run
+<title>top.state_ff.dff.output#Run</title>
+</text>
+<path d="M 200 390 L 203 383 L 1648 383 L 1651 390 L 1648 397 L 203 397 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="925" xml:space="preserve" y="390">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="410">
+   #Stall
+<title>top.state_ff.dff.output#Stall</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="430">
+.void_ff.dff.input
+<title>top.void_ff.dff.input</title>
+</text>
+<path d="M 200 430 L 200 437 L 251 437 L 251 430" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="98" x="252" y="423"/>
+<path d="M 251 430 L 251 423 L 351 423 L 351 430" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 351 430 L 351 437 L 551 437 L 551 430" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="98" x="552" y="423"/>
+<path d="M 551 430 L 551 423 L 651 423 L 651 430" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 651 430 L 651 437 L 951 437 L 951 430" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="198" x="952" y="423"/>
+<path d="M 951 430 L 951 423 L 1151 423 L 1151 430" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1151 430 L 1151 437 L 1551 437 L 1551 430" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="98" x="1552" y="423"/>
+<path d="M 1551 430 L 1551 423 L 1651 423 L 1651 430" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="450">
+.void_ff.dff.output
+<title>top.void_ff.dff.output</title>
+</text>
+<path d="M 200 450 L 200 457 L 250 457 L 250 450" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="198" x="251" y="443"/>
+<path d="M 250 450 L 250 443 L 450 443 L 450 450" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 450 450 L 450 457 L 650 457 L 650 450" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="98" x="651" y="443"/>
+<path d="M 650 450 L 650 443 L 750 443 L 750 450" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 750 450 L 750 457 L 1050 457 L 1050 450" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="198" x="1051" y="443"/>
+<path d="M 1050 450 L 1050 443 L 1250 443 L 1250 450" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1250 450 L 1250 457 L 1650 457 L 1650 450" fill="none" stroke="#56C126" stroke-width="1"/>
+</svg>
+</p></div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Carloni.html" title="struct rhdl_fpga::lid::carloni::Carloni">Carloni</a></dt><dd>A Carloni (skid) buffer</dd><dt><a class="struct" href="struct.In.html" title="struct rhdl_fpga::lid::carloni::In">In</a></dt><dd>The inputs for the <a href="struct.Carloni.html" title="struct rhdl_fpga::lid::carloni::Carloni">Carloni</a> buffer</dd><dt><a class="struct" href="struct.Out.html" title="struct rhdl_fpga::lid::carloni::Out">Out</a></dt><dd>The outputs for the <a href="struct.Carloni.html" title="struct rhdl_fpga::lid::carloni::Carloni">Carloni</a> buffer</dd></dl></section></div></main></body></html>

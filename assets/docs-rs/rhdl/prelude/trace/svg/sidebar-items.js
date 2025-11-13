@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["TraceColor"],"fn":["build_time_trace","compute_trace_color_from_path","format_as_label","pretty_leaf_paths","render_traces_as_svg_document","render_traces_to_svg","trace_out","try_path"],"struct":["Region","SvgOptions","SvgRegion","Trace"]};

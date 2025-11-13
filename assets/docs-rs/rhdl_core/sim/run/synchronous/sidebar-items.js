@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["run_synchronous"],"struct":["RunSynchronous"],"trait":["RunSynchronousExt","RunWithoutSynthesisSynchronousExt"]};

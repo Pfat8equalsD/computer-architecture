@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["synchronous_sample"],"struct":["SynchronousSample"]};

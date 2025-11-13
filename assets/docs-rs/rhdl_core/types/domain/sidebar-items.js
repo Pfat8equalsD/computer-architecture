@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Color"],"struct":["Blue","Green","Indigo","Orange","Red","Violet","Yellow"],"trait":["Domain"]};

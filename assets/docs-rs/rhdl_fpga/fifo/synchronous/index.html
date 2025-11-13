@@ -1,0 +1,742 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A simple synchronous FIFO."><title>rhdl_fpga::fifo::synchronous - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rhdl_fpga" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module synchronous</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../rhdl_fpga/index.html">rhdl_<wbr>fpga</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module synchronous</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#example" title="Example">Example</a></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In rhdl_<wbr>fpga::<wbr>fifo</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">rhdl_fpga</a>::<wbr><a href="../index.html">fifo</a></div><h1>Module <span>synchronous</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/rhdl_fpga/fifo/synchronous.rs.html#1-263">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A simple synchronous FIFO.</p>
+<p>This FIFO is designed to be as simple as possible
+and thus be robust.  It is a two-port FIFO, with separate read and write
+ports.  The FIFO is parameterized by the number of bits in each element.
+The depth of the FIFO is 2^N-1 elements.  You cannot fill the FIFO to 2^N elements.</p>
+<p>Here is the schematic symbol for the FIFO</p>
+<p></p><div style="text-align:center;"><svg viewBox="0 0 400 165" width="400px" xmlns="http://www.w3.org/2000/svg">
+<path d="M65,7.5 M65,7.5 C89.53694,7.5,114.073875,7.5,135,7.5 M225,7.5 M225,7.5 C269.9474,7.5,314.89478,7.5,345,7.5 M5,37.5 M5,37.5 C17.14288,37.5,29.28576,37.5,55,37.5 M345,37.5 M345,37.5 C355.26715,37.5,365.53427,37.5,395,37.5 M5,67.5 M5,67.5 C17.445656,67.5,29.891314,67.5,65,67.5 M355,67.5 M355,67.5 C369.44058,67.5,383.8812,67.5,395,67.5 M5,97.5 M5,97.5 C28.596956,97.5,52.193913,97.5,65,97.5 M345,7.5 M345,7.5 C345,35.20854,345,62.917088,345,97.5 M345,97.5 M345,97.5 C363.652,97.5,382.304,97.5,395,97.5 M5,127.5 M5,127.5 C18.577402,127.5,32.154804,127.5,65,127.5 M345,127.5 M345,127.5 C364.79672,127.5,384.59348,127.5,395,127.5 M65,7.5 M65,7.5 C65,64.69388,65,121.88776,65,157.5 M345,97.5 M345,97.5 C345,110.0632,345,122.6264,345,157.5 M65,157.5 M65,157.5 C169.04448,157.5,273.08896,157.5,345,157.5 M55,33 M55,33 C58.75447,34.68951,62.508938,36.37902,65,37.5 M65,37.5 C61.247303,39.188713,57.494602,40.87743,55,42 M55,42 C55,38.447647,55,34.895298,55,33 M395,33 M395,33 C397.05405,33.924324,399.1081,34.848648,405,37.5 M405,37.5 C402.48248,38.63289,399.96494,39.765774,395,42 M395,42 C395,39.22522,395,36.45044,395,33 M5,63 M5,63 C2.7801971,63.998913,0.5603943,64.997826,-5,67.5 M-5,67.5 C-1.4256678,69.10845,2.1486645,70.716896,5,72 M5,72 C5,69.98203,5,67.96406,5,63 M355,63 M355,63 C352.79117,63.99398,350.5823,64.98796,345,67.5 M345,67.5 C347.8368,68.77656,350.67358,70.053116,355,72 M355,72 C355,69.34451,355,66.68903,355,63 M5,93 M5,93 C1.5803006,94.538864,-1.8393989,96.07773,-5,97.5 M-5,97.5 C-2.777428,98.50016,-0.5548558,99.50031,5,102 M5,102 C5,98.992935,5,95.98587,5,93 M395,93 M395,93 C397.2528,94.01377,399.50565,95.02754,405,97.5 M405,97.5 C401.5537,99.050835,398.10742,100.60166,395,102 M395,102 C395,99.531166,395,97.062325,395,93 M5,123 M5,123 C2.9094288,123.94076,0.81885767,124.881516,-5,127.5 M-5,127.5 C-2.2571487,128.73428,0.4857025,129.96857,5,132 M5,132 C5,128.90524,5,125.81049,5,123 M395,123 M395,123 C397.32516,124.046326,399.65036,125.09266,405,127.5 M405,127.5 C401.95035,128.87234,398.9007,130.24467,395,132 M395,132 C395,129.29738,395,126.594765,395,123" fill="none" stroke="currentColor" stroke-width="1"/>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="145" y="7.5">
+S
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="155" y="7.5">
+y
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="165" y="7.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="175" y="7.5">
+c
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="7.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="195" y="7.5">
+I
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="205" y="7.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="215" y="7.5">
+O
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="22.5">
+?
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="22.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="22.5">
+?
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="22.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="37.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="295" y="37.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="305" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="315" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="325" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="67.5">
+f
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="67.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="67.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="67.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="295" y="67.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="305" y="67.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="315" y="67.5">
+x
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="325" y="67.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="97.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="97.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="97.5">
+m
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="97.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="125" y="97.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="135" y="97.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="145" y="97.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="155" y="97.5">
+f
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="165" y="97.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="175" y="97.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="97.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="215" y="97.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="225" y="97.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="235" y="97.5">
+m
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="245" y="97.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="255" y="97.5">
+s
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="265" y="97.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="275" y="97.5">
+_
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="285" y="97.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="295" y="97.5">
+m
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="305" y="97.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="315" y="97.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="325" y="97.5">
+y
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="127.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="127.5">
+v
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="127.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="127.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="125" y="127.5">
+f
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="135" y="127.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="145" y="127.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="155" y="127.5">
+w
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="245" y="127.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="255" y="127.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="265" y="127.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="275" y="127.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="285" y="127.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="295" y="127.5">
+f
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="305" y="127.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="315" y="127.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="325" y="127.5">
+w
+</text>
+</svg></div><p></p>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
+<p>Testing a synchronous FIFO is a little tricky, since
+the input and output interfaces have feedback, and thus
+do not lend themselves to the regular <code>input -&gt; uut -&gt; output</code>
+type of testing.</p>
+<p>Instead, we can either build custom testing harnesses (see [SyncFIFOTester])
+or use the feedback testing mechanism.  The feedback testing
+mechanism allows you to provide a closure that computes the next
+set of inputs given the current outputs.  For synchronous
+circuits, like this one, the clock is handled for you, so your
+function need not worry about clock edges.  Here is
+an example.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>rhdl::{core::sim::ResetOrData, prelude::<span class="kw-2">*</span>};
+<span class="kw">use </span>rhdl_fpga::{doc::write_svg_as_markdown, fifo::synchronous::SyncFIFO};
+
+<span class="kw">fn </span>main() -&gt; <span class="prelude-ty">Result</span>&lt;(), RHDLError&gt; {
+    <span class="kw">type </span>Uut = SyncFIFO&lt;Bits&lt;U16&gt;, U4&gt;;
+    <span class="kw">let </span>uut = Uut::default();
+    <span class="kw">let </span><span class="kw-2">mut </span>need_reset = <span class="bool-val">true</span>;
+    <span class="kw">let </span>test_seq = (<span class="number">0</span>..)
+        .map(|<span class="kw">_</span>| b16(rand::random::&lt;u16&gt;() <span class="kw">as </span>u128))
+        .take(<span class="number">100</span>)
+        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+    <span class="kw">let </span><span class="kw-2">mut </span>input_seq = test_seq.iter().copied();
+    <span class="kw">let </span><span class="kw-2">mut </span>output_seq = test_seq.iter().copied();
+    <span class="kw">let </span>vcd = uut
+        .run_fn(
+            |output| {
+                <span class="comment">// Handle the reset pulse at the begining
+                </span><span class="kw">if </span>need_reset {
+                    need_reset = <span class="bool-val">false</span>;
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(ResetOrData::Reset);
+                }
+                <span class="kw">let </span><span class="kw-2">mut </span>input = &lt;Uut <span class="kw">as </span>SynchronousIO&gt;::I::dont_care();
+                <span class="comment">// By default, we do not insert more data.
+                </span>input.data = <span class="prelude-val">None</span>;
+                <span class="comment">// The FIFO is not full, so we can insert data.  Toss a coin.
+                </span><span class="kw">if </span>!output.full &amp;&amp; rand::random::&lt;bool&gt;() {
+                    input.data = input_seq.next();
+                }
+                <span class="comment">// By default, we do not advance the FIFO
+                </span>input.next = <span class="bool-val">false</span>;
+                <span class="comment">// The FIFO has valid data.  So we can receive data. Toss a coin.
+                </span><span class="kw">if </span>output.data.is_some() &amp;&amp; rand::random::&lt;bool&gt;() {
+                    input.next = <span class="bool-val">true</span>;
+                    <span class="macro">assert_eq!</span>(output_seq.next().unwrap(), output.data.unwrap());
+                }
+                <span class="comment">// Return the constructed input
+                </span><span class="prelude-val">Some</span>(ResetOrData::Data(input))
+            },
+            <span class="number">100</span>,
+        )
+        .take_while(|t| t.time &lt; <span class="number">1500</span>)
+        .collect::&lt;Vcd&gt;();
+    <span class="kw">let </span>options = SvgOptions::default().with_filter(<span class="string">"(^top.input(.*))|(^top.outputs(.*))"</span>);
+    write_svg_as_markdown(vcd, <span class="string">"sync_fifo.md"</span>, options)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div>
+<p>The trace below demonstrates the result.</p>
+<p>
+<svg viewBox="0 0 1651 300" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<clipPath id="clip">
+<rect height="300" width="1651" x="0" y="0"/>
+</clipPath>
+</defs>
+<rect fill="#0B151D" height="300" stroke="darkblue" width="1651" x="0" y="0"/>
+<line stroke="#333333" stroke-width="1" x1="200" x2="200" y1="0" y2="300"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="200" y="10">
+0
+</text>
+<line stroke="#333333" stroke-width="1" x1="300" x2="300" y1="0" y2="300"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="300" y="10">
+100
+</text>
+<line stroke="#333333" stroke-width="1" x1="400" x2="400" y1="0" y2="300"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="400" y="10">
+200
+</text>
+<line stroke="#333333" stroke-width="1" x1="500" x2="500" y1="0" y2="300"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="500" y="10">
+300
+</text>
+<line stroke="#333333" stroke-width="1" x1="600" x2="600" y1="0" y2="300"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="600" y="10">
+400
+</text>
+<line stroke="#333333" stroke-width="1" x1="700" x2="700" y1="0" y2="300"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="700" y="10">
+500
+</text>
+<line stroke="#333333" stroke-width="1" x1="800" x2="800" y1="0" y2="300"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="800" y="10">
+600
+</text>
+<line stroke="#333333" stroke-width="1" x1="900" x2="900" y1="0" y2="300"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="900" y="10">
+700
+</text>
+<line stroke="#333333" stroke-width="1" x1="1000" x2="1000" y1="0" y2="300"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1000" y="10">
+800
+</text>
+<line stroke="#333333" stroke-width="1" x1="1100" x2="1100" y1="0" y2="300"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1100" y="10">
+900
+</text>
+<line stroke="#333333" stroke-width="1" x1="1200" x2="1200" y1="0" y2="300"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1200" y="10">
+1000
+</text>
+<line stroke="#333333" stroke-width="1" x1="1300" x2="1300" y1="0" y2="300"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1300" y="10">
+1100
+</text>
+<line stroke="#333333" stroke-width="1" x1="1400" x2="1400" y1="0" y2="300"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1400" y="10">
+1200
+</text>
+<line stroke="#333333" stroke-width="1" x1="1500" x2="1500" y1="0" y2="300"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1500" y="10">
+1300
+</text>
+<line stroke="#333333" stroke-width="1" x1="1600" x2="1600" y1="0" y2="300"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1600" y="10">
+1400
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" y="10">
+Time:
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="30">
+.input
+<title>top.input</title>
+</text>
+<path d="M 200 30 L 203 23 L 248 23 L 251 30 L 248 37 L 203 37 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="225" xml:space="preserve" y="30">
+{d...
+<title>{data: None, next: 0}</title>
+</text>
+<path d="M 251 30 L 254 23 L 348 23 L 351 30 L 348 37 L 254 37 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="301" xml:space="preserve" y="30">
+{data: ...
+<title>{data: Some(94ce), next: 0}</title>
+</text>
+<path d="M 351 30 L 354 23 L 448 23 L 451 30 L 448 37 L 354 37 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="401" xml:space="preserve" y="30">
+{data: ...
+<title>{data: None, next: 0}</title>
+</text>
+<path d="M 451 30 L 454 23 L 548 23 L 551 30 L 548 37 L 454 37 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="501" xml:space="preserve" y="30">
+{data: ...
+<title>{data: Some(2016), next: 0}</title>
+</text>
+<path d="M 551 30 L 554 23 L 648 23 L 651 30 L 648 37 L 554 37 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="601" xml:space="preserve" y="30">
+{data: ...
+<title>{data: Some(0756), next: 0}</title>
+</text>
+<path d="M 651 30 L 654 23 L 748 23 L 751 30 L 748 37 L 654 37 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="701" xml:space="preserve" y="30">
+{data: ...
+<title>{data: Some(8be0), next: 1}</title>
+</text>
+<path d="M 751 30 L 754 23 L 848 23 L 851 30 L 848 37 L 754 37 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="801" xml:space="preserve" y="30">
+{data: ...
+<title>{data: None, next: 1}</title>
+</text>
+<path d="M 851 30 L 854 23 L 948 23 L 951 30 L 948 37 L 854 37 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="901" xml:space="preserve" y="30">
+{data: ...
+<title>{data: Some(2853), next: 0}</title>
+</text>
+<path d="M 951 30 L 954 23 L 1248 23 L 1251 30 L 1248 37 L 954 37 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1101" xml:space="preserve" y="30">
+{data: None, next: 1}
+<title>{data: None, next: 1}</title>
+</text>
+<path d="M 1251 30 L 1254 23 L 1348 23 L 1351 30 L 1348 37 L 1254 37 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1301" xml:space="preserve" y="30">
+{data: ...
+<title>{data: Some(07ff), next: 0}</title>
+</text>
+<path d="M 1351 30 L 1354 23 L 1448 23 L 1451 30 L 1448 37 L 1354 37 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1401" xml:space="preserve" y="30">
+{data: ...
+<title>{data: Some(6c37), next: 0}</title>
+</text>
+<path d="M 1451 30 L 1454 23 L 1548 23 L 1551 30 L 1548 37 L 1454 37 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1501" xml:space="preserve" y="30">
+{data: ...
+<title>{data: None, next: 0}</title>
+</text>
+<path d="M 1551 30 L 1554 23 L 1648 23 L 1651 30 L 1648 37 L 1554 37 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1601" xml:space="preserve" y="30">
+{data: ...
+<title>{data: Some(afbc), next: 0}</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="50">
+   .data
+<title>top.input.data</title>
+</text>
+<path d="M 200 50 L 203 43 L 248 43 L 251 50 L 248 57 L 203 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="225" xml:space="preserve" y="50">
+None
+<title>None</title>
+</text>
+<path d="M 251 50 L 254 43 L 348 43 L 351 50 L 348 57 L 254 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="301" xml:space="preserve" y="50">
+Some(94ce)
+<title>Some(94ce)</title>
+</text>
+<path d="M 351 50 L 354 43 L 448 43 L 451 50 L 448 57 L 354 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="401" xml:space="preserve" y="50">
+None
+<title>None</title>
+</text>
+<path d="M 451 50 L 454 43 L 548 43 L 551 50 L 548 57 L 454 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="501" xml:space="preserve" y="50">
+Some(2016)
+<title>Some(2016)</title>
+</text>
+<path d="M 551 50 L 554 43 L 648 43 L 651 50 L 648 57 L 554 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="601" xml:space="preserve" y="50">
+Some(0756)
+<title>Some(0756)</title>
+</text>
+<path d="M 651 50 L 654 43 L 748 43 L 751 50 L 748 57 L 654 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="701" xml:space="preserve" y="50">
+Some(8be0)
+<title>Some(8be0)</title>
+</text>
+<path d="M 751 50 L 754 43 L 848 43 L 851 50 L 848 57 L 754 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="801" xml:space="preserve" y="50">
+None
+<title>None</title>
+</text>
+<path d="M 851 50 L 854 43 L 948 43 L 951 50 L 948 57 L 854 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="901" xml:space="preserve" y="50">
+Some(2853)
+<title>Some(2853)</title>
+</text>
+<path d="M 951 50 L 954 43 L 1248 43 L 1251 50 L 1248 57 L 954 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1101" xml:space="preserve" y="50">
+None
+<title>None</title>
+</text>
+<path d="M 1251 50 L 1254 43 L 1348 43 L 1351 50 L 1348 57 L 1254 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1301" xml:space="preserve" y="50">
+Some(07ff)
+<title>Some(07ff)</title>
+</text>
+<path d="M 1351 50 L 1354 43 L 1448 43 L 1451 50 L 1448 57 L 1354 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1401" xml:space="preserve" y="50">
+Some(6c37)
+<title>Some(6c37)</title>
+</text>
+<path d="M 1451 50 L 1454 43 L 1548 43 L 1551 50 L 1548 57 L 1454 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1501" xml:space="preserve" y="50">
+None
+<title>None</title>
+</text>
+<path d="M 1551 50 L 1554 43 L 1648 43 L 1651 50 L 1648 57 L 1554 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1601" xml:space="preserve" y="50">
+Some(afbc)
+<title>Some(afbc)</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="70">
+      #None
+<title>top.input.data#None</title>
+</text>
+<path d="M 200 70 L 203 63 L 248 63 L 251 70 L 248 77 L 203 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="225" xml:space="preserve" y="70">
+<title></title>
+</text>
+<path d="M 351 70 L 354 63 L 448 63 L 451 70 L 448 77 L 354 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="401" xml:space="preserve" y="70">
+<title></title>
+</text>
+<path d="M 751 70 L 754 63 L 848 63 L 851 70 L 848 77 L 754 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="801" xml:space="preserve" y="70">
+<title></title>
+</text>
+<path d="M 951 70 L 954 63 L 1248 63 L 1251 70 L 1248 77 L 954 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1101" xml:space="preserve" y="70">
+<title></title>
+</text>
+<path d="M 1451 70 L 1454 63 L 1548 63 L 1551 70 L 1548 77 L 1454 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1501" xml:space="preserve" y="70">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="90">
+      #Some.0
+<title>top.input.data#Some.0</title>
+</text>
+<path d="M 251 90 L 254 83 L 348 83 L 351 90 L 348 97 L 254 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="301" xml:space="preserve" y="90">
+94ce
+<title>94ce</title>
+</text>
+<path d="M 451 90 L 454 83 L 548 83 L 551 90 L 548 97 L 454 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="501" xml:space="preserve" y="90">
+2016
+<title>2016</title>
+</text>
+<path d="M 551 90 L 554 83 L 648 83 L 651 90 L 648 97 L 554 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="601" xml:space="preserve" y="90">
+0756
+<title>0756</title>
+</text>
+<path d="M 651 90 L 654 83 L 748 83 L 751 90 L 748 97 L 654 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="701" xml:space="preserve" y="90">
+8be0
+<title>8be0</title>
+</text>
+<path d="M 851 90 L 854 83 L 948 83 L 951 90 L 948 97 L 854 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="901" xml:space="preserve" y="90">
+2853
+<title>2853</title>
+</text>
+<path d="M 1251 90 L 1254 83 L 1348 83 L 1351 90 L 1348 97 L 1254 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1301" xml:space="preserve" y="90">
+07ff
+<title>07ff</title>
+</text>
+<path d="M 1351 90 L 1354 83 L 1448 83 L 1451 90 L 1448 97 L 1354 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1401" xml:space="preserve" y="90">
+6c37
+<title>6c37</title>
+</text>
+<path d="M 1551 90 L 1554 83 L 1648 83 L 1651 90 L 1648 97 L 1554 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1601" xml:space="preserve" y="90">
+afbc
+<title>afbc</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="110">
+   .next
+<title>top.input.next</title>
+</text>
+<path d="M 200 110 L 200 117 L 651 117 L 651 110" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="198" x="652" y="103"/>
+<path d="M 651 110 L 651 103 L 851 103 L 851 110" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 851 110 L 851 117 L 951 117 L 951 110" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="298" x="952" y="103"/>
+<path d="M 951 110 L 951 103 L 1251 103 L 1251 110" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1251 110 L 1251 117 L 1651 117 L 1651 110" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="130">
+.outputs
+<title>top.outputs</title>
+</text>
+<path d="M 200 130 L 203 123 L 447 123 L 450 130 L 447 137 L 203 137 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="325" xml:space="preserve" y="130">
+{data: None, full: 0, ...
+<title>{data: None, full: 0, almost_empty: 1, almost_full: 0, overflow: 0, underflow: 0}</title>
+</text>
+<path d="M 450 130 L 453 123 L 647 123 L 650 130 L 647 137 L 453 137 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="550" xml:space="preserve" y="130">
+{data: Some(94ce)...
+<title>{data: Some(94ce), full: 0, almost_empty: 1, almost_full: 0, overflow: 0, underflow: 0}</title>
+</text>
+<path d="M 650 130 L 653 123 L 747 123 L 750 130 L 747 137 L 653 137 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="700" xml:space="preserve" y="130">
+{data: ...
+<title>{data: Some(94ce), full: 0, almost_empty: 0, almost_full: 0, overflow: 0, underflow: 0}</title>
+</text>
+<path d="M 750 130 L 753 123 L 847 123 L 850 130 L 847 137 L 753 137 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="800" xml:space="preserve" y="130">
+{data: ...
+<title>{data: Some(2016), full: 0, almost_empty: 0, almost_full: 0, overflow: 0, underflow: 0}</title>
+</text>
+<path d="M 850 130 L 853 123 L 1047 123 L 1050 130 L 1047 137 L 853 137 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="950" xml:space="preserve" y="130">
+{data: Some(0756)...
+<title>{data: Some(0756), full: 0, almost_empty: 0, almost_full: 0, overflow: 0, underflow: 0}</title>
+</text>
+<path d="M 1050 130 L 1053 123 L 1147 123 L 1150 130 L 1147 137 L 1053 137 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1100" xml:space="preserve" y="130">
+{data: ...
+<title>{data: Some(8be0), full: 0, almost_empty: 0, almost_full: 0, overflow: 0, underflow: 0}</title>
+</text>
+<path d="M 1150 130 L 1153 123 L 1247 123 L 1250 130 L 1247 137 L 1153 137 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1200" xml:space="preserve" y="130">
+{data: ...
+<title>{data: Some(2853), full: 0, almost_empty: 1, almost_full: 0, overflow: 0, underflow: 0}</title>
+</text>
+<path d="M 1251 130 L 1254 123 L 1447 123 L 1450 130 L 1447 137 L 1254 137 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1350" xml:space="preserve" y="130">
+{data: None, ful...
+<title>{data: None, full: 0, almost_empty: 1, almost_full: 0, overflow: 0, underflow: 0}</title>
+</text>
+<path d="M 1450 130 L 1453 123 L 1547 123 L 1550 130 L 1547 137 L 1453 137 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1500" xml:space="preserve" y="130">
+{data: ...
+<title>{data: Some(07ff), full: 0, almost_empty: 1, almost_full: 0, overflow: 0, underflow: 0}</title>
+</text>
+<path d="M 1550 130 L 1553 123 L 1648 123 L 1651 130 L 1648 137 L 1553 137 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1600" xml:space="preserve" y="130">
+{data: ...
+<title>{data: Some(07ff), full: 0, almost_empty: 0, almost_full: 0, overflow: 0, underflow: 0}</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="150">
+   .data
+<title>top.outputs.data</title>
+</text>
+<path d="M 200 150 L 203 143 L 447 143 L 450 150 L 447 157 L 203 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="325" xml:space="preserve" y="150">
+None
+<title>None</title>
+</text>
+<path d="M 450 150 L 453 143 L 747 143 L 750 150 L 747 157 L 453 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="600" xml:space="preserve" y="150">
+Some(94ce)
+<title>Some(94ce)</title>
+</text>
+<path d="M 750 150 L 753 143 L 847 143 L 850 150 L 847 157 L 753 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="800" xml:space="preserve" y="150">
+Some(2016)
+<title>Some(2016)</title>
+</text>
+<path d="M 850 150 L 853 143 L 1047 143 L 1050 150 L 1047 157 L 853 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="950" xml:space="preserve" y="150">
+Some(0756)
+<title>Some(0756)</title>
+</text>
+<path d="M 1050 150 L 1053 143 L 1147 143 L 1150 150 L 1147 157 L 1053 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1100" xml:space="preserve" y="150">
+Some(8be0)
+<title>Some(8be0)</title>
+</text>
+<path d="M 1150 150 L 1153 143 L 1247 143 L 1250 150 L 1247 157 L 1153 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1200" xml:space="preserve" y="150">
+Some(2853)
+<title>Some(2853)</title>
+</text>
+<path d="M 1250 150 L 1253 143 L 1447 143 L 1450 150 L 1447 157 L 1253 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1350" xml:space="preserve" y="150">
+None
+<title>None</title>
+</text>
+<path d="M 1450 150 L 1453 143 L 1648 143 L 1651 150 L 1648 157 L 1453 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1550" xml:space="preserve" y="150">
+Some(07ff)
+<title>Some(07ff)</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="170">
+      #None
+<title>top.outputs.data#None</title>
+</text>
+<path d="M 200 170 L 203 163 L 447 163 L 450 170 L 447 177 L 203 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="325" xml:space="preserve" y="170">
+<title></title>
+</text>
+<path d="M 1250 170 L 1253 163 L 1447 163 L 1450 170 L 1447 177 L 1253 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1350" xml:space="preserve" y="170">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="190">
+      #Some.0
+<title>top.outputs.data#Some.0</title>
+</text>
+<path d="M 450 190 L 453 183 L 747 183 L 750 190 L 747 197 L 453 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="600" xml:space="preserve" y="190">
+94ce
+<title>94ce</title>
+</text>
+<path d="M 750 190 L 753 183 L 847 183 L 850 190 L 847 197 L 753 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="800" xml:space="preserve" y="190">
+2016
+<title>2016</title>
+</text>
+<path d="M 850 190 L 853 183 L 1047 183 L 1050 190 L 1047 197 L 853 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="950" xml:space="preserve" y="190">
+0756
+<title>0756</title>
+</text>
+<path d="M 1050 190 L 1053 183 L 1147 183 L 1150 190 L 1147 197 L 1053 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1100" xml:space="preserve" y="190">
+8be0
+<title>8be0</title>
+</text>
+<path d="M 1150 190 L 1153 183 L 1247 183 L 1250 190 L 1247 197 L 1153 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1200" xml:space="preserve" y="190">
+2853
+<title>2853</title>
+</text>
+<path d="M 1450 190 L 1453 183 L 1648 183 L 1651 190 L 1648 197 L 1453 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1550" xml:space="preserve" y="190">
+07ff
+<title>07ff</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="210">
+   .full
+<title>top.outputs.full</title>
+</text>
+<path d="M 200 210 L 200 217 L 1651 217 L 1651 210" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="230">
+   .almost_empty
+<title>top.outputs.almost_empty</title>
+</text>
+<rect fill="#1C400C" height="14" stroke="none" width="448" x="201" y="223"/>
+<path d="M 200 230 L 200 223 L 650 223 L 650 230" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 650 230 L 650 237 L 1150 237 L 1150 230" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="398" x="1151" y="223"/>
+<path d="M 1150 230 L 1150 223 L 1550 223 L 1550 230" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1550 230 L 1550 237 L 1651 237 L 1651 230" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="250">
+   .almost_full
+<title>top.outputs.almost_full</title>
+</text>
+<path d="M 200 250 L 200 257 L 1651 257 L 1651 250" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="270">
+   .overflow
+<title>top.outputs.overflow</title>
+</text>
+<path d="M 200 270 L 200 277 L 1651 277 L 1651 270" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="290">
+   .underflow
+<title>top.outputs.underflow</title>
+</text>
+<path d="M 200 290 L 200 297 L 1250 297 L 1250 290" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1251 290 L 1251 297 L 1651 297 L 1651 290" fill="none" stroke="#56C126" stroke-width="1"/>
+</svg>
+</p></div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.In.html" title="struct rhdl_fpga::fifo::synchronous::In">In</a></dt><dd>Inputs for the FIFO</dd><dt><a class="struct" href="struct.Out.html" title="struct rhdl_fpga::fifo::synchronous::Out">Out</a></dt><dd>Outputs from the FIFO</dd><dt><a class="struct" href="struct.SyncFIFO.html" title="struct rhdl_fpga::fifo::synchronous::SyncFIFO">SyncFIFO</a></dt><dd>A simple synchronous FIFO
+<code>T</code> is the data type held by the FIFO.
+Note that we need <code>T: Default</code>.
+<code>N</code> the number bits in the address.  FIFO holds <code>2^{N-1}</code> elements
+when full.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.fifo_kernel.html" title="fn rhdl_fpga::fifo::synchronous::fifo_kernel">fifo_<wbr>kernel</a></dt><dd>The compute kernel for the <a href="struct.SyncFIFO.html" title="struct rhdl_fpga::fifo::synchronous::SyncFIFO">SyncFIFO</a></dd></dl></section></div></main></body></html>

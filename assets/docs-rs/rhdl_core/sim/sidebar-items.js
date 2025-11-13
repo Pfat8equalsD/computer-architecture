@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ResetOrData"],"mod":["clock_pos_edge","merge","probe","reset","run","test_module","testbench","vcd"]};

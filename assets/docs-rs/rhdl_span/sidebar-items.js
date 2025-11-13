@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Attribute"],"struct":["Meta","NameValue","Path","SpanLoc"],"type":["MetaDB"]};

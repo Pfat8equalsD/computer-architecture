@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["clock_pos_edge"],"struct":["ClockPosEdge"],"trait":["ClockPosEdgeExt"]};

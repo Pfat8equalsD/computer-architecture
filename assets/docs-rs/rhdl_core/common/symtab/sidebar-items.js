@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Symbol"],"struct":["LiteralId","RegisterId","SymbolTable"],"trait":["SymbolKind"]};

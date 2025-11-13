@@ -1,0 +1,634 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A Lazy Random Stream Source"><title>rhdl_fpga::stream::testing::lazy_random - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="rhdl_fpga" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module lazy_random</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../rhdl_fpga/index.html">rhdl_<wbr>fpga</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module lazy_<wbr>random</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#schematic-symbol" title="Schematic Symbol">Schematic Symbol</a></li><li><a href="#internal-details" title="Internal Details">Internal Details</a></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In rhdl_<wbr>fpga::<wbr>stream::<wbr>testing</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">rhdl_fpga</a>::<wbr><a href="../../index.html">stream</a>::<wbr><a href="../index.html">testing</a></div><h1>Module <span>lazy_<wbr>random</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../src/rhdl_fpga/stream/testing/lazy_random.rs.html#1-142">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A Lazy Random Stream Source</p>
+<p>This source stream generates a sequence of
+32-bit pseudo-random numbers with a probability
+of “sleeping” after generating each one.  This
+mimics a stalling source.  Note that this is
+completely synthesizable.</p>
+<h2 id="schematic-symbol"><a class="doc-anchor" href="#schematic-symbol">§</a>Schematic Symbol</h2>
+<p>The lazy stream is very easy to use:</p>
+<p></p><div style="text-align:center;"><svg viewBox="0 0 220 120" width="220px" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,7.5 M5,7.5 C8.505277,7.5,12.010553,7.5,15,7.5 M95,7.5 M95,7.5 C106.23685,7.5,117.473694,7.5,125,7.5 M125,37.5 M125,37.5 C146.85718,37.5,168.71437,37.5,215,37.5 M135,82.5 M135,82.5 C151.42741,82.5,167.85484,82.5,215,82.5 M5,7.5 M5,7.5 C5,29.279898,5,51.059795,5,112.5 M125,7.5 M125,7.5 C125,45.40656,125,83.31312,125,112.5 M5,112.5 M5,112.5 C52.193913,112.5,99.387825,112.5,125,112.5 M215,33 M215,33 C218.07872,34.385426,221.15746,35.770855,225,37.5 M225,37.5 C221.76341,38.956463,218.52682,40.412926,215,42 M215,42 C215,38.96905,215,35.938103,215,33 M135,78 M135,78 C131.48874,79.58006,127.977486,81.16013,125,82.5 M125,82.5 C127.54769,83.64646,130.09538,84.79292,135,87 M135,87 C135,84.53663,135,82.07326,135,78" fill="none" stroke="currentColor" stroke-width="1"/>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="7.5">
+L
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="7.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="45" y="7.5">
+z
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="55" y="7.5">
+y
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="7.5">
+R
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="7.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="7.5">
+g
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="145" y="22.5">
+?
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="155" y="22.5">
+b
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="165" y="22.5">
+3
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="175" y="22.5">
+2
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="37.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="145" y="67.5">
+R
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="155" y="67.5">
+&lt;
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="165" y="67.5">
+b
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="175" y="67.5">
+3
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="67.5">
+2
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="195" y="67.5">
+&gt;
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="82.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="82.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="82.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="82.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="82.5">
+y
+</text>
+</svg></div><p></p>
+ If you need something other than a [b32] output,
+ then use the [crate::stream::map::Map] to map
+ the stream to a different type.
+<h2 id="internal-details"><a class="doc-anchor" href="#internal-details">§</a>Internal Details</h2>
+<p>The <a href="struct.LazyRng.html" title="struct rhdl_fpga::stream::testing::lazy_random::LazyRng">LazyRng</a> core is simply a <a href="../../../fifo/testing/filler/struct.FIFOFiller.html" title="struct rhdl_fpga::fifo::testing::filler::FIFOFiller">FIFOFiller</a>
+coupled to a <a href="../../fifo_to_stream/struct.FIFOToStream.html" title="struct rhdl_fpga::stream::fifo_to_stream::FIFOToStream">FIFOToStream</a> core that implements
+the stream interface.</p>
+<p>Roughly:</p>
+<p></p><div style="text-align:center;"><svg viewBox="0 0 500 120" width="500px" xmlns="http://www.w3.org/2000/svg">
+<path d="M5.744561,7.8446527 M5.371999,7.4400644 C8.707103,8.007837,12.3863735,7.7526603,14.208484,7.361915 M4.9576874,7.6408615 C7.635923,7.433082,10.41048,7.6861224,14.79769,7.1861415 M124.423904,5.6656218 M125.51167,8.17311 C127.2664,8.374801,129.12737,7.20835,135.58803,7.457081 M125.303085,7.026714 C126.831856,7.4581714,129.88419,7.733584,135.02748,7.9053726 M274.6612,7.6397076 M274.1328,6.574276 C277.38626,8.174753,278.70465,6.9475007,284.5782,8.369438 M274.57272,7.2427707 C278.21472,7.737309,282.42258,7.464398,285.27563,7.6446023 M395.96246,6.0647626 M396.71317,6.269863 C402.1808,9.684739,413.89206,9.370997,424.43524,8.952945 M394.80542,8.093374 C403.74954,8.08288,413.121,7.694354,424.81134,8.372036 M424.5898,7.3045177 M426.47223,7.8611374 C425.26785,12.875813,423.8128,18.637466,424.8866,21.670898 M424.47046,8.202188 C425.19897,12.568401,425.3047,16.722511,425.60086,21.947176 M135.21954,38.29533 M133.82483,39.257324 C168.1634,36.002644,200.96869,34.74214,263.2918,39.418694 M135.91255,38.337383 C176.173,39.503304,217.06284,39.471497,264.30545,37.93201 M426.2918,39.12585 M425.69107,36.974155 C439.57254,38.23146,456.6925,35.86066,474.87903,36.06547 M424.94086,36.84516 C437.64838,35.768982,448.69742,36.211693,475.5351,38.36293 M223.30957,65.792946 M224.63829,66.06416 C241.03952,65.63705,256.30945,67.90761,273.3113,69.493324 M225.75447,67.01277 C238.37062,65.8158,251.39465,67.383,275.25708,67.35682 M436.54767,65.62056 M434.78952,66.62958 C443.93457,67.40897,452.6805,66.025856,473.40445,66.44158 M435.43634,68.0892 C449.53925,68.47058,462.8468,67.30591,474.02948,67.75037 M223.40811,67.359604 M226.10114,68.1751 C225.76859,74.240364,224.68741,79.73362,223.66985,81.94641 M225.6819,67.99209 C224.26555,72.43542,224.55362,78.829216,225.42474,82.54517 M143.54922,82.666176 M146.83409,81.34375 C171.71053,85.47324,198.40862,85.236206,224.22339,83.89518 M144.71461,82.91388 C174.79196,82.11271,203.67209,81.779625,224.00966,81.56998 M6.936979,8.648664 M5.7347274,6.6684203 C4.0738993,34.089737,5.189314,58.128548,6.137257,110.984375 M4.808317,8.304979 C4.9722705,38.832428,4.256791,72.08449,4.4533453,112.23712 M135.6045,5.9176903 M136.89609,7.4284477 C131.11652,42.313396,133.16425,78.869965,136.42424,112.17359 M134.20558,7.3930435 C134.88564,48.25629,135.55147,88.91851,134.11507,112.45054 M6.9637346,113.34218 M6.204416,112.037994 C31.878357,110.24916,62.45967,113.58452,134.20047,113.3394 M5.845914,111.72673 C56.205,110.69359,106.058556,111.03119,134.98212,111.72257 M273.9864,7.5465984 M273.48868,7.37404 C271.84348,34.270515,274.4447,60.815964,273.94302,112.47905 M275.83093,7.321594 C275.82724,43.4512,274.39868,78.40643,274.85757,111.75282 M423.07095,22.452255 M423.15747,23.36102 C426.71103,45.75247,428.1319,71.913506,425.85098,113.19376 M425.75003,22.66253 C425.0842,45.429287,423.71844,69.46344,424.65582,112.85082 M276.39685,111.013466 M275.75558,111.00529 C316.50064,111.714615,362.95776,111.443115,425.3227,113.75692 M275.92578,113.44607 C315.48376,113.11765,357.4165,113.61228,425.68127,112.6822 M265.8729,34.71269 M265.36386,32.377377 C268.92123,35.090046,273.46472,36.473053,273.99878,37.733967 M265.19733,33.531044 C268.42026,33.885715,270.98434,35.37472,275.0399,37.303066 M275.53317,37.093178 C271.72705,39.177475,267.14444,41.334984,264.6554,41.440655 M274.91592,37.7744 C271.77216,38.68074,268.96805,40.058655,264.88525,42.30327 M265.4602,42.04896 C264.61716,38.837402,264.38138,37.55353,265.2922,32.477085 M264.94388,41.873104 C264.53992,39.06365,265.4079,36.624916,265.44992,32.755314 M474.7624,33.709763 M475.47375,32.289635 C477.02097,34.54887,479.94873,34.715237,485.35132,37.817986 M475.10434,32.633022 C479.1775,34.47838,483.0855,36.425648,485.33362,37.298977 M484.32138,36.489834 C482.57837,39.5802,478.73767,39.631744,474.44315,43.096294 M485.51486,37.67536 C481.64572,38.98046,479.03427,40.144836,475.51785,41.991123 M475.66766,41.497425 C475.76013,39.048176,475.5745,36.09658,475.29648,32.757805 M474.97403,42.270622 C475.4755,39.84303,474.65933,37.236156,474.72354,32.607613 M433.8566,61.187305 M435.2304,63.127098 C431.07852,65.36657,429.32956,66.896866,425.52798,68.367134 M434.81393,63.44108 C431.94708,64.534325,429.53235,65.06916,425.32858,67.34449 M424.26782,66.65276 C427.91937,68.87041,431.15546,69.598015,435.21317,72.69122 M424.5596,67.98063 C428.6043,68.824265,432.70288,70.57033,434.5458,72.026825 M434.25037,72.262344 C434.59305,68.99098,434.1856,66.1889,435.2549,63.309082 M434.5731,71.72892 C435.44598,69.343124,434.93848,66.52913,434.91434,62.901173 M146.15536,77.44772 M145.75673,78.653755 C142.02707,78.194466,141.15273,79.95345,135.11421,82.79074 M144.79272,77.92279 C142.55328,79.36192,139.46947,80.43367,134.9694,82.28592 M134.73203,82.777794 C136.20515,83.47935,139.97412,84.58209,145.08632,86.04251 M134.93608,82.634445 C137.47478,83.58696,138.87912,84.12683,145.45016,87.5256 M144.73604,86.365036 C145.03069,82.85379,144.50461,80.160286,145.54596,77.23443 M145.39772,87.09726 C145.48778,84.41123,144.7247,80.761154,145.1277,77.91548" fill="none" stroke="currentColor" stroke-width="1"/>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="7.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="7.5">
+I
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="45" y="7.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="55" y="7.5">
+O
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="7.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="7.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="7.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="7.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="7.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="7.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="295" y="7.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="305" y="7.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="315" y="7.5">
+f
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="325" y="7.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="335" y="7.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="345" y="7.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="355" y="7.5">
+S
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="7.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="7.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="7.5">
+m
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="155" y="22.5">
+?
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="165" y="22.5">
+b
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="175" y="22.5">
+3
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="22.5">
+2
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="445" y="22.5">
+?
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="455" y="22.5">
+b
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="465" y="22.5">
+3
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="475" y="22.5">
+2
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="37.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="285" y="37.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="295" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="305" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="315" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="37.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="395" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="445" y="52.5">
+R
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="455" y="52.5">
+&lt;
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="465" y="52.5">
+b
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="475" y="52.5">
+3
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="485" y="52.5">
+2
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="495" y="52.5">
+&gt;
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="285" y="67.5">
+f
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="295" y="67.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="305" y="67.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="315" y="67.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="67.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="67.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="395" y="67.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="67.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="67.5">
+y
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="82.5">
+f
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="82.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="82.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="82.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="285" y="97.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="295" y="97.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="305" y="97.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="315" y="97.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="325" y="97.5">
+r
+</text>
+</svg></div><p></p>
+ The probability of sleeping, and the duration
+ of the sleep are controlled at construction time
+ and are passed to the constructor of the [FIFOFiller]
+ core.
+# Example
+<p>Here is an example of generating a bursty stream of
+random values.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>rhdl::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>rhdl_fpga::stream::{ready, testing::lazy_random::<span class="kw-2">*</span>};
+
+<span class="kw">fn </span>main() -&gt; <span class="prelude-ty">Result</span>&lt;(), RHDLError&gt; {
+    <span class="kw">let </span>input = (<span class="number">0</span>..)
+        .map(|<span class="kw">_</span>| rand::random_bool(<span class="number">0.8</span>))
+        .map(|r| In { ready: ready(r) })
+        .with_reset(<span class="number">1</span>)
+        .clock_pos_edge(<span class="number">100</span>)
+        .take_while(|t| t.time &lt; <span class="number">1500</span>);
+    <span class="kw">let </span>uut = LazyRng::default();
+    <span class="kw">let </span>vcd = uut.run(input)<span class="question-mark">?</span>.collect::&lt;Vcd&gt;();
+    rhdl_fpga::doc::write_svg_as_markdown(
+        vcd,
+        <span class="string">"lazy_rng.md"</span>,
+        SvgOptions::default().with_io_filter(),
+    )<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div>
+<p>with a trace file like this:</p>
+<p>
+<svg viewBox="0 0 1651 220" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<clipPath id="clip">
+<rect height="220" width="1651" x="0" y="0"/>
+</clipPath>
+</defs>
+<rect fill="#0B151D" height="220" stroke="darkblue" width="1651" x="0" y="0"/>
+<line stroke="#333333" stroke-width="1" x1="200" x2="200" y1="0" y2="220"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="200" y="10">
+0
+</text>
+<line stroke="#333333" stroke-width="1" x1="300" x2="300" y1="0" y2="220"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="300" y="10">
+100
+</text>
+<line stroke="#333333" stroke-width="1" x1="400" x2="400" y1="0" y2="220"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="400" y="10">
+200
+</text>
+<line stroke="#333333" stroke-width="1" x1="500" x2="500" y1="0" y2="220"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="500" y="10">
+300
+</text>
+<line stroke="#333333" stroke-width="1" x1="600" x2="600" y1="0" y2="220"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="600" y="10">
+400
+</text>
+<line stroke="#333333" stroke-width="1" x1="700" x2="700" y1="0" y2="220"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="700" y="10">
+500
+</text>
+<line stroke="#333333" stroke-width="1" x1="800" x2="800" y1="0" y2="220"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="800" y="10">
+600
+</text>
+<line stroke="#333333" stroke-width="1" x1="900" x2="900" y1="0" y2="220"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="900" y="10">
+700
+</text>
+<line stroke="#333333" stroke-width="1" x1="1000" x2="1000" y1="0" y2="220"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1000" y="10">
+800
+</text>
+<line stroke="#333333" stroke-width="1" x1="1100" x2="1100" y1="0" y2="220"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1100" y="10">
+900
+</text>
+<line stroke="#333333" stroke-width="1" x1="1200" x2="1200" y1="0" y2="220"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1200" y="10">
+1000
+</text>
+<line stroke="#333333" stroke-width="1" x1="1300" x2="1300" y1="0" y2="220"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1300" y="10">
+1100
+</text>
+<line stroke="#333333" stroke-width="1" x1="1400" x2="1400" y1="0" y2="220"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1400" y="10">
+1200
+</text>
+<line stroke="#333333" stroke-width="1" x1="1500" x2="1500" y1="0" y2="220"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1500" y="10">
+1300
+</text>
+<line stroke="#333333" stroke-width="1" x1="1600" x2="1600" y1="0" y2="220"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1600" y="10">
+1400
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" y="10">
+Time:
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="30">
+.clock
+<title>top.clock</title>
+</text>
+<path d="M 200 30 L 200 37 L 250 37 L 250 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="251" y="23"/>
+<path d="M 250 30 L 250 23 L 300 23 L 300 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 300 30 L 300 37 L 350 37 L 350 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="351" y="23"/>
+<path d="M 350 30 L 350 23 L 400 23 L 400 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 400 30 L 400 37 L 450 37 L 450 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="451" y="23"/>
+<path d="M 450 30 L 450 23 L 500 23 L 500 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 500 30 L 500 37 L 550 37 L 550 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="551" y="23"/>
+<path d="M 550 30 L 550 23 L 600 23 L 600 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 600 30 L 600 37 L 650 37 L 650 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="651" y="23"/>
+<path d="M 650 30 L 650 23 L 700 23 L 700 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 700 30 L 700 37 L 750 37 L 750 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="751" y="23"/>
+<path d="M 750 30 L 750 23 L 800 23 L 800 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 800 30 L 800 37 L 850 37 L 850 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="851" y="23"/>
+<path d="M 850 30 L 850 23 L 900 23 L 900 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 900 30 L 900 37 L 950 37 L 950 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="951" y="23"/>
+<path d="M 950 30 L 950 23 L 1000 23 L 1000 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1000 30 L 1000 37 L 1050 37 L 1050 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1051" y="23"/>
+<path d="M 1050 30 L 1050 23 L 1100 23 L 1100 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1100 30 L 1100 37 L 1150 37 L 1150 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1151" y="23"/>
+<path d="M 1150 30 L 1150 23 L 1200 23 L 1200 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1200 30 L 1200 37 L 1250 37 L 1250 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1251" y="23"/>
+<path d="M 1250 30 L 1250 23 L 1300 23 L 1300 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1300 30 L 1300 37 L 1350 37 L 1350 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1351" y="23"/>
+<path d="M 1350 30 L 1350 23 L 1400 23 L 1400 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1400 30 L 1400 37 L 1450 37 L 1450 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1451" y="23"/>
+<path d="M 1450 30 L 1450 23 L 1500 23 L 1500 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1500 30 L 1500 37 L 1550 37 L 1550 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="48" x="1551" y="23"/>
+<path d="M 1550 30 L 1550 23 L 1600 23 L 1600 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1600 30 L 1600 37 L 1650 37 L 1650 30" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="50">
+.input
+<title>top.input</title>
+</text>
+<path d="M 200 50 L 200 57 L 251 57 L 251 50" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="498" x="252" y="43"/>
+<path d="M 251 50 L 251 43 L 751 43 L 751 50" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 751 50 L 751 57 L 851 57 L 851 50" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="98" x="852" y="43"/>
+<path d="M 851 50 L 851 43 L 951 43 L 951 50" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 951 50 L 951 57 L 1051 57 L 1051 50" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="498" x="1052" y="43"/>
+<path d="M 1051 50 L 1051 43 L 1551 43 L 1551 50" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1551 50 L 1551 57 L 1651 57 L 1651 50" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="70">
+   .ready
+<title>top.input.ready</title>
+</text>
+<path d="M 200 70 L 200 77 L 251 77 L 251 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="498" x="252" y="63"/>
+<path d="M 251 70 L 251 63 L 751 63 L 751 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 751 70 L 751 77 L 851 77 L 851 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="98" x="852" y="63"/>
+<path d="M 851 70 L 851 63 L 951 63 L 951 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 951 70 L 951 77 L 1051 77 L 1051 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="498" x="1052" y="63"/>
+<path d="M 1051 70 L 1051 63 L 1551 63 L 1551 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1551 70 L 1551 77 L 1651 77 L 1651 70" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="90">
+      .marker
+<title>top.input.ready.marker</title>
+</text>
+<path d="M 200 90 L 203 83 L 1648 83 L 1651 90 L 1648 97 L 203 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="925" xml:space="preserve" y="90">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="110">
+      .raw
+<title>top.input.ready.raw</title>
+</text>
+<path d="M 200 110 L 200 117 L 251 117 L 251 110" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="498" x="252" y="103"/>
+<path d="M 251 110 L 251 103 L 751 103 L 751 110" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 751 110 L 751 117 L 851 117 L 851 110" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="98" x="852" y="103"/>
+<path d="M 851 110 L 851 103 L 951 103 L 951 110" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 951 110 L 951 117 L 1051 117 L 1051 110" fill="none" stroke="#56C126" stroke-width="1"/>
+<rect fill="#1C400C" height="14" stroke="none" width="498" x="1052" y="103"/>
+<path d="M 1051 110 L 1051 103 L 1551 103 L 1551 110" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 1551 110 L 1551 117 L 1651 117 L 1651 110" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="130">
+.outputs
+<title>top.outputs</title>
+</text>
+<path d="M 200 130 L 203 123 L 347 123 L 350 130 L 347 137 L 203 137 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="275" xml:space="preserve" y="130">
+{data: None}
+<title>{data: None}</title>
+</text>
+<path d="M 350 130 L 353 123 L 447 123 L 450 130 L 447 137 L 353 137 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="400" xml:space="preserve" y="130">
+{data: ...
+<title>{data: Some(ab3a3c62)}</title>
+</text>
+<path d="M 450 130 L 453 123 L 847 123 L 850 130 L 847 137 L 453 137 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="650" xml:space="preserve" y="130">
+{data: None}
+<title>{data: None}</title>
+</text>
+<path d="M 850 130 L 853 123 L 947 123 L 950 130 L 947 137 L 853 137 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="900" xml:space="preserve" y="130">
+{data: ...
+<title>{data: Some(992a4a25)}</title>
+</text>
+<path d="M 950 130 L 953 123 L 1347 123 L 1350 130 L 1347 137 L 953 137 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1150" xml:space="preserve" y="130">
+{data: None}
+<title>{data: None}</title>
+</text>
+<path d="M 1350 130 L 1353 123 L 1447 123 L 1450 130 L 1447 137 L 1353 137 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1400" xml:space="preserve" y="130">
+{data: ...
+<title>{data: Some(33aa0966)}</title>
+</text>
+<path d="M 1450 130 L 1453 123 L 1547 123 L 1550 130 L 1547 137 L 1453 137 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1500" xml:space="preserve" y="130">
+{data: ...
+<title>{data: Some(15a8a352)}</title>
+</text>
+<path d="M 1550 130 L 1553 123 L 1648 123 L 1651 130 L 1648 137 L 1553 137 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1600" xml:space="preserve" y="130">
+{data: ...
+<title>{data: Some(368f758a)}</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="150">
+   .data
+<title>top.outputs.data</title>
+</text>
+<path d="M 200 150 L 203 143 L 347 143 L 350 150 L 347 157 L 203 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="275" xml:space="preserve" y="150">
+None
+<title>None</title>
+</text>
+<path d="M 350 150 L 353 143 L 447 143 L 450 150 L 447 157 L 353 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="400" xml:space="preserve" y="150">
+Some(ab...
+<title>Some(ab3a3c62)</title>
+</text>
+<path d="M 450 150 L 453 143 L 847 143 L 850 150 L 847 157 L 453 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="650" xml:space="preserve" y="150">
+None
+<title>None</title>
+</text>
+<path d="M 850 150 L 853 143 L 947 143 L 950 150 L 947 157 L 853 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="900" xml:space="preserve" y="150">
+Some(99...
+<title>Some(992a4a25)</title>
+</text>
+<path d="M 950 150 L 953 143 L 1347 143 L 1350 150 L 1347 157 L 953 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1150" xml:space="preserve" y="150">
+None
+<title>None</title>
+</text>
+<path d="M 1350 150 L 1353 143 L 1447 143 L 1450 150 L 1447 157 L 1353 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1400" xml:space="preserve" y="150">
+Some(33...
+<title>Some(33aa0966)</title>
+</text>
+<path d="M 1450 150 L 1453 143 L 1547 143 L 1550 150 L 1547 157 L 1453 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1500" xml:space="preserve" y="150">
+Some(15...
+<title>Some(15a8a352)</title>
+</text>
+<path d="M 1550 150 L 1553 143 L 1648 143 L 1651 150 L 1648 157 L 1553 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1600" xml:space="preserve" y="150">
+Some(36...
+<title>Some(368f758a)</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="170">
+      #None
+<title>top.outputs.data#None</title>
+</text>
+<path d="M 200 170 L 203 163 L 347 163 L 350 170 L 347 177 L 203 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="275" xml:space="preserve" y="170">
+<title></title>
+</text>
+<path d="M 450 170 L 453 163 L 847 163 L 850 170 L 847 177 L 453 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="650" xml:space="preserve" y="170">
+<title></title>
+</text>
+<path d="M 950 170 L 953 163 L 1347 163 L 1350 170 L 1347 177 L 953 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1150" xml:space="preserve" y="170">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="190">
+      #Some.0
+<title>top.outputs.data#Some.0</title>
+</text>
+<path d="M 350 190 L 353 183 L 447 183 L 450 190 L 447 197 L 353 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="400" xml:space="preserve" y="190">
+ab3a3c62
+<title>ab3a3c62</title>
+</text>
+<path d="M 850 190 L 853 183 L 947 183 L 950 190 L 947 197 L 853 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="900" xml:space="preserve" y="190">
+992a4a25
+<title>992a4a25</title>
+</text>
+<path d="M 1350 190 L 1353 183 L 1447 183 L 1450 190 L 1447 197 L 1353 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1400" xml:space="preserve" y="190">
+33aa0966
+<title>33aa0966</title>
+</text>
+<path d="M 1450 190 L 1453 183 L 1547 183 L 1550 190 L 1547 197 L 1453 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1500" xml:space="preserve" y="190">
+15a8a352
+<title>15a8a352</title>
+</text>
+<path d="M 1550 190 L 1553 183 L 1648 183 L 1651 190 L 1648 197 L 1553 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1600" xml:space="preserve" y="190">
+368f758a
+<title>368f758a</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="210">
+.reset
+<title>top.reset</title>
+</text>
+<rect fill="#1C400C" height="14" stroke="none" width="49" x="201" y="203"/>
+<path d="M 200 210 L 200 203 L 251 203 L 251 210" fill="none" stroke="#56C126" stroke-width="1"/>
+<path d="M 251 210 L 251 217 L 1651 217 L 1651 210" fill="none" stroke="#56C126" stroke-width="1"/>
+</svg>
+</p>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.In.html" title="struct rhdl_fpga::stream::testing::lazy_random::In">In</a></dt><dd>Input for the <a href="struct.LazyRng.html" title="struct rhdl_fpga::stream::testing::lazy_random::LazyRng">LazyRng</a> the <code>ready</code> signal
+provides backpressure.</dd><dt><a class="struct" href="struct.LazyRng.html" title="struct rhdl_fpga::stream::testing::lazy_random::LazyRng">LazyRng</a></dt><dd>Lazy, bursty random number generator as
+a stream.</dd><dt><a class="struct" href="struct.Out.html" title="struct rhdl_fpga::stream::testing::lazy_random::Out">Out</a></dt><dd>Data from the <a href="struct.LazyRng.html" title="struct rhdl_fpga::stream::testing::lazy_random::LazyRng">LazyRng</a> stream.
+Will be <a href="https://doc.rust-lang.org/1.91.1/core/option/enum.Option.html#variant.None" title="variant core::option::Option::None">None</a> if the source is stalling.</dd></dl></section></div></main></body></html>

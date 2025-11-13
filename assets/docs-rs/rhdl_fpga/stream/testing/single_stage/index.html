@@ -1,0 +1,187 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Single Stage Test Fixture"><title>rhdl_fpga::stream::testing::single_stage - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="rhdl_fpga" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module single_stage</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../rhdl_fpga/index.html">rhdl_<wbr>fpga</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module single_<wbr>stage</a></h2><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In rhdl_<wbr>fpga::<wbr>stream::<wbr>testing</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">rhdl_fpga</a>::<wbr><a href="../../index.html">stream</a>::<wbr><a href="../index.html">testing</a></div><h1>Module <span>single_<wbr>stage</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../src/rhdl_fpga/stream/testing/single_stage.rs.html#1-190">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Single Stage Test Fixture</p>
+<p>In this test fixture, we assemble a source, a uut, and a sink
+into a single assembly:</p>
+<p></p><div style="text-align:center;"><svg viewBox="0 0 490 105" width="490px" xmlns="http://www.w3.org/2000/svg">
+<path d="M5.744561,7.8446527 M5.7439976,7.3801293 C12.414206,8.515675,19.772747,8.005321,23.416967,7.2238307 M4.915375,7.7817225 C10.271846,7.3661647,15.820959,7.8722453,24.59538,6.8722835 M94.423904,5.6656218 M96.02335,8.846221 C99.53281,9.249601,103.25473,6.9166994,116.17604,7.4141617 M95.60617,6.553427 C98.663704,7.4163427,104.76837,7.967168,115.05497,8.310745 M174.6612,7.6397076 M173.26563,5.648552 C179.77254,8.849506,182.4093,6.3950014,194.15639,9.238876 M174.14545,6.9855413 C181.42944,7.9746184,189.84515,7.428797,195.5513,7.789204 M235.96246,6.0647626 M236.71315,6.269863 C253.99377,10.1101885,277.518,9.796448,304.43524,8.952945 M234.80542,8.093374 C256.3982,8.237049,278.41827,7.848523,304.81134,8.372036 M374.5898,7.3045177 M376.96298,7.981517 C382.0685,7.8244705,386.82303,8.8120985,394.84882,6.3945327 M374.29395,8.436251 C382.05536,8.053833,388.5865,7.2025003,395.80115,6.7629004 M445.21954,8.295328 M443.82483,9.257323 C455.6229,7.7471704,465.8876,6.486667,483.2918,9.4186945 M445.91254,8.337383 C457.4741,7.8032637,469.665,7.7714567,484.30545,7.9320097 M116.291824,39.12585 M115.69106,36.974155 C129.57254,38.23146,146.69252,35.86066,164.87903,36.06547 M114.94087,36.84516 C127.64841,35.768982,138.6974,36.211693,165.5351,38.36293 M303.30957,35.792946 M304.63828,36.064163 C324.05862,35.601486,342.34763,37.87205,363.3113,39.493324 M305.75446,37.01277 C320.96384,35.67323,336.58112,37.240433,365.25708,37.356815 M126.54765,80.62056 M124.78951,81.62958 C136.3658,82.43967,147.54297,81.05655,173.40445,81.44158 M125.436325,83.0892 C142.98442,83.49051,159.73723,82.325836,174.02946,82.75037 M313.4081,82.359604 M316.46817,83.40014 C338.14743,84.081055,358.45007,84.15732,373.22644,81.76188 M315.9092,83.15612 C336.48578,80.472855,359.14194,81.57389,375.5663,82.56023 M3.5492241,7.6661773 M6.8340983,6.343752 C4.8820353,38.580242,5.670817,67.491165,4.223396,98.89518 M4.7146153,7.9138827 C4.140423,40.455963,3.7733784,73.02595,4.0096517,96.56998 M116.93698,8.648664 M115.734726,6.6684203 C114.20077,30.39082,115.31618,50.73072,116.13726,95.984375 M114.80832,8.304979 C114.95326,34.270874,114.237785,62.961376,114.45335,97.23712 M5.604514,95.91769 M6.8960876,97.42845 C40.25175,95.141525,79.34034,96.3409,116.42424,97.17359 M4.205587,97.39304 C47.297237,95.37945,90.78888,95.16248,114.11507,97.45054 M176.96373,8.34218 M176.20442,7.037994 C172.98758,24.987839,175.75421,47.57951,174.20047,98.3394 M175.84592,6.7267327 C174.49374,42.804146,173.68353,78.21665,174.98212,96.72257 M303.9864,7.5465984 M303.48868,7.37404 C302.06226,30.510977,304.66348,53.29688,303.94302,97.47905 M305.83093,7.321594 C305.838,38.455105,304.40945,68.414246,304.85757,96.75282 M173.07097,97.452255 M173.15747,98.36102 C210.03136,95.73901,246.49509,97.639595,305.85098,98.19376 M175.75005,97.66253 C209.91989,97.00568,242.65768,97.42969,304.65582,97.85082 M376.39685,6.013466 M375.75558,6.0052896 C372.99268,32.037254,375.97546,57.850365,375.3227,98.75692 M375.92578,8.446066 C374.42123,31.390858,375.2829,56.528126,375.68127,97.6822 M485.8729,9.21269 M485.6636,6.3644347 C485.68552,42.474213,487.06235,75.98421,483.17392,97.92672 M485.3599,8.468539 C486.38098,33.88585,485.52753,61.401066,485.07272,97.14082 M376.9877,98.15899 M376.26074,96.942215 C418.42105,98.415474,460.83978,97.29603,484.8022,97.635376 M374.3929,97.37083 C404.60373,96.40189,434.85852,96.9521,484.96872,96.973526 M165.2106,34.022686 M164.13081,34.093178 C168.36269,33.846405,170.95938,36.002968,175.24185,37.36321 M165.52602,32.82704 C168.17899,34.0671,170.28363,35.782917,174.81662,37.816532 M174.30344,37.95152 C171.09384,38.368664,168.36871,40.848087,165.99908,41.812504 M175.28178,37.41588 C171.30841,39.26364,167.37589,40.7538,165.17871,41.474888 M165.81291,42.39679 C165.50183,38.06042,164.65437,36.59915,165.01991,32.473644 M164.7706,41.986168 C164.93861,38.50754,165.25597,35.35649,164.96257,33.17718 M365.62683,34.48368 M365.78632,32.204166 C367.88593,33.876213,369.73486,35.04787,375.81366,37.436684 M364.54047,33.312263 C368.35236,33.985596,371.9771,35.58737,375.2032,37.762936 M374.40594,38.225628 C372.42554,39.89176,368.30505,41.64916,364.98215,41.472725 M374.9741,37.879547 C373.45206,38.159813,371.17703,39.359825,365.00714,42.1045 M364.9091,42.086544 C365.21234,38.461887,365.29514,36.34923,365.5679,32.8462 M364.99072,41.907032 C365.519,38.415146,364.7718,34.85423,364.94534,33.270622 M123.10637,76.334175 M124.13962,77.23267 C121.98922,79.7648,118.45732,80.64349,113.98368,81.45972 M124.87987,78.05402 C122.579796,79.003265,120.6033,80.0512,114.45736,81.99177 M114.12078,81.77013 C118.41738,83.89958,121.373344,85.46017,124.999916,87.204216 M115.53645,82.44702 C118.74321,83.693054,121.5847,85.306274,124.571365,86.495255 M124.23653,86.97914 C125.55324,84.394424,125.11483,80.87315,124.13672,77.5689 M125.39156,87.123024 C124.890175,84.19652,125.39044,82.19964,125.32203,78.28537 M313.81815,77.41342 M314.5355,77.81528 C313.38522,77.92146,310.69278,79.353516,305.6976,83.46917 M314.55792,77.512436 C312.01953,79.491196,308.78323,81.2636,305.25693,82.873276 M305.17972,82.439644 C307.80087,83.204155,312.28033,86.42198,314.62723,86.96802 M304.93393,82.52035 C307.36966,83.494995,309.50742,84.86703,315.35336,86.85571 M314.40897,87.860374 C314.31287,84.32414,315.0319,79.57289,314.73788,77.19465 M315.35086,87.09426 C314.66556,85.492035,315.14935,83.25723,315.04764,78.27942" fill="none" stroke="currentColor" stroke-width="1"/>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="7.5">
+S
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="45" y="7.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="55" y="7.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="7.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="7.5">
+c
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="7.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="205" y="7.5">
+U
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="215" y="7.5">
+U
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="225" y="7.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="7.5">
+S
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="7.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="425" y="7.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="435" y="7.5">
+k
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="135" y="22.5">
+?
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="145" y="22.5">
+S
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="325" y="22.5">
+?
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="335" y="22.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="37.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="37.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="195" y="37.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="275" y="37.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="285" y="37.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="295" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="37.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="395" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="135" y="67.5">
+R
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="145" y="67.5">
+&lt;
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="155" y="67.5">
+S
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="165" y="67.5">
+&gt;
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="325" y="67.5">
+R
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="335" y="67.5">
+&lt;
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="345" y="67.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="355" y="67.5">
+&gt;
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="55" y="82.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="82.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="82.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="82.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="82.5">
+y
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="82.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="195" y="82.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="205" y="82.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="215" y="82.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="225" y="82.5">
+y
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="255" y="82.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="265" y="82.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="275" y="82.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="285" y="82.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="295" y="82.5">
+y
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="82.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="395" y="82.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="82.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="82.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="425" y="82.5">
+y
+</text>
+</svg></div><p></p>
+The source is provided by an iterator that yields [Option<T>]
+values, which are injected into the UUT when `ready` is `true`.
+The sink is provided by a consumer function that is called
+with each accepted data element as a [Option<S>], with the
+`Some` variant indicating that the data element is valid.
+The consumer function provides the `ready` signal back to the
+stream to supply backpressure.</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.SingleStage.html" title="struct rhdl_fpga::stream::testing::single_stage::SingleStage">Single<wbr>Stage</a></dt><dd>The <a href="struct.SingleStage.html" title="struct rhdl_fpga::stream::testing::single_stage::SingleStage">SingleStage</a> test fixture</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.single_stage.html" title="fn rhdl_fpga::stream::testing::single_stage::single_stage">single_<wbr>stage</a></dt><dd>Create a single stage test fixture</dd></dl></section></div></main></body></html>

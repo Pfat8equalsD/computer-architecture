@@ -1,0 +1,447 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Delay Line"><title>rhdl_fpga::core::delay - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rhdl_fpga" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module delay</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../rhdl_fpga/index.html">rhdl_<wbr>fpga</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module delay</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#example" title="Example">Example</a></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In rhdl_<wbr>fpga::<wbr>core</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">rhdl_fpga</a>::<wbr><a href="../index.html">core</a></div><h1>Module <span>delay</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/rhdl_fpga/core/delay.rs.html#1-235">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Delay Line</p>
+<p>This module implements a delay line in which the
+data type propagating through the delay is generic
+of type <code>T</code>, and the length of the delay is compile
+time configurable.</p>
+<p>Here is the schematic symbol</p>
+<p></p><div style="text-align:center;"><svg viewBox="0 0 270 75" width="270px" xmlns="http://www.w3.org/2000/svg">
+<path d="M45,7.5 M45,7.5 C55.51583,7.5,66.03166,7.5,75,7.5 M135,7.5 M135,7.5 C172.45615,7.5,209.9123,7.5,235,7.5 M5,37.5 M5,37.5 C12.285728,37.5,19.571457,37.5,35,37.5 M235,37.5 M235,37.5 C241.16028,37.5,247.32056,37.5,265,37.5 M45,7.5 M45,7.5 C45,19.945656,45,32.39131,45,67.5 M235,7.5 M235,7.5 C235,29.16089,235,50.82178,235,67.5 M45,67.5 M45,67.5 C119.723694,67.5,194.44739,67.5,235,67.5 M35,33 M35,33 C38.078728,34.385426,41.157455,35.770855,45,37.5 M45,37.5 C41.763412,38.956463,38.52683,40.412926,35,42 M35,42 C35,38.96905,35,35.938103,35,33 M265,33 M265,33 C268.51126,34.580067,272.02252,36.160133,275,37.5 M275,37.5 C272.4523,38.64646,269.90463,39.792923,265,42 M265,42 C265,39.53663,265,37.073257,265,33" fill="none" stroke="currentColor" stroke-width="1"/>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="7.5">
+D
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="7.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="7.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="7.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="125" y="7.5">
+y
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="22.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="255" y="22.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="37.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="37.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="37.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="37.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="165" y="37.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="175" y="37.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="195" y="37.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="205" y="37.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="215" y="37.5">
+t
+</text>
+</svg></div><p></p>
+# Internals
+ Internally the delay is simply a chain of `N`
+ [DFF]s, in a linear chain.  Note that the flip flops
+ will reset to the default value for `T`, which is
+ why it is required for `T: Default`.
+<p></p><div style="text-align:center;"><svg viewBox="0 0 420 75" width="420px" xmlns="http://www.w3.org/2000/svg">
+<path d="M75.74456,7.8446527 M75.743996,7.3801293 C92.93003,8.9058075,110.804405,8.395453,123.41697,7.2238307 M74.915375,7.7817225 C87.772964,6.9187956,100.8232,7.424876,124.59538,6.8722835 M164.4239,5.6656218 M166.02335,8.846221 C176.01071,9.592455,186.21053,7.259554,216.17604,7.4141617 M165.60617,6.553427 C175.40288,7.9935083,188.2467,8.544333,215.05498,8.310745 M294.6612,7.6397076 M293.26563,5.648552 C305.90225,8.91544,314.66876,6.460934,344.1564,9.238876 M294.14545,6.9855413 C311.95615,7.771323,330.89856,7.2255015,345.5513,7.789204 M25.96247,51.064762 M26.713158,51.269863 C35.13404,54.7911,49.798534,54.47736,64.435234,53.952946 M24.805428,53.093372 C36.911713,53.12142,49.445305,52.732895,64.81135,53.372036 M124.58981,52.304516 M126.96298,52.981518 C135.4158,52.750122,143.51762,53.73775,154.84882,51.39453 M124.29395,53.43625 C135.25044,53.14689,144.97662,52.295555,155.80113,51.7629 M215.21954,53.29533 M213.82483,54.257324 C220.61388,53.134842,225.86961,51.87434,233.29181,54.418694 M215.91255,53.337383 C221.09656,52.425476,226.90994,52.39367,234.30544,52.93201 M266.2918,54.12585 M265.69107,51.974155 C270.51547,53.48481,278.57837,51.11401,284.87903,51.06547 M264.94086,51.84516 C270.24332,51.345455,273.88727,51.788166,285.5351,53.36293 M343.30957,50.792946 M344.63828,51.064163 C355.00134,50.70815,364.2331,52.978714,373.3113,54.493324 M345.75446,52.01277 C353.18414,51.10095,361.0217,52.66815,375.25708,52.356815 M76.54765,5.6205573 M74.78951,6.6295786 C75.1129,21.873579,74.13392,35.07783,73.40444,66.44158 M75.436325,8.089199 C76.894875,29.062103,76.42166,48.568653,74.029465,67.75037 M123.40811,7.359603 M126.468185,8.400138 C125.26802,30.983313,123.82645,52.80383,123.226456,66.76188 M125.909195,8.156117 C123.63475,28.928608,124.01885,52.30172,125.56632,67.56023 M73.549225,67.666176 M76.8341,66.34375 C91.994545,70.082886,108.97663,69.84585,124.2234,68.89518 M74.714615,67.91388 C93.82426,67.27778,111.7367,66.944695,124.00965,66.56998 M166.93698,8.648664 M165.73473,6.6684203 C164.4545,22.992985,165.56992,35.93505,166.13725,65.984375 M164.80832,8.304979 C164.91524,25.14775,164.19975,44.715134,164.45334,67.23712 M215.6045,5.9176903 M216.89609,7.4284477 C212.0141,27.160315,214.06183,48.5638,216.42424,67.17359 M214.20558,7.3930435 C214.70811,30.736639,215.37395,53.879208,214.11507,67.45054 M166.96373,68.34218 M166.20442,67.037994 C174.76163,65.546,188.22621,68.881355,214.20047,68.3394 M165.84592,66.72673 C185.0273,66.94629,203.70316,67.28389,214.98212,66.72257 M293.9864,7.5465984 M293.48868,7.37404 C292.4998,22.991892,295.101,38.25871,293.94302,67.47905 M295.83093,7.321594 C295.85956,28.462912,294.431,48.429863,294.85757,66.75282 M343.07095,7.4522543 M343.15747,8.36102 C346.13684,22.665648,347.5577,40.73986,345.85098,68.19376 M345.75003,7.662532 C345.32825,22.559237,343.9625,38.723347,344.65582,67.85082 M296.39685,66.013466 M295.75558,66.00529 C307.51773,66.206635,324.99197,65.935135,345.3227,68.75692 M295.92578,68.44607 C308.1031,67.2047,322.6551,67.699326,345.68127,67.6822 M65.87288,49.71269 M65.36385,47.377377 C68.92123,50.090046,73.4647,51.473053,73.99877,52.733967 M65.19732,48.531044 C68.42028,48.885715,70.98433,50.37472,75.03988,52.303066 M75.533165,52.093178 C71.72706,54.177475,67.14443,56.334984,64.65541,56.440655 M74.91594,52.7744 C71.772125,53.68074,68.96803,55.058655,64.88526,57.30327 M65.46021,57.04896 C64.61717,53.837402,64.38139,52.55353,65.29221,47.477085 M64.94386,56.873104 C64.53993,54.06365,65.40791,51.624916,65.449936,47.755314 M154.76237,48.709763 M155.47375,47.289635 C157.02094,49.54887,159.94873,49.715237,165.3513,52.817986 M155.10434,47.633022 C159.17747,49.47838,163.08548,51.425648,165.33362,52.298977 M164.32138,51.489834 C162.57832,54.5802,158.73764,54.631744,154.44316,58.096294 M165.51488,52.67536 C161.64572,53.98046,159.03429,55.144836,155.51784,56.991123 M155.66765,56.497425 C155.76012,54.048176,155.57448,51.09658,155.29648,47.757805 M154.97401,57.270622 C155.4755,54.84303,154.65932,52.236156,154.72356,47.607613 M233.8566,46.187305 M235.23041,48.127098 C237.8197,50.1182,242.81189,51.648487,245.52797,53.367138 M234.81395,48.44108 C237.91457,49.910126,241.4673,50.444958,245.32858,52.344486 M244.2678,51.65276 C241.89337,54.052197,239.1034,54.779816,235.21317,57.691227 M244.55962,52.98063 C241.3423,54.217102,238.17883,55.96316,234.54582,57.026825 M234.25038,57.26235 C234.59305,53.990986,234.18561,51.188904,235.25491,48.309082 M234.5731,56.728924 C235.44598,54.343117,234.93848,51.529133,234.91434,47.901173 M286.15536,47.447723 M285.7567,48.65376 C286.04767,48.155064,289.19394,49.914055,295.11423,52.79074 M284.79272,47.922794 C288.55316,49.23206,291.46918,50.303802,294.9694,52.28592 M294.73203,52.777798 C291.76868,53.466244,291.10114,54.568977,285.0863,56.04251 M294.9361,52.634445 C293.39316,53.549564,290.7159,54.089428,285.45016,57.525597 M284.73605,56.365036 C285.0307,52.853786,284.50464,50.160286,285.54596,47.23443 M285.3977,57.097256 C285.48776,54.411236,284.7247,50.761154,285.12772,47.915478 M375.49408,48.81042 M376.06732,47.772644 C378.70963,49.43201,381.3693,50.211803,385.5077,53.372234 M375.35892,47.60834 C377.59134,49.334667,380.2147,50.27738,384.62146,52.55199 M385.14905,52.992012 C380.61172,55.350166,376.87997,56.858677,375.06866,56.304886 M385.03302,52.833168 C382.6382,53.653645,379.10767,55.222416,375.1952,57.04376 M374.24277,57.01244 C374.72513,54.016167,375.05972,51.52149,375.47437,47.185913 M375.0442,57.434708 C374.63678,54.762653,374.5648,51.457264,374.783,48.143272" fill="none" stroke="currentColor" stroke-width="1"/>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="22.5">
+D
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="22.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="22.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="22.5">
+1
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="175" y="22.5">
+D
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="185" y="22.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="195" y="22.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="205" y="22.5">
+2
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="305" y="22.5">
+D
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="315" y="22.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="325" y="22.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="335" y="22.5">
+N
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="55" y="37.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="245" y="37.5">
+.
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="255" y="37.5">
+.
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="265" y="37.5">
+.
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="37.5">
+T
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="52.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="52.5">
+q
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="175" y="52.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="205" y="52.5">
+q
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="305" y="52.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="335" y="52.5">
+q
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="5" y="67.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="15" y="67.5">
+n
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="67.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="67.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="45" y="67.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="365" y="67.5">
+o
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="375" y="67.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="385" y="67.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="395" y="67.5">
+p
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="405" y="67.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="415" y="67.5">
+t
+</text>
+</svg></div><p></p>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
+<p>The delay is a fairly simple core, and
+the example is pretty basic.  To make it slightly more
+interesting, we demonstrate the case that the
+data being carried is an enum.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>rhdl::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>rhdl_fpga::{core::delay::Delay, doc::write_svg_as_markdown};
+
+<span class="attr">#[derive(PartialEq, Digital, Default)]
+</span><span class="kw">pub enum </span>State {
+    Init,
+    Running,
+    Busted,
+    Reset,
+    <span class="attr">#[default]
+    </span>Unknown,
+}
+
+<span class="kw">fn </span>main() -&gt; <span class="prelude-ty">Result</span>&lt;(), RHDLError&gt; {
+    <span class="kw">let </span>input = [
+        State::Unknown,
+        State::Init,
+        State::Reset,
+        State::Busted,
+        State::Running,
+        State::Busted,
+    ]
+    .into_iter()
+    .chain(std::iter::repeat_n(State::Unknown, <span class="number">4</span>));
+    <span class="kw">let </span>input = input.with_reset(<span class="number">1</span>).clock_pos_edge(<span class="number">100</span>);
+    <span class="kw">let </span>uut: Delay&lt;State, <span class="number">3</span>&gt; = Delay::default();
+    <span class="kw">let </span>vcd = uut.run(input)<span class="question-mark">?</span>.collect::&lt;Vcd&gt;();
+    <span class="kw">let </span>options = SvgOptions::default()
+        .with_filter(<span class="string">"(^top.input.*)|(^top.output.*)"</span>)
+        .with_label_width(<span class="number">20</span>);
+    write_svg_as_markdown(vcd, <span class="string">"delay.md"</span>, options)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div>
+<p>The resulting trace is show below.</p>
+<p>
+<svg viewBox="0 0 1250 260" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<clipPath id="clip">
+<rect height="260" width="1250" x="0" y="0"/>
+</clipPath>
+</defs>
+<rect fill="#0B151D" height="260" stroke="darkblue" width="1250" x="0" y="0"/>
+<line stroke="#333333" stroke-width="1" x1="200" x2="200" y1="0" y2="260"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="200" y="10">
+0
+</text>
+<line stroke="#333333" stroke-width="1" x1="300" x2="300" y1="0" y2="260"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="300" y="10">
+100
+</text>
+<line stroke="#333333" stroke-width="1" x1="400" x2="400" y1="0" y2="260"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="400" y="10">
+200
+</text>
+<line stroke="#333333" stroke-width="1" x1="500" x2="500" y1="0" y2="260"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="500" y="10">
+300
+</text>
+<line stroke="#333333" stroke-width="1" x1="600" x2="600" y1="0" y2="260"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="600" y="10">
+400
+</text>
+<line stroke="#333333" stroke-width="1" x1="700" x2="700" y1="0" y2="260"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="700" y="10">
+500
+</text>
+<line stroke="#333333" stroke-width="1" x1="800" x2="800" y1="0" y2="260"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="800" y="10">
+600
+</text>
+<line stroke="#333333" stroke-width="1" x1="900" x2="900" y1="0" y2="260"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="900" y="10">
+700
+</text>
+<line stroke="#333333" stroke-width="1" x1="1000" x2="1000" y1="0" y2="260"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1000" y="10">
+800
+</text>
+<line stroke="#333333" stroke-width="1" x1="1100" x2="1100" y1="0" y2="260"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1100" y="10">
+900
+</text>
+<line stroke="#333333" stroke-width="1" x1="1200" x2="1200" y1="0" y2="260"/>
+<text clip-path="url(#clip)" dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1200" y="10">
+1000
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" y="10">
+Time:
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="30">
+.input
+<title>top.input</title>
+</text>
+<path d="M 200 30 L 203 23 L 348 23 L 351 30 L 348 37 L 203 37 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="275" xml:space="preserve" y="30">
+Unknown
+<title>Unknown</title>
+</text>
+<path d="M 351 30 L 354 23 L 448 23 L 451 30 L 448 37 L 354 37 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="401" xml:space="preserve" y="30">
+Init
+<title>Init</title>
+</text>
+<path d="M 451 30 L 454 23 L 548 23 L 551 30 L 548 37 L 454 37 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="501" xml:space="preserve" y="30">
+Reset
+<title>Reset</title>
+</text>
+<path d="M 551 30 L 554 23 L 648 23 L 651 30 L 648 37 L 554 37 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="601" xml:space="preserve" y="30">
+Busted
+<title>Busted</title>
+</text>
+<path d="M 651 30 L 654 23 L 748 23 L 751 30 L 748 37 L 654 37 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="701" xml:space="preserve" y="30">
+Running
+<title>Running</title>
+</text>
+<path d="M 751 30 L 754 23 L 848 23 L 851 30 L 848 37 L 754 37 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="801" xml:space="preserve" y="30">
+Busted
+<title>Busted</title>
+</text>
+<path d="M 851 30 L 854 23 L 1247 23 L 1250 30 L 1247 37 L 854 37 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1050" xml:space="preserve" y="30">
+Unknown
+<title>Unknown</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="50">
+   #Init
+<title>top.input#Init</title>
+</text>
+<path d="M 351 50 L 354 43 L 448 43 L 451 50 L 448 57 L 354 57 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="401" xml:space="preserve" y="50">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="70">
+   #Running
+<title>top.input#Running</title>
+</text>
+<path d="M 651 70 L 654 63 L 748 63 L 751 70 L 748 77 L 654 77 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="701" xml:space="preserve" y="70">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="90">
+   #Busted
+<title>top.input#Busted</title>
+</text>
+<path d="M 551 90 L 554 83 L 648 83 L 651 90 L 648 97 L 554 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="601" xml:space="preserve" y="90">
+<title></title>
+</text>
+<path d="M 751 90 L 754 83 L 848 83 L 851 90 L 848 97 L 754 97 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="801" xml:space="preserve" y="90">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="110">
+   #Reset
+<title>top.input#Reset</title>
+</text>
+<path d="M 451 110 L 454 103 L 548 103 L 551 110 L 548 117 L 454 117 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="501" xml:space="preserve" y="110">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="130">
+   #Unknown
+<title>top.input#Unknown</title>
+</text>
+<path d="M 200 130 L 203 123 L 348 123 L 351 130 L 348 137 L 203 137 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="275" xml:space="preserve" y="130">
+<title></title>
+</text>
+<path d="M 851 130 L 854 123 L 1247 123 L 1250 130 L 1247 137 L 854 137 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1050" xml:space="preserve" y="130">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="150">
+.outputs
+<title>top.outputs</title>
+</text>
+<path d="M 200 150 L 203 143 L 647 143 L 650 150 L 647 157 L 203 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="425" xml:space="preserve" y="150">
+Unknown
+<title>Unknown</title>
+</text>
+<path d="M 650 150 L 653 143 L 747 143 L 750 150 L 747 157 L 653 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="700" xml:space="preserve" y="150">
+Init
+<title>Init</title>
+</text>
+<path d="M 750 150 L 753 143 L 847 143 L 850 150 L 847 157 L 753 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="800" xml:space="preserve" y="150">
+Reset
+<title>Reset</title>
+</text>
+<path d="M 850 150 L 853 143 L 947 143 L 950 150 L 947 157 L 853 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="900" xml:space="preserve" y="150">
+Busted
+<title>Busted</title>
+</text>
+<path d="M 950 150 L 953 143 L 1047 143 L 1050 150 L 1047 157 L 953 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1000" xml:space="preserve" y="150">
+Running
+<title>Running</title>
+</text>
+<path d="M 1050 150 L 1053 143 L 1147 143 L 1150 150 L 1147 157 L 1053 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1100" xml:space="preserve" y="150">
+Busted
+<title>Busted</title>
+</text>
+<path d="M 1150 150 L 1153 143 L 1247 143 L 1250 150 L 1247 157 L 1153 157 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1200" xml:space="preserve" y="150">
+Unknown
+<title>Unknown</title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="170">
+   #Init
+<title>top.outputs#Init</title>
+</text>
+<path d="M 650 170 L 653 163 L 747 163 L 750 170 L 747 177 L 653 177 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="700" xml:space="preserve" y="170">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="190">
+   #Running
+<title>top.outputs#Running</title>
+</text>
+<path d="M 950 190 L 953 183 L 1047 183 L 1050 190 L 1047 197 L 953 197 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1000" xml:space="preserve" y="190">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="210">
+   #Busted
+<title>top.outputs#Busted</title>
+</text>
+<path d="M 850 210 L 853 203 L 947 203 L 950 210 L 947 217 L 853 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="900" xml:space="preserve" y="210">
+<title></title>
+</text>
+<path d="M 1050 210 L 1053 203 L 1147 203 L 1150 210 L 1147 217 L 1053 217 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1100" xml:space="preserve" y="210">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="230">
+   #Reset
+<title>top.outputs#Reset</title>
+</text>
+<path d="M 750 230 L 753 223 L 847 223 L 850 230 L 847 237 L 753 237 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="800" xml:space="preserve" y="230">
+<title></title>
+</text>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="start" x="3" xml:space="preserve" y="250">
+   #Unknown
+<title>top.outputs#Unknown</title>
+</text>
+<path d="M 200 250 L 203 243 L 647 243 L 650 250 L 647 257 L 203 257 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="425" xml:space="preserve" y="250">
+<title></title>
+</text>
+<path d="M 1150 250 L 1153 243 L 1247 243 L 1250 250 L 1247 257 L 1153 257 Z" fill="none" stroke="#56C126" stroke-width="1"/>
+<text dominant-baseline="middle" fill="#D4D4D4" font-family="monospace" font-size="10px" text-anchor="middle" x="1200" xml:space="preserve" y="250">
+<title></title>
+</text>
+</svg>
+</p>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Delay.html" title="struct rhdl_fpga::core::delay::Delay">Delay</a></dt><dd>The Delay core
+<code>T</code> is the type carried by the core
+<code>N</code> is the length of the delay line</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.delay.html" title="fn rhdl_fpga::core::delay::delay">delay</a></dt><dd>Kernel for delay core</dd></dl></section></div></main></body></html>

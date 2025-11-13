@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["bits","signed"],"macro":["impl_assign_op","impl_assigned_signed_op","impl_binop","impl_signed_binop","test_binop"],"mod":["alias"],"struct":["Bits","Const","SignedBits","bits","signed"],"trait":["BitWidth"]};

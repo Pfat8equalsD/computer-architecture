@@ -1,0 +1,80 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Bursty FIFO Filler"><title>rhdl_fpga::fifo::testing::filler - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="rhdl_fpga" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module filler</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../rhdl_fpga/index.html">rhdl_<wbr>fpga</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module filler</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#schematic-symbol" title="Schematic Symbol">Schematic Symbol</a></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In rhdl_<wbr>fpga::<wbr>fifo::<wbr>testing</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">rhdl_fpga</a>::<wbr><a href="../../index.html">fifo</a>::<wbr><a href="../index.html">testing</a></div><h1>Module <span>filler</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../src/rhdl_fpga/fifo/testing/filler.rs.html#1-167">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Bursty FIFO Filler</p>
+<p>A bursty, random FIFO filler.  Uses a sequence of values from an XorShift128 to
+fill a FIFO.  The lowest N bits of the output number are used as the data.  Based
+on the random value, the filler will also decide to “sleep” for a number of clock
+cycles.  This is to simulate a bursty data source.  Note that the behavior is
+deterministic.  The number of sleep cycles is also fixed, so that a single parameter
+can be used to control the “burstiness” of the data.</p>
+<h2 id="schematic-symbol"><a class="doc-anchor" href="#schematic-symbol">§</a>Schematic Symbol</h2>
+<p>The <a href="struct.FIFOFiller.html" title="struct rhdl_fpga::fifo::testing::filler::FIFOFiller">FIFOFiller</a> has the following symbol:</p>
+<p></p><div style="text-align:center;"><svg viewBox="0 0 200 120" width="200px" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,7.5 M5,7.5 C8.505277,7.5,12.010553,7.5,15,7.5 M125,7.5 M125,7.5 C128.74562,7.5,132.49123,7.5,135,7.5 M135,37.5 M135,37.5 C149.57146,37.5,164.14291,37.5,195,37.5 M145,82.5 M145,82.5 C155.26714,82.5,165.53427,82.5,195,82.5 M5,7.5 M5,7.5 C5,29.279898,5,51.059795,5,112.5 M135,7.5 M135,7.5 C135,45.40656,135,83.31312,135,112.5 M5,112.5 M5,112.5 C56.126736,112.5,107.25347,112.5,135,112.5 M195,33 M195,33 C198.07872,34.385426,201.15746,35.770855,205,37.5 M205,37.5 C201.76341,38.956463,198.52682,40.412926,195,42 M195,42 C195,38.96905,195,35.938103,195,33 M145,78 M145,78 C141.48874,79.58006,137.97748,81.16013,135,82.5 M135,82.5 C137.54768,83.64646,140.09538,84.79292,145,87 M145,87 C145,84.53663,145,82.07326,145,78" fill="none" stroke="currentColor" stroke-width="1"/>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="25" y="7.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="35" y="7.5">
+I
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="45" y="7.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="55" y="7.5">
+O
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="65" y="7.5">
+F
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="7.5">
+i
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="7.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="7.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="7.5">
+e
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="7.5">
+r
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="155" y="22.5">
+?
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="165" y="22.5">
+b
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="175" y="22.5">
+N
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="75" y="37.5">
+d
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="37.5">
+t
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="37.5">
+a
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="85" y="82.5">
+f
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="95" y="82.5">
+u
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="105" y="82.5">
+l
+</text>
+<text dominant-baseline="middle" fill="currentColor" font-family="monospace" font-size="16" text-anchor="middle" x="115" y="82.5">
+l
+</text>
+</svg></div><p></p>
+<p>Internally, the <a href="struct.FIFOFiller.html" title="struct rhdl_fpga::fifo::testing::filler::FIFOFiller">FIFOFiller</a> uses an <a href="../../../rng/xorshift/struct.XorShift.html" title="struct rhdl_fpga::rng::xorshift::XorShift">XorShift</a>
+core to generate a sequence of pseudorandom 32
+bit values.  These are used to both generate the
+output data, and to determine if the core will sleep.</p>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.FIFOFiller.html" title="struct rhdl_fpga::fifo::testing::filler::FIFOFiller">FIFO<wbr>Filler</a></dt><dd>The FIFO Filler core</dd><dt><a class="struct" href="struct.In.html" title="struct rhdl_fpga::fifo::testing::filler::In">In</a></dt><dd>Inputs to the <a href="struct.FIFOFiller.html" title="struct rhdl_fpga::fifo::testing::filler::FIFOFiller">FIFOFiller</a> core</dd><dt><a class="struct" href="struct.Out.html" title="struct rhdl_fpga::fifo::testing::filler::Out">Out</a></dt><dd>Outputs from the <a href="struct.FIFOFiller.html" title="struct rhdl_fpga::fifo::testing::filler::FIFOFiller">FIFOFiller</a> core</dd></dl></section></div></main></body></html>

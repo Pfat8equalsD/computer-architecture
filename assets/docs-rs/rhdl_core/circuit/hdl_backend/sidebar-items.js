@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["build_hdl","build_synchronous_hdl"]};
