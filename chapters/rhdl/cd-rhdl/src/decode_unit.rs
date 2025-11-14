@@ -54,6 +54,28 @@ pub enum IndexRegister{
     XB
 }
 
+#[kernel]
+pub fn btr(i: BaseRegister) -> Reg {
+    match i {
+        BaseRegister::BA => BA,
+        BaseRegister::BB => BB,
+    }
+}
+#[kernel]
+pub fn itr(i: IndexRegister) -> Reg {
+    match i {
+        IndexRegister::XA => XA,
+        IndexRegister::XB => XB,
+    }
+}
+
+#[kernel]
+pub fn artr(i: AddrRegister) -> Reg {
+    match i {
+        AddrRegister::Base(b) => btr(b),
+        AddrRegister::Index(i) => itr(i),
+    }
+}
 
 impl Default for Operand {
     fn default() -> Self {
@@ -113,9 +135,6 @@ pub enum OneOp {
     Shr,
     Sar,
 }
-
-const f:bool = false;
-const t:bool = true;
 
 #[bitops]
 #[kernel]
@@ -246,7 +265,7 @@ fn irx(i: Bits<U1>) -> IndexRegister {
 
 #[kernel]
 fn brx(i: Bits<U1>) -> BaseRegister {
-    if i == bits(1) { BaseRegister::BA } else {BaseRegister::BB}
+    if i == bits(1) { BaseRegister::BB } else {BaseRegister::BA}
 }
 
 #[bitops]
@@ -258,32 +277,32 @@ fn mod_rm(i: Bits<U16>) -> DstOperand {
     match m.raw() {
         0b11 => DstOperand::Reg(reg(rm)),
         0b01 => {
-            if rm < bits(0b100) {
-                DstOperand::BasedIndexedAddr(brx(rm[1]), irx(rm[0]))
-            } else if rm < bits(0b110) {
-                DstOperand::IndexedAddr(irx(rm[0]))
+            if rm[0] ==bits(0) {
+                DstOperand::BasedIndexedAddr(brx(rm[1]), irx(rm[2]))
+            } else if rm[1] == bits(0) {
+                DstOperand::IndexedAddr(irx(rm[2]))
             } else {
-                DstOperand::BasedAddr(brx(rm[0]))
+                DstOperand::BasedAddr(brx(rm[2]))
             }
         }
         0b10 => {
-            if rm < bits(0b100) {
-                DstOperand::RegSumIncr(brx(rm[1]), irx(rm[0]))
-            } else if rm < bits(0b110) {
-                DstOperand::RegSumDecr(brx(rm[0]))
-            } else if rm[0] == bits(0) {
+            if rm[0] == bits(0) {
+                DstOperand::RegSumIncr(brx(rm[1]), irx(rm[2]))
+            } else if rm[1] == bits(0) {
+                DstOperand::RegSumDecr(brx(rm[2]))
+            } else if rm[2] == bits(0) {
                 DstOperand::DirectAddress
             } else {
                 DstOperand::IndirectAddress
             }
         }
         0b00 => {
-            if rm < bits(0b100) {
-                DstOperand::RegSum(brx(rm[1]), irx(rm[0]))
-            } else if rm < bits(0b110) {
-                DstOperand::RegisterAddress(AddrRegister::Index(irx(rm[0])))
+            if rm[0] == bits(0) {
+                DstOperand::RegSum(brx(rm[1]), irx(rm[2]))
+            } else if rm[1] == bits(0) {
+                DstOperand::RegisterAddress(AddrRegister::Index(irx(rm[2])))
             } else {
-                DstOperand::RegisterAddress(AddrRegister::Base(brx(rm[0])))
+                DstOperand::RegisterAddress(AddrRegister::Base(brx(rm[2])))
             }
         }
         _ => DstOperand::dont_care()
@@ -364,4 +383,78 @@ pub fn decode(i: Bits<U16>) -> Decoded {
         _ => {}
     };
     Decoded::Invalid
+}
+
+
+mod tests {
+    use super::*;
+    use crate::prelude::*;
+    #[kernel]
+    fn decode_uut(_cr: ClockReset, i: Bits<U16>) -> Decoded {
+        decode(i)
+    }
+    
+    type Decoder = Func<Bits<U16>,Decoded>;
+    
+    fn assert_in_ref(i: Vec<u16>, r: Vec<Decoded>) {
+        assert!(i.len() == r.len());
+        let uut: Decoder = Func::try_new::<decode_uut>().expect("RHDL error");
+        let mut s = uut.init();
+        for (i,x) in i.iter().zip(r) {
+            let d = uut.sim(ClockReset::default(), Bits::from(*i as u128), &mut s);
+            
+            assert_eq!(d,x);
+        }
+    }
+    use TwoOp::*;
+    use OneOp::*;
+    use Operand::*;
+    use DstOperand::*;
+
+    #[test]
+    fn inc_all_ea_types_op() {
+        let inputs = vec![
+            0x0308,
+            0xE008,
+            0x6208,
+            0xE208,
+            0x2108,
+            0x6108,
+            0xE108,
+            0xC008,
+            0x0008,
+            0x4008,
+            0x8208,
+            0xA208,
+            0x8108
+        ];
+        let expect = vec![
+            Decoded::OneOp { op: Inc, dst: Reg(RA) },
+            Decoded::OneOp { op: Inc, dst: RegisterAddress(AddrRegister::Base(BaseRegister::BB)) },
+            Decoded::OneOp { op: Inc, dst: DirectAddress },
+            Decoded::OneOp { op: Inc, dst: IndirectAddress },
+            Decoded::OneOp { op: Inc, dst: IndexedAddr(IndexRegister::XA) },
+            Decoded::OneOp { op: Inc, dst: BasedAddr(BaseRegister::BA) },
+            Decoded::OneOp { op: Inc, dst: BasedAddr(BaseRegister::BB) },
+            Decoded::OneOp { op: Inc, dst: RegSum(BaseRegister::BB, IndexRegister::XB) },
+            Decoded::OneOp { op: Inc, dst: RegSum(BaseRegister::BA, IndexRegister::XA) },
+            Decoded::OneOp { op: Inc, dst: RegSum(BaseRegister::BB, IndexRegister::XA) },
+            Decoded::OneOp { op: Inc, dst: RegSumIncr(BaseRegister::BA, IndexRegister::XB) },
+            Decoded::OneOp { op: Inc, dst: RegSumDecr(BaseRegister::BB) },
+            Decoded::OneOp { op: Inc, dst: BasedIndexedAddr(BaseRegister::BA, IndexRegister::XB) },
+        ];
+        assert_in_ref(inputs, expect);
+    }
+
+    #[test]
+    fn generic_two_op() {
+        
+        let inputs = vec![0x4292, 0x140A, 0x612E];
+        let expect = vec![
+            Decoded::TwoOp { op: Test, src: MaybeDst(RegSumIncr(BaseRegister::BB, IndexRegister::XA)), dst: Reg(RA) },
+            Decoded::TwoOp { op: Add, src: MaybeDst(Reg(XB)), dst: RegSum(BaseRegister::BA, IndexRegister::XA) },
+            Decoded::TwoOp { op: Sub, src: Imm, dst: BasedAddr(BaseRegister::BA) }
+        ];
+        assert_in_ref(inputs, expect);
+    }
 }
