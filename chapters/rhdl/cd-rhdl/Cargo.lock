@@ -154,6 +154,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "bitops-rhdl"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.109",
+]
+
+[[package]]
 name = "block-buffer"
 version = "0.10.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -192,6 +201,8 @@ dependencies = [
 name = "cd-rhdl"
 version = "0.1.0"
 dependencies = [
+ "bitops-rhdl",
+ "miette",
  "rhdl",
  "rhdl-fpga",
 ]
@@ -961,7 +972,7 @@ checksum = "7a2d987857b319362043e95f5353c0535c1f58eec5336fdfcf626430af7def58"
 [[package]]
 name = "rhdl"
 version = "0.1.0"
-source = "git+https://github.com/samitbasu/rhdl.git?rev=8d04954#8d0495473e0248a2c6afb7337df477eb83cecef0"
+source = "git+https://github.com/Pfat8EqualsD/rhdl.git?branch=signal#67d58ca4dd9aeaf8212549554efdfc731ac41877"
 dependencies = [
  "rhdl-bits",
  "rhdl-core",
@@ -975,7 +986,7 @@ dependencies = [
 [[package]]
 name = "rhdl-bits"
 version = "0.1.0"
-source = "git+https://github.com/samitbasu/rhdl.git?rev=8d04954#8d0495473e0248a2c6afb7337df477eb83cecef0"
+source = "git+https://github.com/Pfat8EqualsD/rhdl.git?branch=signal#67d58ca4dd9aeaf8212549554efdfc731ac41877"
 dependencies = [
  "rhdl-typenum",
  "seq-macro",
@@ -984,7 +995,7 @@ dependencies = [
 [[package]]
 name = "rhdl-core"
 version = "0.1.0"
-source = "git+https://github.com/samitbasu/rhdl.git?rev=8d04954#8d0495473e0248a2c6afb7337df477eb83cecef0"
+source = "git+https://github.com/Pfat8EqualsD/rhdl.git?branch=signal#67d58ca4dd9aeaf8212549554efdfc731ac41877"
 dependencies = [
  "anyhow",
  "ena",
@@ -1017,7 +1028,7 @@ dependencies = [
 [[package]]
 name = "rhdl-fpga"
 version = "0.1.0"
-source = "git+https://github.com/samitbasu/rhdl.git?rev=8d04954#8d0495473e0248a2c6afb7337df477eb83cecef0"
+source = "git+https://github.com/Pfat8EqualsD/rhdl.git?branch=signal#67d58ca4dd9aeaf8212549554efdfc731ac41877"
 dependencies = [
  "anyhow",
  "array-init",
@@ -1031,7 +1042,7 @@ dependencies = [
 [[package]]
 name = "rhdl-macro"
 version = "0.0.3"
-source = "git+https://github.com/samitbasu/rhdl.git?rev=8d04954#8d0495473e0248a2c6afb7337df477eb83cecef0"
+source = "git+https://github.com/Pfat8EqualsD/rhdl.git?branch=signal#67d58ca4dd9aeaf8212549554efdfc731ac41877"
 dependencies = [
  "rhdl-macro-core",
 ]
@@ -1039,7 +1050,7 @@ dependencies = [
 [[package]]
 name = "rhdl-macro-core"
 version = "0.1.0"
-source = "git+https://github.com/samitbasu/rhdl.git?rev=8d04954#8d0495473e0248a2c6afb7337df477eb83cecef0"
+source = "git+https://github.com/Pfat8EqualsD/rhdl.git?branch=signal#67d58ca4dd9aeaf8212549554efdfc731ac41877"
 dependencies = [
  "evalexpr",
  "inflections",
@@ -1056,7 +1067,7 @@ dependencies = [
 [[package]]
 name = "rhdl-span"
 version = "0.1.0"
-source = "git+https://github.com/samitbasu/rhdl.git?rev=8d04954#8d0495473e0248a2c6afb7337df477eb83cecef0"
+source = "git+https://github.com/Pfat8EqualsD/rhdl.git?branch=signal#67d58ca4dd9aeaf8212549554efdfc731ac41877"
 dependencies = [
  "serde",
 ]
@@ -1064,7 +1075,7 @@ dependencies = [
 [[package]]
 name = "rhdl-trace-type"
 version = "0.1.0"
-source = "git+https://github.com/samitbasu/rhdl.git?rev=8d04954#8d0495473e0248a2c6afb7337df477eb83cecef0"
+source = "git+https://github.com/Pfat8EqualsD/rhdl.git?branch=signal#67d58ca4dd9aeaf8212549554efdfc731ac41877"
 dependencies = [
  "serde",
 ]
@@ -1072,7 +1083,7 @@ dependencies = [
 [[package]]
 name = "rhdl-typenum"
 version = "0.1.0"
-source = "git+https://github.com/samitbasu/rhdl.git?rev=8d04954#8d0495473e0248a2c6afb7337df477eb83cecef0"
+source = "git+https://github.com/Pfat8EqualsD/rhdl.git?branch=signal#67d58ca4dd9aeaf8212549554efdfc731ac41877"
 dependencies = [
  "rhdl-macro",
  "seq-macro",
@@ -1081,7 +1092,7 @@ dependencies = [
 [[package]]
 name = "rhdl-vlog"
 version = "0.1.0"
-source = "git+https://github.com/samitbasu/rhdl.git?rev=8d04954#8d0495473e0248a2c6afb7337df477eb83cecef0"
+source = "git+https://github.com/Pfat8EqualsD/rhdl.git?branch=signal#67d58ca4dd9aeaf8212549554efdfc731ac41877"
 dependencies = [
  "log",
  "miette",

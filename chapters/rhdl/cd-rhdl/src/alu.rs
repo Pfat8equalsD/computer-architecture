@@ -28,7 +28,8 @@
 //!
 //! ### Adding numbers larger than N bit together
 //!
-use rhdl::prelude::*;
+// use rhdl::prelude::*;
+use crate::prelude::*;
 
 /// Operation perfomred by [alu]. Every operation will output some flags, it is up to the control unit
 /// if they will be stored in the ``FR`` or not
@@ -227,19 +228,20 @@ pub fn alu<N: BitWidth>(i: AluInput<N>) -> AluOutput<N> {
 }
 
 
-mod tests {
-    #[doc(hidden)]
-    #[kernel]
-    /// A wrapper over alu kernel to make it simulatable into a testbench using a Func
-    fn alu_uut<N: BitWidth>(_cr: ClockReset, i: AluInput<N>) -> AluOutput<N> {
-        alu::<N>(i)
-    }
+// mod tests {
+//     use crate::prelude::*;
+//     #[doc(hidden)]
+//     #[kernel]
+//     /// A wrapper over alu kernel to make it simulatable into a testbench using a Func
+//     fn alu_uut<N: BitWidth>(_cr: ClockReset, i: AluInput<N>) -> AluOutput<N> {
+//         alu::<N>(i)
+//     }
     
-    type AluUut<N: BitWidth> = Func<AluInput<N>, AluOutput<N>>;
+//     type AluUut<N: BitWidth> = Func<AluInput<N>, AluOutput<N>>;
     
-    fn new<N: BitWidth>() -> Result<AluUut<N>, RHDLError> {
-        Func::try_new::<alu_uut<N>>()
-    }
+//     fn new<N: BitWidth>() -> Result<AluUut<N>, RHDLError> {
+//         Func::try_new::<alu_uut<N>>()
+//     }
     
 
-}
+// }
