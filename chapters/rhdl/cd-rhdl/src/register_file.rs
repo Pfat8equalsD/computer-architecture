@@ -1,4 +1,7 @@
-use crate::{decode_unit::{Decoded, Jcond, decode}, prelude::*};
+use crate::{
+    decode_unit::{Decoded, Jcond, decode},
+    prelude::*,
+};
 #[allow(non_camel_case_types)]
 #[derive(Debug, Digital, Default, PartialEq)]
 pub enum Reg {
@@ -44,36 +47,84 @@ pub fn rtb(i: Reg) -> Bits<U3> {
 
 #[derive(Debug, Synchronous, SynchronousDQ, Clone)]
 pub struct RegFile<N: BitWidth + Unsigned> {
-    rg: [DFF<Bits<N>>; 8]
+    rg: [DFF<Bits<N>>; 8],
 }
 
 impl<N: BitWidth + Unsigned> Default for RegFile<N> {
     fn default() -> Self {
-        Self { rg: core::array::from_fn(|_| DFF::new(Bits::default())) }
+        Self {
+            rg: core::array::from_fn(|_| DFF::new(Bits::default())),
+        }
     }
 }
 
-impl<N: BitWidth+Unsigned> SynchronousIO for RegFile<N> {
-    type I = (RegInput<N>, Reg);
+impl<N: BitWidth + Unsigned> SynchronousIO for RegFile<N> {
+    type I = (RegisterInput<N>, Reg);
     type O = Bits<N>;
     type Kernel = reg_file<N>;
 }
 
 #[kernel]
-pub fn reg_file<N:BitWidth + Unsigned>(_cr: ClockReset, i: (RegInput<N>,Reg), q: Q<N>) -> (Bits<N>,D<N>) {
+pub fn reg_file<N: BitWidth + Unsigned>(
+    _cr: ClockReset,
+    i: (RegisterInput<N>, Reg),
+    q: Q<N>,
+) -> (Bits<N>, D<N>) {
     let mut d = D::<N>::dont_care();
-    let x = decode(i.0.data_in.resize());
-    if let Decoded::Jcond(x) = x {
-        match x {
-            Jcond::Ja => {d.rg[0] = bits(0);}
-            _ => {}
-        };
-    };
     d.rg = q.rg;
     // IndexMut is implemented for arrays only when Bits<N> is wrapped in a signal
-    let index: Signal<Bits<U3>, Red> = signal(rtb(i.1));
+    // let index: Signal<Bits<U3>, Red> = signal(rtb(i.1)); // Works but generates combinatorial loop
+    // if i.0.we {
+    //     d.rg[index] = i.0.data_in;
+    // };
+    // (
+    //     if i.0.oe && !i.0.we {
+    //         d.rg[index]
+    //     } else {
+    //         bits(0)
+    //     },
+    //     d,
+    // )
+    let out = if i.0.oe && !i.0.we {
+        match i.1 {
+            RA => q.rg[0],
+            RB => q.rg[1],
+            RC => q.rg[2],
+            SP => q.rg[3],
+            XA => q.rg[4],
+            XB => q.rg[5],
+            BA => q.rg[6],
+            BB => q.rg[7]
+        }
+    } else {bits(0)};
+
     if i.0.we {
-        d.rg[index] = i.0.data_in;
+        match i.1 {
+            RA => {
+                d.rg[0] = i.0.data_in;
+            }
+            RB => {
+                d.rg[1] = i.0.data_in;
+            }
+            RC => {
+                d.rg[2] = i.0.data_in;
+            }
+            SP => {
+                d.rg[3] = i.0.data_in;
+            }
+            XA => {
+                d.rg[4] = i.0.data_in;
+            }
+            XB => {
+                d.rg[5] = i.0.data_in;
+            }
+            BA => {
+                d.rg[6] = i.0.data_in;
+            }
+            BB => {
+                d.rg[7] = i.0.data_in;
+            }
+        }
     };
-    (if i.0.oe && !i.0.we {d.rg[index]} else {bits(0)}, d)
+    (out, d)
 }

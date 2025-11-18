@@ -5,6 +5,6 @@ edition = "2024"
 
 [dependencies]
 miette = "7.6.0"
-rhdl = {git = "https://github.com/Pfat8EqualsD/rhdl.git", branch="signal"}
-rhdl-fpga = {git = "https://github.com/Pfat8EqualsD/rhdl.git", branch="signal"}
+rhdl = {git = "https://github.com/Pfat8EqualsD/rhdl.git", branch="signal", commit="2d26bb0e"}
+rhdl-fpga = {git = "https://github.com/Pfat8EqualsD/rhdl.git", branch="signal", commit="2d26bb0e"}
 bitops-rhdl = {path = "../bitops_rhdl"}

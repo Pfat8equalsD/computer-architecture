@@ -129,6 +129,7 @@ pub enum AluOp {
 }
 
 use AluOp::*;
+use bitops_rhdl::bitops;
 
 #[derive(Debug, Digital, PartialEq)]
 pub struct AluInput<N: BitWidth> {
@@ -145,6 +146,28 @@ pub struct AluFlags {
     pub s: bool,
     pub o: bool,
     pub p: bool,
+}
+
+#[bitops]
+#[kernel]
+pub fn flags(f: Bits<U16>) -> AluFlags {
+    AluFlags {
+        c: f[0].any(),
+        z: f[1].any(),
+        s: f[2].any(),
+        o: f[3].any(),
+        p: f[4].any(),
+    }
+}
+
+#[kernel]
+pub fn fr(f: AluFlags) -> Bits<U16> {
+    let c = btb(f.c).resize();
+    let z = btb(f.z).resize();
+    let s = btb(f.s).resize();
+    let o = btb(f.o).resize();
+    let p = btb(f.p).resize();
+    c | (z << 1) | (s << 2) | (o << 3) | (p << 4)
 }
 
 #[derive(Debug, Digital, PartialEq)]
@@ -179,7 +202,7 @@ pub fn alu<N: BitWidth>(i: AluInput<N>) -> AluOutput<N> {
         ADC => {
             let res = t1.dyn_bits().xadd(t2.dyn_bits()).xadd(c); // N + 2
             out.flags.c = res.xshr::<N>().any();
-            res.as_bits()
+            res.resize::<N>().as_bits()
         }
         NOT => !sop,
         AND => t1 & t2,
@@ -188,29 +211,29 @@ pub fn alu<N: BitWidth>(i: AluInput<N>) -> AluOutput<N> {
         SHR => {
             let sop = sop.dyn_bits().xshl::<U1>() >> 1; // we obtain [(t1|t2) 0] >> 1 == [0, (t1|t2)]
             out.flags.c = sop.resize::<U1>().any();
-            (sop >> 1).as_bits()
+            (sop >> 1).resize::<N>().as_bits()
         }
         SHL => {
             let sop = sop.dyn_bits().xshl::<U1>();
             out.flags.c = sop.xshr::<N>().any();
-            sop.as_bits()
+            sop.resize::<N>().as_bits()
         }
         SAR => {
             out.flags.c = sop.resize::<U1>().any();
             let sop = sop.dyn_bits().xshl::<U1>(); // we obtain [(t1|t2) 0] >> 1 == [0, (t1|t2)]
-            (sop.as_signed() >> 1).as_unsigned().as_bits()
+            (sop.as_signed() >> 1).as_unsigned().resize::<N>().as_bits()
         }
         SBB1 => {
-            let op1 = t1.dyn_bits().as_signed();
+            let op1 = t1.dyn_bits().xext::<U1>().as_signed();
             let op2 = t2.dyn_bits().xadd(c).as_signed();
             out.flags.c = op1 > op2;
-            (op1 - op2).as_unsigned().as_bits()
+            (op1 - op2).as_unsigned().resize::<N>().as_bits()
         }
         SBB2 => {
-            let op1 = t2.dyn_bits().as_signed();
+            let op1 = t2.dyn_bits().xext::<U1>().as_signed();
             let op2 = t1.dyn_bits().xadd(c).as_signed();
             out.flags.c = op1 > op2;
-            (op1 - op2).as_unsigned().as_bits()
+            (op1 - op2).as_unsigned().resize::<N>().as_bits()
         }
     };
     out.flags.z = !out.res.any();
@@ -223,10 +246,8 @@ pub fn alu<N: BitWidth>(i: AluInput<N>) -> AluOutput<N> {
         _ => false,
     };
 
-    // let c_i = i.carry_in.typed_bits();TypedBits
     out
 }
-
 
 // mod tests {
 //     use crate::prelude::*;
@@ -236,12 +257,11 @@ pub fn alu<N: BitWidth>(i: AluInput<N>) -> AluOutput<N> {
 //     fn alu_uut<N: BitWidth>(_cr: ClockReset, i: AluInput<N>) -> AluOutput<N> {
 //         alu::<N>(i)
 //     }
-    
+
 //     type AluUut<N: BitWidth> = Func<AluInput<N>, AluOutput<N>>;
-    
+
 //     fn new<N: BitWidth>() -> Result<AluUut<N>, RHDLError> {
 //         Func::try_new::<alu_uut<N>>()
 //     }
-    
 
 // }
