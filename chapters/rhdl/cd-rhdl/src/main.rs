@@ -20,8 +20,8 @@ fn main() {
     // println!("{}",s.0.);
     // let x: Vec<(RegInput<U16>,Reg)> = Vec::new();
     // let x = x.with_reset(1).clock_pos_edge(100);
-    // if let Err(e) = sim_top() {
-    //     println!("{}", miette_report(e));
-    // }
-    sim_cpu();
+    if let Err(e) = sim_cpu() {
+        println!("{}", miette_report(e));
+    }
+    // sim_cpu();
 }

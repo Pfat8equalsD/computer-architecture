@@ -1,4 +1,4 @@
-use crate::{decode_unit::Decoded, prelude::*};
+use crate::{decode_unit::{Decoded, DstOperand, Operand, TwoOp}, prelude::*};
 
 #[derive(Digital, PartialEq, Debug)]
 pub struct ControlSignals {
@@ -34,6 +34,10 @@ pub enum State {
     Fetch2,
     Decode,
 
+    LdEa,
+    LdImm,
+    LdSrc,
+    LdDst,
     IncPC,
     IncPC1,
     Hlt,
@@ -57,6 +61,21 @@ impl SynchronousIO for ControlUnit {
     type O = ControlSignals;
     type Kernel = cu_kernel;
 }
+
+#[kernel]
+fn has_ea(i: Decoded) -> bool {
+    if let Decoded::TwoOp { op: _op, src: Operand::MaybeDst(DstOperand::Reg(_r1)), dst: DstOperand::Reg(_r2) } = i {
+        false
+    } else {
+        true
+    }
+
+}
+
+// #[kernel]
+// fn has_imm(i: Decoded) -> bool {
+
+// }
 
 #[kernel]
 pub fn cu_kernel(_cr: ClockReset, _i: (Decoded, AluFlags), q: Q) -> (ControlSignals, D) {
@@ -116,6 +135,7 @@ pub fn cu_kernel(_cr: ClockReset, _i: (Decoded, AluFlags), q: Q) -> (ControlSign
             Fetch
         }
         Hlt => Hlt,
+        _ => Reset
     };
     (cs, D { state: next_state })
 }

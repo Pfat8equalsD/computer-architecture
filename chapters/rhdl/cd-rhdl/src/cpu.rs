@@ -141,6 +141,13 @@ pub fn top_kernel(_cr: ClockReset, _i: (), q: Q) -> (Bits<U16>, D) {
 
 // ADD TESTBENCHES
 pub mod tests {
+    use std::io::{Stdout, Write, stdout};
+use termion::{
+    event::Key,
+    input::TermRead,
+    raw::{IntoRawMode, RawTerminal},
+    screen::{IntoAlternateScreen, ToAlternateScreen, ToMainScreen}
+};
     use crate::{
         alu::alu, control_unit::{self, ControlSignals}, decode_unit::{Decoded, decode}, prelude::*
     };
@@ -203,7 +210,7 @@ pub mod tests {
         (res.raw(), crate::alu::fr(flags).raw())
     }
     //↑ ↓
-    fn print_cd(s: &S, o: &O) {
+    fn print_cd(s: &S, o: &O) -> String {
         let bus = bus(o);
         let regs: Vec<_> = (0..8).into_iter().map(|i| rg(s, i)).collect();
         let t1 = t1(s);
@@ -255,7 +262,8 @@ pub mod tests {
             let st = crate::register_file::reg(bits(i as u128)).to_string().to_ascii_lowercase();
             template = template.replace(&format!("${} ", st), &hex(*v));
         }
-        eprintln!("{}", template);
+        template.push('\n');
+        template.replace("\n", "\r\n")
     }
 
     fn didasm(asm_source: &str){
@@ -268,7 +276,9 @@ pub mod tests {
             .unwrap();
     }
     // #[test]
-    pub fn sim_cpu() {
+
+    // run in an interactive way
+    pub fn sim_cpu() -> Result<(), RHDLError> {
         didasm(r#"
 
 hlt
@@ -292,11 +302,48 @@ inc [ba+xb+2]
 "#);
         let cpu = Cpu::default();
         let mut s: S = cpu.init();
+        let mut v = vec![];
+        let mut i:usize = 0;
+        let ins = vec![(), (), ()].with_reset(1).clock_pos_edge(100);
+        cpu.run(ins)?;
+        let mut screen = stdout()
+        .into_raw_mode()
+        .unwrap()
+        .into_alternate_screen()
+        .unwrap();
+        write!(screen, "{}", termion::clear::All)?;
+        write!(screen, "{}", termion::cursor::Goto(1, 1))?;
+        screen.flush()?;
         // print_cd(&s, &o);
-        for i in 0..5 {
-            run_till_next_instr(&cpu,&mut s);
-            // println!("{:?}, {}", cu_state(&s), pc(&s));
+        let stdin = std::io::stdin();
+        for key in stdin.keys() {
+            write!(screen, "{}", termion::clear::All)?;
+            write!(screen, "{}", termion::cursor::Goto(1, 1))?;
+            write!(screen, "Press ← → or q (step {})\r\n", i)?;
+            screen.flush()?;
+            match key.unwrap() {
+                Key::Left => {
+                    i = i.saturating_sub(1);
+                    let (o,state) = &v[i];
+                    let myst = print_cd(state, o);
+                    write!(screen, "{}",myst);
+                }
+                Key::Right => {
+                    if i == v.len() {
+                        let o = step(&cpu, (), &mut s);
+                        v.push((o,s.clone()));
+                    }
+                    let (o,state) = &v[i];
+                    let myst = print_cd(state, o);
+                    write!(screen, "{}",myst);
+                    i = i + 1
+                }
+                Key::Char('q') => break,
+                _ => {}
+            }
         }
+
+        Ok(())
     }
 }
 pub fn sim_top() -> Result<(), RHDLError> {

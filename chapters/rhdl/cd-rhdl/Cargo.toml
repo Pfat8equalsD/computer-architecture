@@ -9,3 +9,4 @@ rhdl = {git = "https://github.com/Pfat8EqualsD/rhdl.git", branch="signal", commi
 rhdl-fpga = {git = "https://github.com/Pfat8EqualsD/rhdl.git", branch="signal", commit="2d26bb0e"}
 bitops-rhdl = {path = "../bitops_rhdl"}
 colored = "3.0.0"
+termion = "4.0.5"
