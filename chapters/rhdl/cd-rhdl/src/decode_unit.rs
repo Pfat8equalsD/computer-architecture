@@ -98,6 +98,7 @@ pub enum TwoOp {
     Xor,
     Cmp,
     Test,
+    Mov,
 }
 
 #[bitops]
@@ -118,7 +119,6 @@ fn twop(i: Bits<U3>) -> Option<TwoOp> {
 #[derive(Debug, Digital, Default, PartialEq)]
 pub enum OneOp {
     #[default]
-    Mov,
     MovI,
     Push,
     Pop,
@@ -137,7 +137,6 @@ pub enum OneOp {
 #[kernel]
 fn eacfg(i: Bits<U3>) -> Option<OneOp> {
     match i.raw() {
-        0b000 => Some(OneOp::Mov),
         0b010 => Some(OneOp::Push),
         0b110 => Some(OneOp::Pop),
         0b001 => Some(OneOp::Call),
@@ -337,6 +336,8 @@ pub fn decode(i: Bits<U16>) -> Decoded {
         0b0000 => {
             if let Some(x) = eacfg(i[6..4]) {
                 return Decoded::OneOp { op: x, dst: rm };
+            } else if i[6..4] == bits(0) {
+                return Decoded::TwoOp { op: TwoOp::Mov, src, dst };
             }
         }
         // EA + One op + no imm + operation

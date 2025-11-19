@@ -1,7 +1,7 @@
 use crate::{
     alu::{alu, flags, fr},
     control_unit::{ControlSignals, ControlUnit},
-    decode_unit::decode,
+    decode_unit::{Decoded, decode},
     memory::{Ram, RamInput},
     prelude::*,
 };
@@ -124,7 +124,8 @@ pub fn top_kernel(_cr: ClockReset, _i: (), q: Q) -> (Bits<U16>, D) {
 
     d.IR = if ir_we { bus } else { q.IR };
     d.FR = if fr_we {
-        if fr_sel_bus { bus } else { fr(alu_res.flags) }
+        // If from bus ignore anything outside the flag range
+        if fr_sel_bus { bus[4..0].resize() } else { fr(alu_res.flags) }
     } else {
         q.FR
     };
@@ -135,16 +136,17 @@ pub fn top_kernel(_cr: ClockReset, _i: (), q: Q) -> (Bits<U16>, D) {
         data_in: bus,
     };
     d.regs.1 = rf_sel;
-    (bus, d)
+    ((bus), d)
 }
 
 // ADD TESTBENCHES
-mod tests {
+pub mod tests {
     use crate::{
-        control_unit::{self, ControlSignals},
-        prelude::*,
+        alu::alu, control_unit::{self, ControlSignals}, decode_unit::{Decoded, decode}, prelude::*
     };
     type S = <Cpu as Synchronous>::S;
+    type O = <Cpu as SynchronousIO>::O;
+    use colored::Colorize;
 
     fn rg(s: &S, i: usize) -> u128 {
         s.1.1[i].current.raw()
@@ -177,13 +179,83 @@ mod tests {
     fn ram(s: &S) -> Vec<u128> {
         get_ram_vec(&s.9)
     }
+    fn bus(o: &O) -> u128 {
+        o.raw()
+    }
     fn run_till_next_instr(cpu: &Cpu, s: &mut S) {
         loop {
-            step(cpu, (), s);
+            let o = step(cpu, (), s);
+            print_cd(&s, &o);
+
             if cu_state(&s) == Fetch {
                 return;
             }
         };
+    }
+    fn hex(i: u128) -> String {
+        format!("{:04X}", i)
+    }
+    fn alu_rez(s: &S) -> (u128, u128) {
+        let sig = control_signals(s);
+        let t1 = if sig.t1_oe {t1(s)} else {0};
+        let t2 = if sig.t2_oe {t2(s)} else {0};
+        let AluOutput { res, flags } = alu(AluInput::<U16> { t1: Bits::from(t1), t2: Bits::from(t2), carry_in: sig.alu_carry, opsel: sig.alu_sel });
+        (res.raw(), crate::alu::fr(flags).raw())
+    }
+    //↑ ↓
+    fn print_cd(s: &S, o: &O) {
+        let bus = bus(o);
+        let regs: Vec<_> = (0..8).into_iter().map(|i| rg(s, i)).collect();
+        let t1 = t1(s);
+        let t2 = t2(s);
+        let ma = ma(s);
+        let pc = pc(s);
+        let fr = fr(s);
+        let ir = ir(s);
+        let dec = decode(Bits::from(ir));
+        let ram = ram(s)[ma as usize];
+        let state = cu_state(s);
+        let signals = control_signals(s);
+        let (res, flags) = alu_rez(s);
+        let mut template = include_str!("../cd.txt").to_string()
+            .replace("t1w$", if signals.t1_we {"   ↓"} else {"    "})
+            .replace("t1o$", if signals.t1_oe {"   ↓"} else {"    "})
+            .replace("t2w$", if signals.t2_we {"   ↓"} else {"    "})
+            .replace("t2o$", if signals.t2_oe {"   ↓"} else {"    "})
+            .replace("maw$", if signals.ma_we {"   ↓"} else {"    "})
+            .replace("raw$", if signals.ram_we {"   ↓"} else {"    "})
+            .replace("$adr ", if signals.ma_oe {"$adr→"} else {"$adr "})
+            .replace(&format!(" {} ", signals.rf_sel), &format!("{}{} ",if signals.rf_we || signals.rf_oe {"→"} else {" "}, signals.rf_sel))
+            .replace("rgo$", if signals.rf_oe {"   ↓"} else {"    "})
+            .replace("$rgw", if signals.rf_we {"↑   "} else {"    "})
+            .replace("$rao", if signals.ram_oe {"↑   "} else {"    "})
+            .replace("$pcw", if signals.pc_we {"↑   "} else {"    "})
+            .replace("pco$", if signals.pc_oe {"   ↓"} else {"    "})
+            .replace("irw$", if signals.ir_we {"   ↓"} else {"    "})
+            .replace("$ri", if signals.ir_oe {"↑  "} else {"   "})
+            .replace("$fra", if !signals.fr_sel_bus && signals.fr_we {"   ↓"} else {"    "})
+            .replace("fro$", if signals.fr_oe {"   ↓"} else {"    "})
+            .replace("$frb", if signals.fr_sel_bus && signals.fr_we {"↑   "} else {"    "})
+            .replace("ao$", if signals.alu_oe {"  ↓"} else {"   "})
+            // Value replacements
+            .replace("$OP               ", &format!("{:^18}",format!("{:?}({}, {}, {})", signals.alu_sel, if signals.t1_oe {"T1"} else {"0"}, if signals.t2_oe {"T2"} else {"0"}, if signals.alu_carry {1} else {0})))
+            .replace("$res              ", &format!("{:^18}", format!("{:04X}",res)))
+            .replace("$flag", &format!("{:05b}",flags))
+            .replace("$fr  ", &format!("{:05b}",fr))
+            .replace("$state          ", &format!("{:^16}", format!("{:?}",state)))
+            .replace("$decoded                                                                           ", &format!("{:^83}", format!("{:?}",dec)))
+            .replace("$pc ", &hex(pc))
+            .replace("$t1 ", &hex(t1))
+            .replace("$t2 ", &hex(t2))
+            .replace("$ir ", &hex(ir))
+            .replace("$adr", &hex(ma))
+            .replace("$val", &hex(ram))
+            .replace("$bus", &hex(bus));
+        for (i, v) in regs.iter().enumerate() {
+            let st = crate::register_file::reg(bits(i as u128)).to_string().to_ascii_lowercase();
+            template = template.replace(&format!("${} ", st), &hex(*v));
+        }
+        eprintln!("{}", template);
     }
 
     fn didasm(asm_source: &str){
@@ -195,8 +267,8 @@ mod tests {
             .output()
             .unwrap();
     }
-    #[test]
-    fn sim_cpu() {
+    // #[test]
+    pub fn sim_cpu() {
         didasm(r#"
 
 hlt
@@ -220,9 +292,10 @@ inc [ba+xb+2]
 "#);
         let cpu = Cpu::default();
         let mut s: S = cpu.init();
-        for i in 0..10 {
+        // print_cd(&s, &o);
+        for i in 0..5 {
             run_till_next_instr(&cpu,&mut s);
-            println!("{:?}, {}", cu_state(&s), pc(&s));
+            // println!("{:?}, {}", cu_state(&s), pc(&s));
         }
     }
 }
