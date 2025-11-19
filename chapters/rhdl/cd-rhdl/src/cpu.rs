@@ -79,15 +79,15 @@ pub fn top_kernel(_cr: ClockReset, _i: (), q: Q) -> (Bits<U16>, D) {
         ..
     } = q.Cu;
     let alu_res = alu::<U16>(AluInput::<U16> {
-        t1: q.T1,
-        t2: q.T2,
+        t1: q.T1.1, // Not a bus output
+        t2: q.T2.1, // Not a bus output
         carry_in: alu_carry,
         opsel: alu_sel,
     });
     // let alu_res  = AluOutput::<U16> { res: bits(0), flags: AluFlags { c: false, z: false, s: false, o: false, p: false } };
     let bus = if fr_oe { q.FR } else { bits(0) }
         | if ir_oe { q.IR[15..8].resize() } else { bits(0) }
-        | q.PC
+        | q.PC.0 // Bus output
         | q.regs
         | q.RAM
         | if alu_oe { alu_res.res } else { bits(0) };
@@ -110,7 +110,7 @@ pub fn top_kernel(_cr: ClockReset, _i: (), q: Q) -> (Bits<U16>, D) {
         oe: ram_oe,
         we: ram_we,
         data_in: bus,
-        address: q.MA.resize(),
+        address: q.MA.1.resize(), // Not a bus output
     };
     d.PC = RegisterInput::<U16> {
         data_in: bus,
