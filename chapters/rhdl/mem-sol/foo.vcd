@@ -1,0 +1,209 @@
+$timescale 1 ps $end
+$comment
+    TraceInfo({"top.Cu.input":Struct((name:"mem_skel::control_unit::Flags",fields:[(name:"transport_flag",ty:Bits(1)),(name:"zero_flag",ty:Bits(1))])),"top.Cu.outputs":Struct((name:"mem_skel::control_unit::ControlSignals",fields:[(name:"rf_sel",ty:Enum((name:"mem_skel::register_file::Sel",variants:[(name:"RA",discriminant:0,ty:Empty),(name:"RB",discriminant:1,ty:Empty),(name:"RC",discriminant:2,ty:Empty),(name:"IS",discriminant:3,ty:Empty),(name:"XA",discriminant:4,ty:Empty),(name:"XB",discriminant:5,ty:Empty),(name:"BA",discriminant:6,ty:Empty),(name:"BB",discriminant:7,ty:Empty)],discriminant_layout:(width:3,alignment:Msb,ty:Unsigned)))),(name:"rf_oe",ty:Bits(1)),(name:"rf_we",ty:Bits(1)),(name:"t1_oe",ty:Bits(1)),(name:"t1_we",ty:Bits(1)),(name:"t2_oe",ty:Bits(1)),(name:"t2_we",ty:Bits(1)),(name:"ma_oe",ty:Bits(1)),(name:"ma_we",ty:Bits(1)),(name:"ram_oe",ty:Bits(1)),(name:"ram_we",ty:Bits(1)),(name:"alu_carry",ty:Bits(1)),(name:"alu_oe",ty:Bits(1)),(name:"alu_sel",ty:Enum((name:"mem_skel::alu::AluOpcode",variants:[(name:"Adc",discriminant:0,ty:Empty),(name:"Sbb1",discriminant:1,ty:Empty),(name:"Sbb2",discriminant:2,ty:Empty),(name:"Not",discriminant:3,ty:Empty),(name:"And",discriminant:4,ty:Empty),(name:"Or",discriminant:5,ty:Empty),(name:"Xor",discriminant:6,ty:Empty),(name:"Shl",discriminant:7,ty:Empty),(name:"Shr",discriminant:8,ty:Empty),(name:"Sar",discriminant:9,ty:Empty)],discriminant_layout:(width:4,alignment:Msb,ty:Unsigned))))])),"top.Cu.state.dff.input":Bits(2),"top.Cu.state.dff.output":Bits(2),"top.MA.input":Struct((name:"mem_skel::register::RegisterInput",fields:[(name:"oe",ty:Bits(1)),(name:"we",ty:Bits(1)),(name:"data_in",ty:Bits(16))])),"top.MA.memory.dff.input":Bits(16),"top.MA.memory.dff.output":Bits(16),"top.MA.outputs":Bits(16),"top.RAM.input":Struct((name:"mem_skel::ram::RamImput",fields:[(name:"oe",ty:Bits(1)),(name:"we",ty:Bits(1)),(name:"data_in",ty:Bits(16)),(name:"address",ty:Bits(10))])),"top.RAM.memory.synchronous_ram.input":Struct((name:"rhdl_fpga::core::ram::synchronous::In<rhdl_bits::bits_impl::Bits<rhdl_typenum::consts::U16>rhdl_typenum::consts::U10>",fields:[(name:"read_addr",ty:Bits(10)),(name:"write",ty:Struct((name:"rhdl_fpga::core::ram::synchronous::Write<rhdl_bits::bits_impl::Bits<rhdl_typenum::consts::U16>rhdl_typenum::consts::U10>",fields:[(name:"addr",ty:Bits(10)),(name:"value",ty:Bits(16)),(name:"enable",ty:Bits(1))])))])),"top.RAM.memory.synchronous_ram.output":Bits(16),"top.RAM.outputs":Bits(16),"top.T1.input":Struct((name:"mem_skel::register::RegisterInput",fields:[(name:"oe",ty:Bits(1)),(name:"we",ty:Bits(1)),(name:"data_in",ty:Bits(16))])),"top.T1.memory.dff.input":Bits(16),"top.T1.memory.dff.output":Bits(16),"top.T1.outputs":Bits(16),"top.T2.input":Struct((name:"mem_skel::register::RegisterInput",fields:[(name:"oe",ty:Bits(1)),(name:"we",ty:Bits(1)),(name:"data_in",ty:Bits(16))])),"top.T2.memory.dff.input":Bits(16),"top.T2.memory.dff.output":Bits(16),"top.T2.outputs":Bits(16),"top.alu.input":Struct((name:"mem_skel::alu::AluInput",fields:[(name:"op1",ty:Bits(16)),(name:"op2",ty:Bits(16)),(name:"select",ty:Enum((name:"mem_skel::alu::AluOpcode",variants:[(name:"Adc",discriminant:0,ty:Empty),(name:"Sbb1",discriminant:1,ty:Empty),(name:"Sbb2",discriminant:2,ty:Empty),(name:"Not",discriminant:3,ty:Empty),(name:"And",discriminant:4,ty:Empty),(name:"Or",discriminant:5,ty:Empty),(name:"Xor",discriminant:6,ty:Empty),(name:"Shl",discriminant:7,ty:Empty),(name:"Shr",discriminant:8,ty:Empty),(name:"Sar",discriminant:9,ty:Empty)],discriminant_layout:(width:4,alignment:Msb,ty:Unsigned)))),(name:"carry_in",ty:Bits(1)),(name:"enable",ty:Bits(1))])),"top.alu.outputs":Struct((name:"mem_skel::alu::AluOutput",fields:[(name:"rez",ty:Bits(16)),(name:"zero_flag",ty:Bits(1)),(name:"transport_flag",ty:Bits(1))])),"top.clock":Clock,"top.input":Empty,"top.outputs":Bits(16),"top.regs.input":Struct((name:"mem_skel::register_file::RegisterFileInput",fields:[(name:"oe",ty:Bits(1)),(name:"we",ty:Bits(1)),(name:"data_in",ty:Bits(16)),(name:"sel",ty:Enum((name:"mem_skel::register_file::Sel",variants:[(name:"RA",discriminant:0,ty:Empty),(name:"RB",discriminant:1,ty:Empty),(name:"RC",discriminant:2,ty:Empty),(name:"IS",discriminant:3,ty:Empty),(name:"XA",discriminant:4,ty:Empty),(name:"XB",discriminant:5,ty:Empty),(name:"BA",discriminant:6,ty:Empty),(name:"BB",discriminant:7,ty:Empty)],discriminant_layout:(width:3,alignment:Msb,ty:Unsigned))))])),"top.regs.outputs":Bits(16),"top.regs.registers.array.[0].dff.input":Bits(16),"top.regs.registers.array.[0].dff.output":Bits(16),"top.regs.registers.array.[1].dff.input":Bits(16),"top.regs.registers.array.[1].dff.output":Bits(16),"top.regs.registers.array.[2].dff.input":Bits(16),"top.regs.registers.array.[2].dff.output":Bits(16),"top.regs.registers.array.[3].dff.input":Bits(16),"top.regs.registers.array.[3].dff.output":Bits(16),"top.regs.registers.array.[4].dff.input":Bits(16),"top.regs.registers.array.[4].dff.output":Bits(16),"top.regs.registers.array.[5].dff.input":Bits(16),"top.regs.registers.array.[5].dff.output":Bits(16),"top.regs.registers.array.[6].dff.input":Bits(16),"top.regs.registers.array.[6].dff.output":Bits(16),"top.regs.registers.array.[7].dff.input":Bits(16),"top.regs.registers.array.[7].dff.output":Bits(16),"top.reset":Reset})
+$end
+$scope module top $end
+$var wire 1 ! clock $end
+$var wire 1 " input $end
+$var wire 16 # outputs $end
+$var wire 1 $ reset $end
+$scope module Cu $end
+$var wire 2 % input $end
+$var wire 19 & outputs $end
+$scope module state $end
+$scope module dff $end
+$var wire 2 ' input $end
+$var wire 2 ( output $end
+$upscope $end
+$upscope $end
+$upscope $end
+$scope module MA $end
+$var wire 18 ) input $end
+$var wire 16 * outputs $end
+$scope module memory $end
+$scope module dff $end
+$var wire 16 + input $end
+$var wire 16 , output $end
+$upscope $end
+$upscope $end
+$upscope $end
+$scope module RAM $end
+$var wire 28 - input $end
+$var wire 16 . outputs $end
+$scope module memory $end
+$scope module synchronous_ram $end
+$var wire 37 / input $end
+$var wire 16 0 output $end
+$upscope $end
+$upscope $end
+$upscope $end
+$scope module T1 $end
+$var wire 18 1 input $end
+$var wire 16 2 outputs $end
+$scope module memory $end
+$scope module dff $end
+$var wire 16 3 input $end
+$var wire 16 4 output $end
+$upscope $end
+$upscope $end
+$upscope $end
+$scope module T2 $end
+$var wire 18 5 input $end
+$var wire 16 6 outputs $end
+$scope module memory $end
+$scope module dff $end
+$var wire 16 7 input $end
+$var wire 16 8 output $end
+$upscope $end
+$upscope $end
+$upscope $end
+$scope module alu $end
+$var wire 38 9 input $end
+$var wire 18 : outputs $end
+$upscope $end
+$scope module regs $end
+$var wire 21 ; input $end
+$var wire 16 < outputs $end
+$scope module registers $end
+$scope module array $end
+$scope module [0] $end
+$scope module dff $end
+$var wire 16 = input $end
+$var wire 16 > output $end
+$upscope $end
+$upscope $end
+$scope module [1] $end
+$scope module dff $end
+$var wire 16 ? input $end
+$var wire 16 @ output $end
+$upscope $end
+$upscope $end
+$scope module [2] $end
+$scope module dff $end
+$var wire 16 A input $end
+$var wire 16 B output $end
+$upscope $end
+$upscope $end
+$scope module [3] $end
+$scope module dff $end
+$var wire 16 C input $end
+$var wire 16 D output $end
+$upscope $end
+$upscope $end
+$scope module [4] $end
+$scope module dff $end
+$var wire 16 E input $end
+$var wire 16 F output $end
+$upscope $end
+$upscope $end
+$scope module [5] $end
+$scope module dff $end
+$var wire 16 G input $end
+$var wire 16 H output $end
+$upscope $end
+$upscope $end
+$scope module [6] $end
+$scope module dff $end
+$var wire 16 I input $end
+$var wire 16 J output $end
+$upscope $end
+$upscope $end
+$scope module [7] $end
+$scope module dff $end
+$var wire 16 K input $end
+$var wire 16 L output $end
+$upscope $end
+$upscope $end
+$upscope $end
+$upscope $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+#0
+b0 !
+b0000000000000000 #
+b1 $
+b00 %
+b0000000000100110000 &
+b01 '
+b00 (
+b000000000000000000 )
+b0000000000000000 *
+b0000000000000000 +
+b0000000000000000 ,
+b0000000000000000000000000000 -
+b0000000000000000 .
+b0000000000000000000000000000000000000 /
+b0000000000000000 0
+b000000000000000000 1
+b0000000000000000 2
+b0000000000000000 3
+b0000000000000000 4
+b000000000000000000 5
+b0000000000000000 6
+b0000000000000000 7
+b0000000000000000 8
+b00000000000000000000000000000000000000 9
+b000000000000000000 :
+b000000000000000000000 ;
+b0000000000000000 <
+b0000000000000000 =
+b0000000000000000 >
+b0000000000000000 ?
+b0000000000000000 @
+b0000000000000000 A
+b0000000000000000 B
+b0000000000000000 C
+b0000000000000000 D
+b0000000000000000 E
+b0000000000000000 F
+b0000000000000000 G
+b0000000000000000 H
+b0000000000000000 I
+b0000000000000000 J
+b0000000000000000 K
+b0000000000000000 L
+b000000000000000001 1
+b000000000000000010 5
+b000000000000000000010 ;
+#50
+b1 !
+b0000000000000101 2
+b0000000000000101 3
+b0000000000000101 4
+b00000000000000000000000000000000000101 9
+#51
+b0 $
+#100
+b0 !
+#150
+b1 !
+b0000000001001010000 &
+b10 '
+b01 (
+b000000000000000001 )
+b000000000000000010 1
+b0000000000000000 2
+b0000000000000000 3
+b000000000000000000 5
+b00000000000000000000000000000000000000 9
+#200
+b0 !
+#250
+b1 !
+b0000000000011010000 &
+b11 '
+b10 (
+b000000000000000000 )
+b0000000000000000 4
+b000000000000000001 5
+#300
+b0 !
+#350
+b1 !
+b0000000001100010000 &
+b00 '
+b11 (
+b000000000000000001 )
+b000000000000000000 1
+b000000000000000010 5

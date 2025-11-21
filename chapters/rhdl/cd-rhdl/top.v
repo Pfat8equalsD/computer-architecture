@@ -1741,90 +1741,576 @@ module top(input wire [1:0] clock_reset, output wire [15:0] o);
    endfunction
 endmodule
 module top_Cu(input wire [1:0] clock_reset, input wire [26:0] i, output wire [25:0] o);
-   wire [29:0] od;
-   wire [3:0] d;
-   wire [3:0] q;
+   wire [30:0] od;
+   wire [4:0] d;
+   wire [4:0] q;
    assign o = od[25:0];
-   top_Cu_state c0(.clock_reset(clock_reset), .i(d[3:0]), .o(q[3:0]));
-   assign d = od[29:26];
+   top_Cu_state c0(.clock_reset(clock_reset), .i(d[4:0]), .o(q[4:0]));
+   assign d = od[30:26];
    assign od = kernel_cu_kernel(clock_reset, i, q);
-   function [29:0] kernel_cu_kernel(input reg [1:0] arg_0, input reg [26:0] arg_1, input reg [3:0] arg_2);
-         reg [3:0] or0;
+   function [30:0] kernel_cu_kernel(input reg [1:0] arg_0, input reg [26:0] arg_1, input reg [4:0] arg_2);
+         reg [4:0] or0;
+         reg [21:0] or1;
+         reg [26:0] or2;
+         reg [2:0] or3;
+         reg [18:0] or4;
+         reg [6:0] or5;
+         reg [3:0] or6;
+         reg [7:0] or7;
+         reg [6:0] or8;
+         reg [7:0] or9;
+         reg [18:0] or10;
+         reg [7:0] or11;
+         reg [6:0] or12;
+         reg [0:0] or13;
+         reg [6:0] or14;
+         reg [3:0] or15;
+         reg [3:0] or16;
+         reg [7:0] or17;
+         reg [6:0] or18;
+         reg [7:0] or19;
+         reg [7:0] or20;
+         reg [6:0] or21;
+         reg [7:0] or22;
+         reg [7:0] or23;
+         reg [10:0] or24;
+         reg [6:0] or25;
+         reg [3:0] or26;
+         reg [7:0] or27;
+         reg [6:0] or28;
+         reg [7:0] or29;
+         reg [7:0] or30;
+         reg [0:0] or31;
+         reg [21:0] or32;
+         reg [2:0] or33;
+         reg [2:0] or34;
+         reg [0:0] or35;
+         reg [0:0] or36;
+         reg [4:0] or37;
+         reg [4:0] or38;
+         reg [21:0] or39;
+         reg [2:0] or40;
+         reg [4:0] or41;
+         reg [21:0] or42;
+         reg [2:0] or43;
+         reg [18:0] or44;
+         reg [6:0] or45;
+         reg [3:0] or46;
+         reg [7:0] or47;
+         reg [6:0] or48;
+         reg [7:0] or49;
+         reg [18:0] or50;
+         reg [7:0] or51;
+         reg [6:0] or52;
+         reg [0:0] or53;
+         reg [6:0] or54;
+         reg [3:0] or55;
+         reg [3:0] or56;
+         reg [7:0] or57;
+         reg [6:0] or58;
+         reg [7:0] or59;
+         reg [7:0] or60;
+         reg [6:0] or61;
+         reg [7:0] or62;
+         reg [7:0] or63;
+         reg [10:0] or64;
+         reg [6:0] or65;
+         reg [3:0] or66;
+         reg [7:0] or67;
+         reg [6:0] or68;
+         reg [7:0] or69;
+         reg [7:0] or70;
+         reg [0:0] or71;
+         reg [6:0] or72;
+         reg [3:0] or73;
+         reg [1:0] or74;
+         reg [0:0] or75;
+         reg [2:0] or76;
          // cs
-         reg [25:0] or1;
-         reg [3:0] or2;
-         reg [3:0] or3;
-         reg [29:0] or4;
-         reg [1:0] or5;
-         reg [26:0] or6;
-         localparam ol0 = 4'b0000;
-         localparam ol1 = 26'b00000000000000000000000000;
-         localparam ol2 = 4'b0001;
-         localparam ol3 = 26'b00000100000000010000000000;
-         localparam ol4 = 4'b0010;
-         localparam ol5 = 26'b00000000000000001000000000;
-         localparam ol6 = 4'b0011;
-         localparam ol7 = 26'b00001000000000100000000000;
-         localparam ol8 = 4'b0100;
-         localparam ol9 = 4'b1001;
-         localparam ol10 = 26'b00000100000000000001000000;
-         localparam ol11 = 4'b1010;
-         localparam ol12 = 26'b00000010000110000000100000;
-         localparam ol13 = 4'b1011;
-         localparam ol14 = 4'b0001;
-         localparam ol15 = 4'b0010;
-         localparam ol16 = 4'b0011;
-         localparam ol17 = 4'b0100;
-         localparam ol18 = 4'b1001;
-         localparam ol19 = 4'b1010;
-         localparam ol20 = 4'b0001;
-         localparam ol21 = 4'b1011;
-         localparam ol22 = 4'b0000;
-         localparam ol23 = 4'b0000;
+         reg [25:0] or77;
+         // cs
+         reg [25:0] or78;
+         // cs
+         reg [25:0] or79;
+         reg [4:0] or80;
+         // cs
+         reg [25:0] or81;
+         reg [4:0] or82;
+         reg [21:0] or83;
+         reg [2:0] or84;
+         reg [18:0] or85;
+         reg [6:0] or86;
+         reg [3:0] or87;
+         reg [7:0] or88;
+         reg [6:0] or89;
+         reg [7:0] or90;
+         reg [18:0] or91;
+         reg [7:0] or92;
+         reg [6:0] or93;
+         reg [0:0] or94;
+         reg [6:0] or95;
+         reg [3:0] or96;
+         reg [3:0] or97;
+         reg [7:0] or98;
+         reg [6:0] or99;
+         reg [7:0] or100;
+         reg [7:0] or101;
+         reg [6:0] or102;
+         reg [7:0] or103;
+         reg [7:0] or104;
+         reg [10:0] or105;
+         reg [6:0] or106;
+         reg [3:0] or107;
+         reg [7:0] or108;
+         reg [6:0] or109;
+         reg [7:0] or110;
+         reg [7:0] or111;
+         reg [0:0] or112;
+         reg [6:0] or113;
+         reg [3:0] or114;
+         reg [1:0] or115;
+         reg [0:0] or116;
+         reg [2:0] or117;
+         // cs
+         reg [25:0] or118;
+         // cs
+         reg [25:0] or119;
+         reg [4:0] or120;
+         // cs
+         reg [25:0] or121;
+         reg [4:0] or122;
+         // cs
+         reg [25:0] or123;
+         reg [4:0] or124;
+         reg [4:0] or125;
+         reg [30:0] or126;
+         reg [1:0] or127;
+         localparam ol0 = 1'b1;
+         localparam ol1 = 4'b1001;
+         localparam ol2 = 8'b00000000;
+         localparam ol3 = 1'b1;
+         localparam ol4 = 4'b1001;
+         localparam ol5 = 8'b00000000;
+         localparam ol6 = 1'b1;
+         localparam ol7 = 4'b1001;
+         localparam ol8 = 1'b0;
+         localparam ol9 = 8'b00000000;
+         localparam ol10 = 1'b1;
+         localparam ol11 = 4'b1001;
+         localparam ol12 = 8'b00000000;
+         localparam ol13 = 3'b000;
+         localparam ol14 = 3'b000;
+         localparam ol15 = 3'b001;
+         localparam ol16 = 8'b00000000;
+         localparam ol17 = 3'b001;
+         localparam ol18 = 1'b1;
+         localparam ol19 = 1'b0;
+         localparam ol20 = 3'b000;
+         localparam ol21 = 1'b1;
+         localparam ol22 = 5'b01100;
+         localparam ol23 = 5'b01101;
+         localparam ol24 = 1'b1;
+         localparam ol25 = 5'b00101;
+         localparam ol26 = 3'b000;
+         localparam ol27 = 3'b001;
+         localparam ol28 = 3'b010;
+         localparam ol29 = 5'b01110;
+         localparam ol30 = 3'b011;
+         localparam ol31 = 5'b01111;
+         localparam ol32 = 3'b100;
+         localparam ol33 = 5'b10010;
+         localparam ol34 = 1'b1;
+         localparam ol35 = 4'b1001;
+         localparam ol36 = 8'b00000000;
+         localparam ol37 = 1'b1;
+         localparam ol38 = 4'b1001;
+         localparam ol39 = 8'b00000000;
+         localparam ol40 = 1'b1;
+         localparam ol41 = 4'b1001;
+         localparam ol42 = 1'b0;
+         localparam ol43 = 8'b00000000;
+         localparam ol44 = 1'b1;
+         localparam ol45 = 4'b1001;
+         localparam ol46 = 8'b00000000;
+         localparam ol47 = 3'b000;
+         localparam ol48 = 3'b000;
+         localparam ol49 = 3'b001;
+         localparam ol50 = 8'b00000000;
+         localparam ol51 = 1'b0;
+         localparam ol52 = 3'b110;
+         localparam ol53 = 1'b1;
+         localparam ol54 = 3'b111;
+         localparam ol55 = 26'b00000000000000000000001000;
+         localparam ol56 = 1'b1;
+         localparam ol57 = 4'b0000;
+         localparam ol58 = 26'b00000100000000000001000000;
+         localparam ol59 = 4'b0001;
+         localparam ol60 = 26'b00000100000000000001000000;
+         localparam ol61 = 4'b0011;
+         localparam ol62 = 4'b1001;
+         localparam ol63 = 26'b00000000000000000000000000;
+         localparam ol64 = 5'b00110;
+         localparam ol65 = 5'b00111;
+         localparam ol66 = 5'b01010;
+         localparam ol67 = 5'b10010;
+         localparam ol68 = 5'b10010;
+         localparam ol69 = 1'b1;
+         localparam ol70 = 5'b10010;
+         localparam ol71 = 1'b1;
+         localparam ol72 = 4'b1001;
+         localparam ol73 = 8'b00000000;
+         localparam ol74 = 1'b1;
+         localparam ol75 = 4'b1001;
+         localparam ol76 = 8'b00000000;
+         localparam ol77 = 1'b1;
+         localparam ol78 = 4'b1001;
+         localparam ol79 = 1'b0;
+         localparam ol80 = 8'b00000000;
+         localparam ol81 = 1'b1;
+         localparam ol82 = 4'b1001;
+         localparam ol83 = 8'b00000000;
+         localparam ol84 = 3'b000;
+         localparam ol85 = 3'b000;
+         localparam ol86 = 3'b001;
+         localparam ol87 = 8'b00000000;
+         localparam ol88 = 1'b0;
+         localparam ol89 = 3'b100;
+         localparam ol90 = 1'b1;
+         localparam ol91 = 3'b101;
+         localparam ol92 = 26'b00000000000000000100001000;
+         localparam ol93 = 4'b0011;
+         localparam ol94 = 5'b01011;
+         localparam ol95 = 5'b10010;
+         localparam ol96 = 1'b1;
+         localparam ol97 = 5'b10010;
+         localparam ol98 = 5'b00000;
+         localparam ol99 = 5'b00001;
+         localparam ol100 = 26'b00000100000000010000000000;
+         localparam ol101 = 5'b00010;
+         localparam ol102 = 26'b00000000000000001000000000;
+         localparam ol103 = 5'b00011;
+         localparam ol104 = 26'b00001000000000100000000000;
+         localparam ol105 = 5'b00100;
+         localparam ol106 = 5'b00101;
+         localparam ol107 = 5'b00110;
+         localparam ol108 = 26'b00000010000110000001100000;
+         localparam ol109 = 5'b00111;
+         localparam ol110 = 26'b00000010000110010000100000;
+         localparam ol111 = 5'b01000;
+         localparam ol112 = 26'b00000000000000001000000000;
+         localparam ol113 = 5'b01001;
+         localparam ol114 = 26'b00000000000000100001000000;
+         localparam ol115 = 5'b01010;
+         localparam ol116 = 5'b01011;
+         localparam ol117 = 26'b00000000000100000011100000;
+         localparam ol118 = 5'b10000;
+         localparam ol119 = 26'b00000100000000000001000000;
+         localparam ol120 = 5'b10001;
+         localparam ol121 = 26'b00000010000110000000100000;
+         localparam ol122 = 5'b00001;
+         localparam ol123 = 5'b00010;
+         localparam ol124 = 5'b00011;
+         localparam ol125 = 5'b00100;
+         localparam ol126 = 5'b10010;
+         localparam ol127 = 5'b01000;
+         localparam ol128 = 5'b01001;
+         localparam ol129 = 5'b10010;
+         localparam ol130 = 5'b10010;
+         localparam ol131 = 5'b10001;
+         localparam ol132 = 5'b00001;
+         localparam ol133 = 5'b10010;
+         localparam ol134 = 5'b00000;
          begin
-            or5 = arg_0;
-            or6 = arg_1;
+            or127 = arg_0;
+            or2 = arg_1;
             or0 = arg_2;
-            case (or0)
-               4'b0000 : or1 = ol1;
-               4'b0001 : or1 = ol3;
-               4'b0010 : or1 = ol5;
-               4'b0011 : or1 = ol7;
-               4'b0100 : or1 = ol1;
-               4'b1001 : or1 = ol10;
-               4'b1010 : or1 = ol12;
-               4'b1011 : or1 = ol1;
-               default : or1 = ol1;
+            or1 = or2[21:0];
+            or3 = or1[21:19];
+            or4 = or1[18:0];
+            or5 = or4[18:12];
+            or6 = or5[6:3];
+            or8 = or5[6:0];
+            or7 = {ol0, or8};
+            case (or6)
+               4'b1001 : or9 = ol2;
+               default : or9 = or7;
+            endcase
+            or10 = or1[18:0];
+            or11 = or10[11:4];
+            or12 = or10[18:12];
+            or13 = or11[7:7];
+            or14 = or11[6:0];
+            or15 = or14[6:3];
+            or16 = or12[6:3];
+            or18 = or12[6:0];
+            or17 = {ol3, or18};
+            case (or16)
+               4'b1001 : or19 = ol5;
+               default : or19 = or17;
+            endcase
+            or21 = or14[6:0];
+            or20 = {ol6, or21};
+            case (or15)
+               4'b1001 : or22 = or19;
+               default : or22 = or20;
+            endcase
+            case (or13)
+               1'b0 : or23 = or22;
+               default : or23 = ol9;
+            endcase
+            or24 = or1[10:0];
+            or25 = or24[10:4];
+            or26 = or25[6:3];
+            or28 = or25[6:0];
+            or27 = {ol10, or28};
+            case (or26)
+               4'b1001 : or29 = ol12;
+               default : or29 = or27;
+            endcase
+            case (or3)
+               3'b000 : or30 = or9;
+               3'b000 : or30 = or23;
+               3'b001 : or30 = or29;
+               default : or30 = ol16;
+            endcase
+            or31 = or30[7:7];
+            or32 = or2[21:0];
+            or33 = or32[21:19];
+            or34 = or32[21:19];
+            case (or34)
+               3'b001 : or35 = ol18;
+               default : or35 = ol19;
+            endcase
+            case (or33)
+               3'b000 : or36 = ol21;
+               default : or36 = or35;
+            endcase
+            or37 = or36 ? ol22 : ol23;
+            case (or31)
+               1'b1 : or38 = ol25;
+               default : or38 = or37;
+            endcase
+            or39 = or2[21:0];
+            or40 = or39[21:19];
+            case (or40)
+               3'b000 : or41 = or38;
+               3'b001 : or41 = or38;
+               3'b010 : or41 = ol29;
+               3'b011 : or41 = ol31;
+               3'b100 : or41 = ol33;
+            endcase
+            or42 = or2[21:0];
+            or43 = or42[21:19];
+            or44 = or42[18:0];
+            or45 = or44[18:12];
+            or46 = or45[6:3];
+            or48 = or45[6:0];
+            or47 = {ol34, or48};
+            case (or46)
+               4'b1001 : or49 = ol36;
+               default : or49 = or47;
+            endcase
+            or50 = or42[18:0];
+            or51 = or50[11:4];
+            or52 = or50[18:12];
+            or53 = or51[7:7];
+            or54 = or51[6:0];
+            or55 = or54[6:3];
+            or56 = or52[6:3];
+            or58 = or52[6:0];
+            or57 = {ol37, or58};
+            case (or56)
+               4'b1001 : or59 = ol39;
+               default : or59 = or57;
+            endcase
+            or61 = or54[6:0];
+            or60 = {ol40, or61};
+            case (or55)
+               4'b1001 : or62 = or59;
+               default : or62 = or60;
+            endcase
+            case (or53)
+               1'b0 : or63 = or62;
+               default : or63 = ol43;
+            endcase
+            or64 = or42[10:0];
+            or65 = or64[10:4];
+            or66 = or65[6:3];
+            or68 = or65[6:0];
+            or67 = {ol44, or68};
+            case (or66)
+               4'b1001 : or69 = ol46;
+               default : or69 = or67;
+            endcase
+            case (or43)
+               3'b000 : or70 = or49;
+               3'b000 : or70 = or63;
+               3'b001 : or70 = or69;
+               default : or70 = ol50;
+            endcase
+            or71 = or70[7:7];
+            or72 = or70[6:0];
+            or73 = or72[6:3];
+            or74 = or72[1:0];
+            or75 = or74[0:0];
+            case (or75)
+               1'b0 : or76 = ol52;
+               1'b1 : or76 = ol54;
+            endcase
+            or77 = ol55;
+            or77[2:0] = or76;
+            or78 = or77;
+            or78[6:6] = ol56;
+            case (or73)
+               4'b0000 : or79 = ol58;
+               4'b0001 : or79 = ol60;
+               4'b0011 : or79 = or78;
+               4'b1001 : or79 = ol63;
+               default : or79 = ol63;
+            endcase
+            case (or73)
+               4'b0000 : or80 = ol64;
+               4'b0001 : or80 = ol65;
+               4'b0011 : or80 = ol66;
+               4'b1001 : or80 = ol67;
+               default : or80 = ol68;
+            endcase
+            case (or71)
+               1'b1 : or81 = or79;
+               default : or81 = ol63;
+            endcase
+            case (or71)
+               1'b1 : or82 = or80;
+               default : or82 = ol70;
+            endcase
+            or83 = or2[21:0];
+            or84 = or83[21:19];
+            or85 = or83[18:0];
+            or86 = or85[18:12];
+            or87 = or86[6:3];
+            or89 = or86[6:0];
+            or88 = {ol71, or89};
+            case (or87)
+               4'b1001 : or90 = ol73;
+               default : or90 = or88;
+            endcase
+            or91 = or83[18:0];
+            or92 = or91[11:4];
+            or93 = or91[18:12];
+            or94 = or92[7:7];
+            or95 = or92[6:0];
+            or96 = or95[6:3];
+            or97 = or93[6:3];
+            or99 = or93[6:0];
+            or98 = {ol74, or99};
+            case (or97)
+               4'b1001 : or100 = ol76;
+               default : or100 = or98;
+            endcase
+            or102 = or95[6:0];
+            or101 = {ol77, or102};
+            case (or96)
+               4'b1001 : or103 = or100;
+               default : or103 = or101;
+            endcase
+            case (or94)
+               1'b0 : or104 = or103;
+               default : or104 = ol80;
+            endcase
+            or105 = or83[10:0];
+            or106 = or105[10:4];
+            or107 = or106[6:3];
+            or109 = or106[6:0];
+            or108 = {ol81, or109};
+            case (or107)
+               4'b1001 : or110 = ol83;
+               default : or110 = or108;
+            endcase
+            case (or84)
+               3'b000 : or111 = or90;
+               3'b000 : or111 = or104;
+               3'b001 : or111 = or110;
+               default : or111 = ol87;
+            endcase
+            or112 = or111[7:7];
+            or113 = or111[6:0];
+            or114 = or113[6:3];
+            or115 = or113[1:0];
+            or116 = or115[1:1];
+            case (or116)
+               1'b0 : or117 = ol89;
+               1'b1 : or117 = ol91;
+            endcase
+            or118 = ol92;
+            or118[2:0] = or117;
+            case (or114)
+               4'b0011 : or119 = or118;
+               default : or119 = ol63;
+            endcase
+            case (or114)
+               4'b0011 : or120 = ol94;
+               default : or120 = ol95;
+            endcase
+            case (or112)
+               1'b1 : or121 = or119;
+               default : or121 = ol63;
+            endcase
+            case (or112)
+               1'b1 : or122 = or120;
+               default : or122 = ol97;
             endcase
             case (or0)
-               4'b0000 : or2 = ol14;
-               4'b0001 : or2 = ol15;
-               4'b0010 : or2 = ol16;
-               4'b0011 : or2 = ol17;
-               4'b0100 : or2 = ol18;
-               4'b1001 : or2 = ol19;
-               4'b1010 : or2 = ol20;
-               4'b1011 : or2 = ol21;
-               default : or2 = ol22;
+               5'b00000 : or123 = ol63;
+               5'b00001 : or123 = ol100;
+               5'b00010 : or123 = ol102;
+               5'b00011 : or123 = ol104;
+               5'b00100 : or123 = ol63;
+               5'b00101 : or123 = or81;
+               5'b00110 : or123 = ol108;
+               5'b00111 : or123 = ol110;
+               5'b01000 : or123 = ol112;
+               5'b01001 : or123 = ol114;
+               5'b01010 : or123 = or121;
+               5'b01011 : or123 = ol117;
+               5'b10000 : or123 = ol119;
+               5'b10001 : or123 = ol121;
+               default : or123 = ol63;
             endcase
-            or3 = ol23;
-            or3[3:0] = or2;
-            or4 = {or3, or1};
-            kernel_cu_kernel = or4;
+            case (or0)
+               5'b00000 : or124 = ol122;
+               5'b00001 : or124 = ol123;
+               5'b00010 : or124 = ol124;
+               5'b00011 : or124 = ol125;
+               5'b00100 : or124 = or41;
+               5'b00101 : or124 = or82;
+               5'b00110 : or124 = ol126;
+               5'b00111 : or124 = ol127;
+               5'b01000 : or124 = ol128;
+               5'b01001 : or124 = ol129;
+               5'b01010 : or124 = or122;
+               5'b01011 : or124 = ol130;
+               5'b10000 : or124 = ol131;
+               5'b10001 : or124 = ol132;
+               default : or124 = ol133;
+            endcase
+            or125 = ol134;
+            or125[4:0] = or124;
+            or126 = {or125, or123};
+            kernel_cu_kernel = or126;
          end
    endfunction
 endmodule
-module top_Cu_state(input wire [1:0] clock_reset, input wire [3:0] i, output reg [3:0] o);
+module top_Cu_state(input wire [1:0] clock_reset, input wire [4:0] i, output reg [4:0] o);
    wire  clock;
    wire  reset;
    assign clock = clock_reset[0];
    assign reset = clock_reset[1];
    initial begin
-      o = 4'b0000;
+      o = 5'b00000;
    end
    always @(posedge clock) begin
       if (reset) begin
-         o <= 4'b0000;
+         o <= 5'b00000;
       end else begin
          o <= i;
       end
@@ -2062,30 +2548,30 @@ module top_RAM_memory(input wire [1:0] clock_reset, input wire [36:0] i, output 
    wire [0:0] clock;
    reg [15:0] mem[1023:0];
    initial begin
-      mem[0] = 16'b0000000000110001;
-      mem[1] = 16'b0100001010010010;
-      mem[2] = 16'b0110000100101110;
-      mem[3] = 16'b0000000000101011;
-      mem[4] = 16'b0000000000101010;
-      mem[5] = 16'b0000001100001000;
-      mem[6] = 16'b1110000000001000;
-      mem[7] = 16'b0110001000001000;
-      mem[8] = 16'b0000000000101011;
-      mem[9] = 16'b1110001000001000;
-      mem[10] = 16'b0000000000001100;
-      mem[11] = 16'b0010000100001000;
-      mem[12] = 16'b0000000000010111;
-      mem[13] = 16'b0110000100001000;
-      mem[14] = 16'b0000000000101010;
-      mem[15] = 16'b1110000100001000;
-      mem[16] = 16'b0000000000000001;
-      mem[17] = 16'b1100000000001000;
-      mem[18] = 16'b0100000000001000;
-      mem[19] = 16'b0100000000001000;
-      mem[20] = 16'b1100001000001000;
-      mem[21] = 16'b1010001000001000;
-      mem[22] = 16'b1100000100001000;
-      mem[23] = 16'b0000000000000010;
+      mem[0] = 16'b1110001010001010;
+      mem[1] = 16'b0000000001000101;
+      mem[2] = 16'b0000000000000000;
+      mem[3] = 16'b0000000000000000;
+      mem[4] = 16'b0000000000000000;
+      mem[5] = 16'b0000000000000000;
+      mem[6] = 16'b0000000000000000;
+      mem[7] = 16'b0000000000000000;
+      mem[8] = 16'b0000000000000000;
+      mem[9] = 16'b0000000000000000;
+      mem[10] = 16'b0000000000000000;
+      mem[11] = 16'b0000000000000000;
+      mem[12] = 16'b0000000000000000;
+      mem[13] = 16'b0000000000000000;
+      mem[14] = 16'b0000000000000000;
+      mem[15] = 16'b0000000000000000;
+      mem[16] = 16'b0000000000000000;
+      mem[17] = 16'b0000000000000000;
+      mem[18] = 16'b0000000000000000;
+      mem[19] = 16'b0000000000000000;
+      mem[20] = 16'b0000000000000000;
+      mem[21] = 16'b0000000000000000;
+      mem[22] = 16'b0000000000000000;
+      mem[23] = 16'b0000000000000000;
       mem[24] = 16'b0000000000000000;
       mem[25] = 16'b0000000000000000;
       mem[26] = 16'b0000000000000000;

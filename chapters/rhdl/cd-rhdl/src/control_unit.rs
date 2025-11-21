@@ -1,4 +1,4 @@
-use crate::{decode_unit::{Decoded, DstOperand, Operand, TwoOp}, prelude::*};
+use crate::{decode_unit::{Decoded, DstOperand, OneOp, Operand, TwoOp}, prelude::*};
 
 #[derive(Digital, PartialEq, Debug)]
 pub struct ControlSignals {
@@ -33,11 +33,24 @@ pub enum State {
     Fetch1,
     Fetch2,
     Decode,
+    // Effective addres starting point
+    LoadEa,
+    LoadDa,
+    LoadIda,
+    LoadIda1,
+    LoadIda2,
+    LoadRs,
+    LoadRs1,
+    LoadRsi,
+    LoadRsd,
+    LoadRsa,
+    // Immediate operand starting point
+    LoadImm,
+    // Only register starting point
+    LoadRegs,
 
-    LdEa,
-    LdImm,
-    LdSrc,
-    LdDst,
+    LoadCf,
+    LoadJc,
     IncPC,
     IncPC1,
     Hlt,
@@ -62,19 +75,62 @@ impl SynchronousIO for ControlUnit {
     type Kernel = cu_kernel;
 }
 
-#[kernel]
-fn has_ea(i: Decoded) -> bool {
-    if let Decoded::TwoOp { op: _op, src: Operand::MaybeDst(DstOperand::Reg(_r1)), dst: DstOperand::Reg(_r2) } = i {
-        false
-    } else {
-        true
-    }
 
+#[kernel]
+fn has_imm(i: Decoded) -> bool {
+    if let Decoded::TwoOp { op: _x, src: _x3 @ Operand::Imm , dst: _x2 } = i {
+        true
+    } else if let Decoded::OneOp {op: _x1 @ OneOp::MovI, dst: _x} = i {
+        true
+    } else {
+        false
+    }
+}
+
+#[kernel]
+fn extract_ea(i: Decoded) -> Option<DstOperand> {
+    match i {
+        Decoded::TwoOp { op: _x, src: _x3 @ Operand::Imm, dst} => {
+            if let DstOperand::Reg(_r1) = dst {
+                None
+            } else {
+                Some(dst)
+            }
+        }
+        Decoded::TwoOp { op: _x, src, dst } => {
+            // Imm covered by arm above
+            if let Operand::MaybeDst(src) = src {
+                if let DstOperand::Reg(_r) = src {
+                    if let DstOperand::Reg(_r1) = dst {
+                        None
+                    } else {
+                        Some(dst)
+                    }
+                } else {
+                    Some(src)
+                }
+            } else {None}
+        }
+        Decoded::OneOp { op: _x, dst } => {
+            if let DstOperand::Reg(_r1) = dst {
+                None
+            } else {
+                Some(dst)
+            }
+        }
+        _ => None
+    }
 }
 
 // #[kernel]
-// fn has_imm(i: Decoded) -> bool {
-
+// fn extract_ir_postinc(i: Decoded) -> Option<Reg> {
+//     if let Some(x) = extract_ea(i) {
+//         if let DstOperand::RegSumIncr(_ba, ia) = i {
+//             Some(itr(ia))
+//         } else {
+//             None
+//         }
+//     } else { None };
 // }
 
 #[kernel]
@@ -119,8 +175,120 @@ pub fn cu_kernel(_cr: ClockReset, _i: (Decoded, AluFlags), q: Q) -> (ControlSign
             Decode
         },
         Decode => {
-            IncPC
+            let eastate = if let Some(_x) = extract_ea(_i.0) {
+                LoadEa
+            } else if has_imm(_i.0) {
+                LoadImm
+            } else {
+                LoadRegs
+            };
+            match _i.0 {
+                Decoded::TwoOp {op:_x,dst:_x2,src:_x3} => eastate,
+                Decoded::OneOp {op:_x,dst:_x2} => eastate,
+                Decoded::CfNea(_x) => LoadCf,
+                Decoded::Jcond(_x) => LoadJc,
+                Decoded::Invalid => Hlt,
+            }
         },
+        // Handles the beginning of EA.
+        // At this stage's beginning the assumptions are:
+        // If disp => PC = &disp - 1
+        // At this stage's end the assumptions are:
+        // if dst => T1 = ea
+        // else => T2 = ea
+        // if disp => PC = PC + 1
+        // LoadEa => {
+        //     let ea = extract_ea(_i.0);
+        //     if let Some(ea) = ea {
+        //         match ea {
+        //             // [disp]
+        //             // Should MA, PC = PC + 1
+        //             DstOperand::DirectAddress => {
+        //                 cs.pc_oe = true;
+        //                 cs.t1_we = true;
+        //                 LoadDa
+        //             }
+        //             DstOperand::IndirectAddress => {
+        //                 cs.pc_oe = true;
+        //                 cs.t1_we = true;
+        //                 LoadIda
+        //             }
+        //             DstOperand::RegSum(ba, _ia) => {
+        //                 cs.rf_oe = true;
+        //                 cs.rf_sel = btr(ba);
+        //                 cs.t1_we = true;
+        //                 LoadRs
+        //             }
+        //             // DstOperand::RegSumIncr(ba, _ia) => {
+        //             //     cs.rf_oe = true;
+        //             //     if let Some(r) = extract_ir_postinc(_i.0) {
+        //             //         cs.rf_sel = r;
+        //             //         Hlt
+        //             //     } else {
+        //             //         Hlt
+        //             //     }
+        //             // }
+        //             // DstOperand::
+        //             DstOperand::Reg(_r1) => Hlt,
+        //             // DstOperand::
+        //             _ => Hlt
+        //         }
+        //     } else {
+        //         Hlt
+        //     }
+        // }
+
+        // LoadDa => {
+        //     cs.pc_we = true;
+        //     // ADC(T1, 0, 1)
+        //     cs.t1_oe = true;
+        //     cs.t1_we = true;
+        //     cs.alu_oe = true;
+        //     cs.alu_carry = true;
+        //     cs.alu_sel = ADC;
+        //     Hlt
+        // }
+        // LoadIda => {
+        //     cs.pc_we = true;
+        //     cs.t1_oe = true;
+        //     cs.ma_we = true;
+        //     cs.alu_oe = true;
+        //     cs.alu_carry = true;
+        //     cs.alu_sel = ADC;
+        //     LoadIda1
+        // }
+        // LoadIda1 => {
+        //     cs.ma_oe = true;
+        //     LoadIda2
+        // }
+        // LoadIda2 => {
+        //     cs.ram_oe = true;
+        //     cs.t1_we = true;
+        //     Hlt
+        // }
+        // LoadRs => {
+        //     if let Some(x) = extract_ea(_i.0) {
+        //         if let DstOperand::RegSum(_ba, ia) = x {
+        //             cs.t2_we = true;
+        //             cs.rf_oe = true;
+        //             cs.rf_sel = itr(ia);
+        //             LoadRs1
+        //         } else {
+        //             Hlt
+        //         }
+        //     } else {
+        //         Hlt
+        //     }
+        // }
+        // LoadRs1 => {
+        //     cs.t1_we = true;
+        //     cs.t1_oe = true;
+        //     cs.t2_oe = true;
+        //     cs.alu_oe = true;
+        //     cs.alu_sel = ADC;
+        //     cs.alu_carry = false;
+        //     Hlt
+        // }
         IncPC => {
             cs.pc_oe = true;
             cs.t1_we = true;
@@ -134,8 +302,7 @@ pub fn cu_kernel(_cr: ClockReset, _i: (Decoded, AluFlags), q: Q) -> (ControlSign
             cs.pc_we = true;
             Fetch
         }
-        Hlt => Hlt,
-        _ => Reset
+        _ => Hlt
     };
     (cs, D { state: next_state })
 }

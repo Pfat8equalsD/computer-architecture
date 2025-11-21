@@ -1,0 +1,24 @@
+$timescale 1 ps $end
+$comment
+    TraceInfo({"top.clock":Clock,"top.func.input":Bits(5),"top.func.output":Bits(1),"top.reset":Reset})
+$end
+$scope module top $end
+$var wire 1 ! clock $end
+$var wire 1 " reset $end
+$scope module func $end
+$var wire 5 # input $end
+$var wire 1 $ output $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+#0
+b0 !
+b0 "
+b00000 #
+b0 $
+#10
+b10101 #
+b1 $
+#20
+b00010 #
+b0 $

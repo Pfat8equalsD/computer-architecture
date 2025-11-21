@@ -1,0 +1,30 @@
+$timescale 1 ps $end
+$comment
+    TraceInfo({"top.clock":Clock,"top.func.input":Struct((name:"secv_skel::alu::AluInput<rhdl_typenum::consts::U2>",fields:[(name:"op1",ty:Bits(2)),(name:"op2",ty:Bits(2)),(name:"select",ty:Enum((name:"secv_skel::alu::AluOpcode",variants:[(name:"Adc",discriminant:0,ty:Empty),(name:"Sbb1",discriminant:1,ty:Empty),(name:"Sbb2",discriminant:2,ty:Empty),(name:"Not",discriminant:3,ty:Empty),(name:"And",discriminant:4,ty:Empty),(name:"Or",discriminant:5,ty:Empty),(name:"Xor",discriminant:6,ty:Empty),(name:"Shl",discriminant:7,ty:Empty),(name:"Shr",discriminant:8,ty:Empty),(name:"Sar",discriminant:9,ty:Empty)],discriminant_layout:(width:4,alignment:Msb,ty:Unsigned)))),(name:"carry_in",ty:Bits(1)),(name:"enable",ty:Bits(1))])),"top.func.output":Struct((name:"secv_skel::alu::AluOutput<rhdl_typenum::consts::U2>",fields:[(name:"rez",ty:Bits(2)),(name:"zero_flag",ty:Bits(1)),(name:"sign_flag",ty:Bits(1)),(name:"transport_flag",ty:Bits(1)),(name:"parity_flag",ty:Bits(1)),(name:"overflow_flag",ty:Bits(1))])),"top.reset":Reset})
+$end
+$scope module top $end
+$var wire 1 ! clock $end
+$var wire 1 " reset $end
+$scope module func $end
+$var wire 10 # input $end
+$var wire 7 $ output $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+#0
+b0 !
+b0 "
+b1000000000 #
+b0100100 $
+#10
+b1000000101 #
+b1001010 $
+#20
+b1000001110 #
+b1010001 $
+#30
+b1000000011 #
+b0101011 $
+#40
+b0000000000 #
+b0100100 $

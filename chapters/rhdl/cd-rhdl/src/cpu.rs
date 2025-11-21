@@ -281,24 +281,7 @@ use termion::{
     pub fn sim_cpu() -> Result<(), RHDLError> {
         didasm(r#"
 
-hlt
-test ra,[bb+xa+]
-
-sub [ba+43], 42
-
-inc ra
-inc [bb]
-inc [43]
-inc [[12]]
-inc [xa+23]
-inc [ba+42]
-inc [bb+1]
-inc [bb+xb]
-inc [ba+xa]
-inc [bb+xa]
-inc [ba+xb+]
-inc [bb+xa-]
-inc [ba+xb+2]
+add ra, [[69]]
 "#);
         let cpu = Cpu::default();
         let mut s: S = cpu.init();
@@ -314,6 +297,15 @@ inc [ba+xb+2]
         write!(screen, "{}", termion::clear::All)?;
         write!(screen, "{}", termion::cursor::Goto(1, 1))?;
         screen.flush()?;
+        write!(screen, "Press ← → or q (step {})\r\n", i)?;
+        if i == v.len() {
+            let o = step(&cpu, (), &mut s);
+            v.push((o,s.clone()));
+        }
+        let (o,state) = &v[i];
+        let myst = print_cd(state, o);
+        write!(screen, "{}",myst);
+        i = i + 1;
         // print_cd(&s, &o);
         let stdin = std::io::stdin();
         for key in stdin.keys() {
@@ -339,7 +331,11 @@ inc [ba+xb+2]
                     i = i + 1
                 }
                 Key::Char('q') => break,
-                _ => {}
+                _ => {
+                    let (o,state) = &v[i];
+                    let myst = print_cd(state, o);
+                    write!(screen, "{}",myst);
+                }
             }
         }
 

@@ -4,6 +4,7 @@ pub use crate::alu::{
     AluOutput,
 };
 pub use crate::control_unit::State::*;
+pub use crate::decode_unit::*;
 pub use crate::cpu::*;
 pub use crate::memory::*;
 pub use crate::register::*;
