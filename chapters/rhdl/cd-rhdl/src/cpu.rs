@@ -194,7 +194,7 @@ use termion::{
             let o = step(cpu, (), s);
             print_cd(&s, &o);
 
-            if cu_state(&s) == Fetch {
+            if cu_state(&s) == Fetch(control_unit::FetchStage::PcToMA) {
                 return;
             }
         };
