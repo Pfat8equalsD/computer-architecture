@@ -283,12 +283,12 @@ fn brx(i: Bits<U1>) -> BaseRegister {
 #[kernel]
 /// Decodes the mod and rm parts in one go
 fn mod_rm(i: Bits<U16>) -> DstOperand {
-    let rm = i[15].resize() |
-        i[14].resize() << 1 |
-        i[13].resize() << 2;
+    let rm = i[15..12];
     let m = i[9..8];
     match m.raw() {
-        0b11 => DstOperand::Reg(reg(rm)),
+        0b11 => DstOperand::Reg(reg(i[15].resize() |
+            i[14].resize() << 1 |
+            i[13].resize() << 2)),
         0b01 => {
             if rm[0] == bits(0) {
                 DstOperand::BasedIndexedAddr(brx(rm[1]), irx(rm[2]))
