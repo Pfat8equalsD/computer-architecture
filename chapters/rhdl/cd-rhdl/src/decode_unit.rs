@@ -283,39 +283,39 @@ fn brx(i: Bits<U1>) -> BaseRegister {
 #[kernel]
 /// Decodes the mod and rm parts in one go
 fn mod_rm(i: Bits<U16>) -> DstOperand {
-    let rm = i[15..12];
+    let rm = i[15].resize() |
+            i[14].resize() << 1 |
+            i[13].resize() << 2;
     let m = i[9..8];
     match m.raw() {
-        0b11 => DstOperand::Reg(reg(i[15].resize() |
-            i[14].resize() << 1 |
-            i[13].resize() << 2)),
+        0b11 => DstOperand::Reg(reg(rm)),
         0b01 => {
-            if rm[0] == bits(0) {
-                DstOperand::BasedIndexedAddr(brx(rm[1]), irx(rm[2]))
-            } else if rm[1] == bits(0) {
-                DstOperand::IndexedAddr(irx(rm[2]))
+            if rm < bits(0b100) {
+                DstOperand::BasedIndexedAddr(brx(rm[1]), irx(rm[0]))
+            } else if rm < bits(0b110) {
+                DstOperand::IndexedAddr(irx(rm[0]))
             } else {
-                DstOperand::BasedAddr(brx(rm[2]))
+                DstOperand::BasedAddr(brx(rm[0]))
             }
         }
         0b10 => {
-            if rm[0] == bits(0) {
-                DstOperand::RegSumIncr(brx(rm[1]), irx(rm[2]))
-            } else if rm[1] == bits(0) {
-                DstOperand::RegSumDecr(brx(rm[2]))
-            } else if rm[2] == bits(0) {
+            if rm < bits(0b100) {
+                DstOperand::RegSumIncr(brx(rm[1]), irx(rm[0]))
+            } else if rm < bits(0b110) {
+                DstOperand::RegSumDecr(brx(rm[0]))
+            } else if rm < bits(0b111) {
                 DstOperand::DirectAddress
             } else {
                 DstOperand::IndirectAddress
             }
         }
         0b00 => {
-            if rm[0] == bits(0) {
-                DstOperand::RegSum(brx(rm[1]), irx(rm[2]))
-            } else if rm[1] == bits(0) {
-                DstOperand::RegisterAddress(AddrRegister::Index(irx(rm[2])))
+            if rm < bits(0b100) {
+                DstOperand::RegSum(brx(rm[1]), irx(rm[0]))
+            } else if rm < bits(0b110) {
+                DstOperand::RegisterAddress(AddrRegister::Index(irx(rm[0])))
             } else {
-                DstOperand::RegisterAddress(AddrRegister::Base(brx(rm[2])))
+                DstOperand::RegisterAddress(AddrRegister::Base(brx(rm[0])))
             }
         }
         _ => DstOperand::dont_care(),

@@ -280,8 +280,7 @@ use termion::{
     // run in an interactive way
     pub fn sim_cpu() -> Result<(), RHDLError> {
         didasm(r#"
-
-sub xa, xa
+add ra, [ba+xa]
 "#);
         let cpu = Cpu::default();
         let mut s: S = cpu.init();
