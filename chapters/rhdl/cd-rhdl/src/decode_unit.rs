@@ -283,7 +283,9 @@ fn brx(i: Bits<U1>) -> BaseRegister {
 #[kernel]
 /// Decodes the mod and rm parts in one go
 fn mod_rm(i: Bits<U16>) -> DstOperand {
-    let rm = i[15..13];
+    let rm = i[15].resize() |
+        i[14].resize() << 1 |
+        i[13].resize() << 2;
     let m = i[9..8];
     match m.raw() {
         0b11 => DstOperand::Reg(reg(rm)),
@@ -324,7 +326,10 @@ fn mod_rm(i: Bits<U16>) -> DstOperand {
 #[kernel]
 pub fn decode(i: Bits<U16>) -> Decoded {
     let rm = mod_rm(i);
-    let rg = DstOperand::Reg(reg(i[12..10]));
+    let rg_raw = i[12].resize() |
+        i[11].resize() << 1 |
+        i[10].resize() << 2;
+    let rg = DstOperand::Reg(reg(rg_raw));
     let (src, dst) = if i[7] == bits(1) {
         (Operand::MaybeDst(rm), rg)
     } else {

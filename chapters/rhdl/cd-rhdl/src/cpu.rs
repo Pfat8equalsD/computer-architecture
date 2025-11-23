@@ -281,7 +281,7 @@ use termion::{
     pub fn sim_cpu() -> Result<(), RHDLError> {
         didasm(r#"
 
-add ra, [[69]]
+sub xa, xa
 "#);
         let cpu = Cpu::default();
         let mut s: S = cpu.init();
