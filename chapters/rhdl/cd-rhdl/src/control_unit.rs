@@ -289,6 +289,8 @@ pub fn control_unit(d: Decoded, _f: AluFlags, s: State) -> (State, ControlSignal
         fr_we: false,
         fr_oe: false,
         fr_sel_bus: false,
+        exec_done: false,
+        load_done: false,
     };
 
     let next_state = match s {
