@@ -328,13 +328,12 @@ use termion::{
     // Test just the fetch
     #[test]
     fn test_fetch() {
-        didasm(r#"
-        hlt
-        "#);
-        let cpu = Cpu::default();
-        let mut s: S = cpu.init();
-        let ins = vec![(), (), ()].with_reset(1).clock_pos_edge(100);
-        cpu.run(ins).unwrap();
+        let (cpu, mut s) = start_cpu_test(
+            r#"
+            hlt
+            "#,
+            CpuDefault::default()
+        ).unwrap();
 
         step(&cpu, (), &mut s);
         step(&cpu, (), &mut s);
@@ -373,7 +372,7 @@ use termion::{
             init
         ).unwrap();
         let o = step(&cpu, (), &mut s);
-        println!("{}", print_cd(&s, &o, 0));
+        assert_eq!(rg(&s, 4), 0x69);
     }
     // run in an interactive way
     pub fn sim_cpu() -> Result<(), RHDLError> {
