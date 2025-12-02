@@ -25,7 +25,6 @@ pub struct ControlSignals {
     pub fr_sel_bus: bool,
     pub load_done: bool,
     pub exec_done: bool,
-    pub instruction_done: bool, // State == FetchStage(PcToMa)?
 }
 
 #[derive(Digital, PartialEq, Debug, Default)]
