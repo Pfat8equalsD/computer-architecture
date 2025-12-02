@@ -83,6 +83,14 @@ impl Default for ControlUnit {
     }
 }
 
+impl ControlUnit {
+    pub fn new(init: State) -> Self {
+        Self {
+            state: DFF::new(init),
+        }
+    }
+}
+
 impl SynchronousIO for ControlUnit {
     type I = (Decoded, AluFlags);
     type O = ControlSignals;

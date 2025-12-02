@@ -38,3 +38,22 @@ pub fn step<S: Synchronous + SynchronousIO>(s: &S, input: S::I, state: &mut S::S
         state,
     )
 }
+
+pub fn reset_step<S: Synchronous + SynchronousIO>(s: &S, state: &mut S::S) {
+    s.sim(
+        ClockReset {
+            clock: clock(false),
+            reset: reset(true),
+        },
+        S::I::dont_care(),
+        state,
+    );
+    s.sim(
+        ClockReset {
+            clock: clock(false),
+            reset: reset(true),
+        },
+        S::I::dont_care(),
+        state,
+    );
+}

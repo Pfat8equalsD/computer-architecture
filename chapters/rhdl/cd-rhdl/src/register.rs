@@ -20,6 +20,14 @@ impl<N: BitWidth + Unsigned> Default for Register<N> {
     }
 }
 
+impl<N: BitWidth + Unsigned> Register<N> {
+    pub fn new(init: u128) -> Self {
+        Self {
+            memory: DFF::new(Bits::<N>::from(init)),
+        }
+    }
+}
+
 impl<N: BitWidth + Unsigned> SynchronousIO for Register<N> {
     type I = RegisterInput<N>;
     type O = (Bits<N>, Bits<N>);

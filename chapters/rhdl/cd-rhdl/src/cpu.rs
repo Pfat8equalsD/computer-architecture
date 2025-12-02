@@ -1,6 +1,6 @@
 use crate::{
     alu::{alu, flags, fr},
-    control_unit::{ControlSignals, ControlUnit},
+    control_unit::{ControlSignals, ControlUnit, State},
     decode_unit::{Decoded, decode},
     memory::{Ram, RamInput},
     prelude::*,
@@ -9,6 +9,17 @@ use bitops_rhdl::bitops;
 use rhdl::typenum::Diff;
 use rhdl_fpga::core::dff::DFF;
 
+#[derive(Clone, Debug, Default)]
+pub struct CpuDefault {
+    pub regs: [u128; 8],
+    pub T1: u128,
+    pub T2: u128,
+    pub MA: u128,
+    pub IR: u128,
+    pub PC: u128,
+    pub FR: u128,
+    pub state: State,
+}
 #[derive(Synchronous, SynchronousDQ, Clone, Debug)]
 
 pub struct Cpu {
@@ -40,6 +51,22 @@ impl Default for Cpu {
             IR: DFF::default(),
             PC: Register::default(),
             FR: DFF::default(),
+        }
+    }
+}
+
+impl Cpu {
+    pub fn new(init: CpuDefault) -> Self {
+        Self {
+            T1: Register::new(init.T1),
+            T2: Register::new(init.T2),
+            MA: Register::new(init.MA),
+            Cu: ControlUnit::new(init.state),
+            regs: RegFile::new(init.regs),
+            RAM: Ram::from_hex_file("cram.data").unwrap_or_default(),
+            IR: DFF::new(Bits::from(init.IR)),
+            PC: Register::new(init.PC),
+            FR: DFF::new(Bits::from(init.FR)),
         }
     }
 }
@@ -279,8 +306,26 @@ use termion::{
     }
     // #[test]
     // use 
-    // Test just the fetch
+    use super::CpuDefault;
+    /// Start a cpu test by providing its current state directly
+    fn start_cpu_test(
+        asm_source: &str,
+        def_values: CpuDefault
+    ) -> Result<(Cpu, S), RHDLError> {
+        didasm(asm_source);
+        let cpu = Cpu::new(def_values);
 
+        // Validate if cpu kernel is valid rhdl
+        let ins = vec![()].with_reset(1).clock_pos_edge(100);
+        cpu.run(ins)?;
+
+        // Initialize a state with the values provided in def_values
+        let mut s: S = cpu.init();
+        reset_step(&cpu, &mut s);
+        Ok((cpu, s))
+    }
+
+    // Test just the fetch
     #[test]
     fn test_fetch() {
         didasm(r#"
@@ -315,6 +360,20 @@ use termion::{
         assert_eq!(IR, 0x0031);
 
 
+    }
+
+    #[test]
+    fn test_cpu_default_values() {
+        let mut init = CpuDefault::default();
+        init.regs[4] = 0x69;
+        let (cpu, mut s) = start_cpu_test(
+            r#"
+            hlt
+            "#,
+            init
+        ).unwrap();
+        let o = step(&cpu, (), &mut s);
+        println!("{}", print_cd(&s, &o, 0));
     }
     // run in an interactive way
     pub fn sim_cpu() -> Result<(), RHDLError> {
