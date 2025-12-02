@@ -154,6 +154,7 @@ use termion::{
     type S = <Cpu as Synchronous>::S;
     type O = <Cpu as SynchronousIO>::O;
     use colored::Colorize;
+    use crate::control_unit::*;
 
     fn rg(s: &S, i: usize) -> u128 {
         s.1.1[i].current.raw()
@@ -277,7 +278,44 @@ use termion::{
         }
     }
     // #[test]
+    // use 
+    // Test just the fetch
 
+    #[test]
+    fn test_fetch() {
+        didasm(r#"
+        hlt
+        "#);
+        let cpu = Cpu::default();
+        let mut s: S = cpu.init();
+        let ins = vec![(), (), ()].with_reset(1).clock_pos_edge(100);
+        cpu.run(ins).unwrap();
+
+        step(&cpu, (), &mut s);
+        step(&cpu, (), &mut s);
+        let state = cu_state(&s);
+        assert_eq!(state, State::Fetch(FetchStage::PcToMA));
+
+        step(&cpu, (), &mut s);
+        let state = cu_state(&s);
+        assert_eq!(state, State::Fetch(FetchStage::MaToMem));
+        let MA = ma(&s);
+        // TODO change cpu state
+        assert_eq!(MA, 0);
+
+        let o = step(&cpu, (), &mut s);
+        let state = cu_state(&s);
+        assert_eq!(state, State::Fetch(FetchStage::MemToIr));
+        let BUS = bus(&o);
+        assert_eq!(BUS, 0x0031);
+        step(&cpu, (), &mut s);
+        let state = cu_state(&s);
+        assert_eq!(state, State::Decode);
+        let IR = ir(&s);
+        assert_eq!(IR, 0x0031);
+
+
+    }
     // run in an interactive way
     pub fn sim_cpu() -> Result<(), RHDLError> {
         didasm(r#"

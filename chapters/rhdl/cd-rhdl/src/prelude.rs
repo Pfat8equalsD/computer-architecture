@@ -3,7 +3,7 @@ pub use crate::alu::{
     AluOp::{self, *},
     AluOutput,
 };
-pub use crate::control_unit::State::*;
+pub use crate::control_unit::{State::*};
 pub use crate::decode_unit::*;
 pub use crate::cpu::*;
 pub use crate::memory::*;

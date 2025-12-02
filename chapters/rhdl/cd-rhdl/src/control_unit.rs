@@ -23,6 +23,9 @@ pub struct ControlSignals {
     pub fr_we: bool,
     pub fr_oe: bool,
     pub fr_sel_bus: bool,
+    pub load_done: bool,
+    pub exec_done: bool,
+    pub instruction_done: bool, // State == FetchStage(PcToMa)?
 }
 
 #[derive(Digital, PartialEq, Debug, Default)]
@@ -255,6 +258,7 @@ fn stage_load_ea(s: LoadEaStage, i: DstOperand, mut cs: ControlSignals, is_dst: 
     if invalid {
         (Hlt, cs)
     } else if next_state == Lea {
+        cs.load_done = true;
         (stage_after_ea,cs)
     } else {
         (State::LoadEa(next_state), cs)
