@@ -175,6 +175,7 @@ use termion::{
     raw::{IntoRawMode, RawTerminal},
     screen::{IntoAlternateScreen, ToAlternateScreen, ToMainScreen}
 };
+    use anyhow::anyhow;
     use crate::{
         alu::alu, control_unit::{self, ControlSignals}, decode_unit::{Decoded, decode}, prelude::*
     };
@@ -312,7 +313,16 @@ use termion::{
         asm_source: &str,
         def_values: CpuDefault
     ) -> Result<(Cpu, S), RHDLError> {
-        didasm(asm_source);
+        std::fs::write("test.asm", asm_source)?;
+        let out = std::process::Command::new("didasm")
+            .arg("test.asm")
+            .arg("cram.data")
+            .arg("--quiet")
+            .output()
+            .map_err(|e| anyhow!("Didasm not available (cargo install didasm --path <computer-architecture-path>/didasm). Fallback is not available in unit tests"))?;
+        if !out.status.success() {
+            return Err(anyhow!("Assembler failed: {}", String::from_utf8(out.stderr).unwrap()).into());
+        }
         let cpu = Cpu::new(def_values);
 
         // Validate if cpu kernel is valid rhdl
@@ -330,7 +340,7 @@ use termion::{
     fn test_fetch() {
         let (cpu, mut s) = start_cpu_test(
             r#"
-            hlt
+            hlt1
             "#,
             CpuDefault::default()
         ).unwrap();
