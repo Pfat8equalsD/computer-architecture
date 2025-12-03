@@ -427,6 +427,27 @@ use termion::{
         assert_eq!(2, pc(&s));
     }
 
+    #[test]
+    fn test_load_2() {
+        let mut init = CpuDefault::default();
+        for i in 0..8 {
+            init.regs[i] = i as u128 + 1;
+        }
+        let (cpu, mut s) = start_cpu_test(
+            r#"
+            mov [ba+43], 42
+            50: 0x69
+            "#,
+            init
+        ).unwrap();
+        run_till_next_instr(&cpu, &mut s);
+        let o = run_till_load_done(&cpu, &mut s);
+        assert_ne!(0x69, t1(&s), "You don't have to load the *value* of the memory at effective address for MOV instructions if destination");
+        assert_eq!(42, t2(&s));
+        assert_eq!(50, ma(&s));
+        assert_eq!(2, pc(&s));
+    }
+
     // run in an interactive way
     pub fn sim_cpu() -> Result<(), RHDLError> {
         let mut init = CpuDefault::default();
