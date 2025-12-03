@@ -169,6 +169,7 @@ pub fn top_kernel(_cr: ClockReset, _i: (), q: Q) -> (Bits<U16>, D) {
 // ADD TESTBENCHES
 pub mod tests {
     use std::io::{Stdout, Write, stdout};
+    use std::fs::File;
 use termion::{
     event::Key,
     input::TermRead,
@@ -499,7 +500,7 @@ inc [ba+xb+2]
         write!(screen, "{}", termion::clear::All)?;
         write!(screen, "{}", termion::cursor::Goto(1, 1))?;
         screen.flush()?;
-        let help_str = "Press ← → for single clock cycle step, p n for instruction step or q; Press /<addr(HEX)><enter> for a peek in ram ";
+        let help_str = "Press ← → for single clock cycle step, p n for instruction step, d for mem.dump or q; Press /<addr(HEX)><enter> for a peek in ram ";
         write!(screen, "{}(step {}, lookup MA)\r\n", help_str, i);
         let (o,state) = &v[if i >= v.len() {v.len() - 1} else {i}];
         let myst = print_cd(state, o, peek);
@@ -579,6 +580,14 @@ inc [ba+xb+2]
                 Key::Char(c @ ('0'..='9' | 'a'..='f')) if wait_for_peek => {
                     let x = c.to_digit(16).map(|d| d as u128).unwrap();
                     peek_buf = (peek_buf << 4 | x) & 0x3FF;
+                }
+                Key::Char('d') => {
+                    let mut file = File::create("mem.dump")?;
+                    let (o,state) = &v[i];
+                    let ram = ram(&state);
+                    for i in ram.into_iter() {
+                        writeln!(&mut file, "{:04X}", i)?;
+                    }
                 }
                 Key::Char('\n') => {
                     wait_for_peek=false;
