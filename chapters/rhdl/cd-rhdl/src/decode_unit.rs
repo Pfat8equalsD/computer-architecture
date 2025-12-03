@@ -13,15 +13,15 @@ pub enum Operand {
 
 #[derive(Debug, Digital, PartialEq)]
 pub enum DstOperand {
-    DirectAddress,
-    IndirectAddress,
-    RegisterAddress(AddrRegister),
-    RegSum(BaseRegister, IndexRegister),
-    RegSumIncr(BaseRegister, IndexRegister),
-    RegSumDecr(BaseRegister),
-    BasedAddr(BaseRegister),
-    IndexedAddr(IndexRegister),
-    BasedIndexedAddr(BaseRegister, IndexRegister),
+    DirectAddress, // Lpc Ipc DispA DispL EaDone
+    IndirectAddress, // Lpc Ipc DispA DispL DdispA DdispL EaDone
+    RegisterAddress(AddrRegister), // Ldi/Ldb EaDone
+    RegSum(BaseRegister, IndexRegister), // Ldb Ldi Sum2 EaDone
+    RegSumIncr(BaseRegister, IndexRegister), // Ldb Ldi Pipd Sum2 EaDone
+    RegSumDecr(BaseRegister), // Ldb Ldi Pipd Sum2 EaDone
+    BasedAddr(BaseRegister), // Lpc Ipc DispA DispL Ldb Sum2 EaDone
+    IndexedAddr(IndexRegister), // Lpc Ipc DispA DispL Ldi Sum2 EaDone
+    BasedIndexedAddr(BaseRegister, IndexRegister), // Lpc Ipc DispA DispL Ldb Sum1 Ldi Sum2 EaDone
     Reg(Reg),
 }
 

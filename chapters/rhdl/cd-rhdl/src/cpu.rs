@@ -218,15 +218,36 @@ use termion::{
     fn bus(o: &O) -> u128 {
         o.raw()
     }
-    fn run_till_next_instr(cpu: &Cpu, s: &mut S) {
+    fn run_till_next_instr(cpu: &Cpu, s: &mut S) -> O {
+        let mut steps = 0;
         loop {
+            if steps > 10000 {
+                panic!("Instruction took too many clock cycles!");
+            }
             let o = step(cpu, (), s);
-            print_cd(&s, &o, ma(&s));
 
             if cu_state(&s) == Decode {
-                return;
+                return o;
             }
-        };
+            steps = steps + 1;
+        }
+    }
+    fn run_till_load_done(cpu: &Cpu, s: &mut S) -> O{
+        let mut steps = 0;
+        loop {
+            if steps > 10000 {
+                panic!("Instruction took too many clock cycles!");
+            }
+            let o = step(cpu, (), s);
+            if cu_state(&s) == Decode {
+                panic!("No load was detected!");
+            }
+            let cs = control_signals(&s);
+            if cs.load_done {
+                return o;
+            }
+            steps = steps + 1;
+        }
     }
     fn hex(i: u128) -> String {
         format!("{:04X}", i)
@@ -278,7 +299,7 @@ use termion::{
             .replace("$res              ", &format!("{:^18}", format!("{:04X}",res)))
             .replace("$flag", &format!("{:05b}",flags))
             .replace("$fr  ", &format!("{:05b}",fr))
-            .replace("$state          ", &format!("{:^16}", format!("{:?}",state)))
+            .replace("$state                    ", &format!("{:^26}", format!("{:?}",state)))
             .replace("$decoded                                                                           ", &format!("{:^83}", format!("{:?}",dec)))
             .replace("$pc ", &hex(pc))
             .replace("$t1 ", &hex(t1))
@@ -384,12 +405,40 @@ use termion::{
         let o = step(&cpu, (), &mut s);
         assert_eq!(rg(&s, 4), 0x69);
     }
+
+    #[test]
+    fn test_load_1() {
+        let mut init = CpuDefault::default();
+        for i in 0..8 {
+            init.regs[i] = i as u128 + 1;
+        }
+        let (cpu, mut s) = start_cpu_test(
+            r#"
+            sub [ba+43], 42
+            50: 0x69
+            "#,
+            init
+        ).unwrap();
+        run_till_next_instr(&cpu, &mut s);
+        let o = run_till_load_done(&cpu, &mut s);
+        assert_eq!(0x69, t1(&s));
+        assert_eq!(42, t2(&s));
+        assert_eq!(50, ma(&s));
+        assert_eq!(2, pc(&s));
+    }
+
     // run in an interactive way
     pub fn sim_cpu() -> Result<(), RHDLError> {
-        didasm(r#"
-
+        let mut init = CpuDefault::default();
+        for i in 0..8 {
+            init.regs[i] = i as u128 + 1;
+        }
+        init.PC = 1;
+        let (cpu, mut s) = start_cpu_test(
+            r#"
 hlt
-test ra,[bb+xa+]
+sub [[9]], 0x42
+test ra,[bb+xa]
 jc -3
 
 sub [ba+43], 42
@@ -407,13 +456,12 @@ inc [bb+xa]
 inc [ba+xb+]
 inc [bb+xa-]
 inc [ba+xb+2]
-"#);
-        let cpu = Cpu::default();
-        let mut s: S = cpu.init();
+0x0308: 0x69
+            "#,
+            init
+        ).unwrap();
         let mut v = vec![];
         let mut i:usize = 0;
-        let ins = vec![(), (), ()].with_reset(1).clock_pos_edge(100);
-        cpu.run(ins)?;
         let mut screen = stdout()
         .into_raw_mode()
         .unwrap()
@@ -520,10 +568,11 @@ inc [ba+xb+2]
             }
             
             let (o,state) = &v[if i >= v.len() {v.len() - 1} else {i}];
+            let peek_str = format!("{:03X}", peek);
             write!(screen, "{}(step {}, lookup {}{})\r\n", help_str, i, if peek == ma(&state) {
                 "MA"
             } else {
-                &format!("{:03X}", peek)
+                &peek_str
             }, if wait_for_peek {
                 format!("; next lookup {:03X}, press enter to commit, accepts [0-3FF]", peek_buf)
             } else {
