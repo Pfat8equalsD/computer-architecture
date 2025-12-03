@@ -459,7 +459,7 @@ use termion::{
         let (cpu, mut s) = start_cpu_test(
             r#"
 hlt
-sub [[9]], 0x42
+mov ra, [0x42]
 test ra,[bb+xa]
 jc -3
 

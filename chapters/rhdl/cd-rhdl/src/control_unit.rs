@@ -491,6 +491,7 @@ fn stage_load_tmps(s: LoadTempsStage, mut cs: ControlSignals, i: Decoded) -> (St
     let mut t1_reg = Reg::dont_care();
     let state = if state == LoadT1Reg {
         match i {
+            Decoded::TwoOp { op: _x @ TwoOp::Mov, src: _s, dst: _d } => EAToMA,
             Decoded::TwoOp { op: _x, src: _s, dst: d} => {
                 if let DstOperand::Reg(x) = d {
                     t1_reg = x;
@@ -499,6 +500,7 @@ fn stage_load_tmps(s: LoadTempsStage, mut cs: ControlSignals, i: Decoded) -> (St
                     EAToMA
                 }
             }
+            Decoded::OneOp { op: _x @ OneOp::MovI, dst: _d} => EAToMA,
             Decoded::OneOp { op: _x, dst: d} => {
                 if let DstOperand::Reg(x) = d {
                     t1_reg = x;
@@ -549,7 +551,8 @@ fn stage_load_tmps(s: LoadTempsStage, mut cs: ControlSignals, i: Decoded) -> (St
             cs.alu_sel = OR;
             cs.ma_we = true;
             match i {
-                Decoded::TwoOp { op: _x @ TwoOp::Mov, src: _x2, dst: _x3} => LoadDone,
+                Decoded::TwoOp { op: _x @ TwoOp::Mov, src: _x2, dst: _x3} =>
+                    if is_dst {LoadDone} else {TempsMA},
                 Decoded::OneOp { op: _x @ OneOp::MovI, dst: _x2} => LoadDone,
                 _ => TempsMA,
             }
