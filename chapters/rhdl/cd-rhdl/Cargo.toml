@@ -11,3 +11,4 @@ bitops-rhdl = {path = "../bitops_rhdl"}
 colored = "3.0.0"
 termion = "4.0.5"
 anyhow = "1.0.100"
+rand = "0.9.2"
