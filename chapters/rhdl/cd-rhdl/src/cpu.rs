@@ -168,16 +168,15 @@ pub fn top_kernel(_cr: ClockReset, _i: (), q: Q) -> (Bits<U16>, D) {
 
 // ADD TESTBENCHES
 pub mod tests {
-    use std::collections::HashMap;
     use std::io::{Stdout, Write, stdout};
     use std::fs::File;
-use rand::rng;
-use termion::{
-    event::Key,
-    input::TermRead,
-    raw::{IntoRawMode, RawTerminal},
-    screen::{IntoAlternateScreen, ToAlternateScreen, ToMainScreen}
-};
+    use rand::rng;
+    use termion::{
+        event::Key,
+        input::TermRead,
+        raw::{IntoRawMode, RawTerminal},
+        screen::{IntoAlternateScreen, ToAlternateScreen, ToMainScreen}
+    };
     use anyhow::anyhow;
     use crate::register_file::reg;
     use crate::{
