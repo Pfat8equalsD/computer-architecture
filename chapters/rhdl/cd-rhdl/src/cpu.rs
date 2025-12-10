@@ -170,13 +170,15 @@ pub fn top_kernel(_cr: ClockReset, _i: (), q: Q) -> (Bits<U16>, D) {
 pub mod tests {
     use std::io::{Stdout, Write, stdout};
     use std::fs::File;
-use termion::{
-    event::Key,
-    input::TermRead,
-    raw::{IntoRawMode, RawTerminal},
-    screen::{IntoAlternateScreen, ToAlternateScreen, ToMainScreen}
-};
+    use rand::rng;
+    use termion::{
+        event::Key,
+        input::TermRead,
+        raw::{IntoRawMode, RawTerminal},
+        screen::{IntoAlternateScreen, ToAlternateScreen, ToMainScreen}
+    };
     use anyhow::anyhow;
+    use crate::register_file::reg;
     use crate::{
         alu::alu, control_unit::{self, ControlSignals}, decode_unit::{Decoded, decode}, prelude::*
     };
@@ -362,7 +364,7 @@ use termion::{
     fn test_fetch() {
         let (cpu, mut s) = start_cpu_test(
             r#"
-            hlt1
+            hlt
             "#,
             CpuDefault::default()
         ).unwrap();
@@ -399,7 +401,7 @@ use termion::{
         init.regs[4] = 0x69;
         let (cpu, mut s) = start_cpu_test(
             r#"
-            hlt
+            hlt1
             "#,
             init
         ).unwrap();
@@ -447,6 +449,96 @@ use termion::{
         assert_eq!(42, t2(&s));
         assert_eq!(50, ma(&s));
         assert_eq!(2, pc(&s));
+    }
+
+    #[test]
+    fn test_load_5() {
+        let mut init = CpuDefault::default();
+        for i in 0..8 {
+            init.regs[i] = i as u128 + 1;
+        }
+        let (cpu, mut s) = start_cpu_test(
+            r#"
+            add ra, [ba+xb+]
+            13: 0x2
+            "#,
+            init
+        ).unwrap();
+        run_till_next_instr(&cpu, &mut s);
+        let o = run_till_load_done(&cpu, &mut s);
+        assert_eq!(true, control_signals(&s).load_done);
+        assert_eq!(1, t1(&s));
+        assert_eq!(2, t2(&s));
+        assert_eq!(13, ma(&s));
+        assert_eq!(7, rg(&s, 5));
+        assert_eq!(0, pc(&s));
+    }
+
+    #[test]
+    fn test_load_6() {
+        let mut init = CpuDefault::default();
+        for i in 0..8 {
+            init.regs[i] = i as u128 + 1;
+        }
+        let (cpu, mut s) = start_cpu_test(
+            r#"
+            cmp [bb+xa+5], 7
+            18: 0x7
+            "#,
+            init
+        ).unwrap();
+        run_till_next_instr(&cpu, &mut s);
+        let o = run_till_load_done(&cpu, &mut s);
+        assert_eq!(7, t1(&s));
+        assert_eq!(7, t2(&s));
+        assert_eq!(18, ma(&s));
+        assert_eq!(2, pc(&s));
+    }
+
+    #[test]
+    fn test_load_reg_dyn() {
+        use rand::prelude::*;
+        let mut rng = rand::rng();
+        let mut init = CpuDefault::default();
+        let mapping = [
+            "ra",
+            "rb",
+            "rc",
+            "sp",
+            "xa",
+            "xb",
+            "ba",
+            "bb",
+        ];
+
+        for i in 0..8 {
+            init.regs[i] = rng.random_range(0..u16::MAX) as u128;
+        }
+
+        let destination = rng.random_range(0..8) as usize;
+        let source = rng.random_range(0..8) as usize;
+
+        let destination_value = init.regs[destination];
+        let source_value = init.regs[source];
+        
+        let asm_code = format!(
+            "add {dst}, {src}",
+            dst = mapping[destination],
+            src = mapping[source]
+        );
+    
+        println!("{}", &asm_code);
+        let (cpu, mut s) = start_cpu_test(
+            &asm_code,
+            init
+        ).unwrap();
+
+        run_till_next_instr(&cpu, &mut s);
+        let o = run_till_load_done(&cpu, &mut s);
+
+        assert_eq!(0, pc(&s));
+        assert_eq!(destination_value, t1(&s));
+        assert_eq!(source_value, t2(&s));
     }
 
     // run in an interactive way
