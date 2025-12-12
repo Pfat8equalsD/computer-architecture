@@ -344,8 +344,8 @@ impl Ir {
                 opcode.set_in_type(0b1001);
                 opcode.set_op_jcond(u16::from(*m));
             }
-            General(Pop | Push) | ControlFlow(Call | Jmp) => {
-                opcode.set_in_type(0b0000);
+            General(Pop) => {
+                opcode.set_in_type(0b0000);            
             }
             Arithmetic(Inc | Dec | Neg) | Logic(Not) | Shift(Shl | Shr | Sar | Sal) => {
                 opcode.set_in_type(0b0001);
@@ -354,7 +354,7 @@ impl Ir {
                 opcode.set_in_type(0b0100);
                 opcode.set_if_imm(imm.is_some() as u16);
             }
-            General(Mov) => {
+            General(Mov | Push) | ControlFlow(Call | Jmp) => {
                 opcode.set_in_type(0b0000);
                 // print_bits(&opcode);
                 opcode.set_if_imm(imm.is_some() as u16);
@@ -484,12 +484,37 @@ impl Ir {
                     imm: None,
                 })
             }
+            // This is not officially part of the ISA, therefore it has to be manually added
+            #[cfg(feature = "allow_imm")]
+            (
+                ControlFlow(Call | Jmp) | General(Push),
+                _,
+                _,
+                _,
+                Some(x)
+            ) => {
+                Ok(FullInstruction {
+                i: opcode,
+                displacement: None,
+                imm: Some(x.try_into().map_err(|_| {
+                    "Immediate value should always be an u16".to_string()
+                })?)
+                })
+            }
+            #[cfg(not(feature = "allow_imm"))]
+            (
+                i @ (General(Push)
+                | ControlFlow(Call | Jmp)),
+                _,
+                _,
+                _,
+                Some(_),
+            ) => Err(format!("{i} does not support immediate values!")),
             (
                 i @ (Arithmetic(Inc | Dec | Neg)
                 | Logic(Not)
                 | Shift(Shl | Shr | Sar | Sal)
-                | General(Pop | Push)
-                | ControlFlow(Call | Jmp)),
+                | General(Pop)),
                 _,
                 _,
                 _,
