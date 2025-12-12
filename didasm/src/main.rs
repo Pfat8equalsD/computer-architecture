@@ -99,7 +99,7 @@ fn main() {
         // Parse statements as either equ, instruction or arbitrary word
         if let Some(stmt) = stmt {
             // Evaluate equ statements first, as the identifier might be seen as an invalid mnemonic in later stage
-            if let Some(c) = equ_parser.captures(&stmt) {
+            if let Some(c) = equ_parser.captures(stmt) {
                 let key = c.get(1).expect("Equ parser regex was tampered with and no longer detects key properly: {lineno}").as_str();
                 if symtable.contains_key(key) {
                     eprintln!("Redefinition of {key} at line {}\n{}", lineno + 1, stmt);
@@ -113,7 +113,7 @@ fn main() {
                         })
                         .map(|x| symtable.insert(key.to_string(), x));
                 }
-            } else if let Some(c) = stmt_parser.captures(&stmt) {
+            } else if let Some(c) = stmt_parser.captures(stmt) {
                 v.push(Action::Stmt(Statement {
                     lineno: lineno + 1,
                     line: stmt.to_owned(),
@@ -122,7 +122,7 @@ fn main() {
                     op1: c.get(2).map(|x| x.as_str().to_string()),
                     op2: c.get(3).map(|x| x.as_str().to_string()),
                 }));
-            } else if let Ok(Expr::Int(x)) = Expr::from_str(&stmt) {
+            } else if let Ok(Expr::Int(x)) = Expr::from_str(stmt) {
                 v.push(Action::PushWord(x as u16));
             } else {
                 eprintln!("Syntax error on line {}: Line should be of either format:\n<MNEMONIC>\n<MNEMONIC> op1\n<MNEMONIC> op1, op2\nwhere the mnemonic is only formed out of letters\n{}", lineno + 1, stmt);
