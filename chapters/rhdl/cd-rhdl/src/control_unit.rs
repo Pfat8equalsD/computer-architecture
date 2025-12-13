@@ -23,6 +23,8 @@ pub struct ControlSignals {
     pub fr_we: bool,
     pub fr_oe: bool,
     pub fr_sel_bus: bool,
+    pub ioa_oe: bool,
+    pub ioa_we: bool,
     pub load_done: bool,
     pub exec_done: bool,
 }
@@ -89,6 +91,27 @@ pub enum LoadTempsStage {
 use LoadTempsStage::*;
 
 #[derive(Digital, PartialEq, Debug, Default)]
+pub enum ExecStage {
+    #[default]
+    ExecStart,
+    ExecDone,
+    ExecPop,
+    ExecPop2,
+    ExecPop3,
+    ExecPush,
+    ExecPush2,
+    ExecCall,
+    InstrDone,
+}
+use ExecStage::*;
+#[derive(Digital, PartialEq, Debug, Default)]
+pub enum StoreStage {
+    #[default]
+    StoreStart,
+    StoreDone,
+}
+use StoreStage::*;
+#[derive(Digital, PartialEq, Debug, Default)]
 pub enum State {
     #[default]
     Reset,
@@ -101,6 +124,8 @@ pub enum State {
     // Only register starting point
     LoadTemps(LoadTempsStage),
 
+    Exec(ExecStage),
+    Store(StoreStage),
     IncPC,
     IncPC1,
     Hlt,
@@ -245,6 +270,15 @@ fn extract_index(i: DstOperand) -> Option<IndexRegister> {
 }
 
 #[kernel]
+fn extract_dst(i: Decoded) -> Option<DstOperand> {
+    match i {
+        Decoded::TwoOp {op: _x, dst, src: _s} => Some(dst),
+        Decoded::OneOp {op: _x, dst} => Some(dst),
+        _ => None
+    }
+}
+
+#[kernel]
 fn stage_load_ea(s: LoadEaStage, i: DstOperand, mut cs: ControlSignals, is_dst: bool) -> (Option<LoadEaStage>, ControlSignals) {
     let mut invalid = false;
     let state: LoadEaStage = match s {
@@ -282,6 +316,7 @@ fn stage_load_ea(s: LoadEaStage, i: DstOperand, mut cs: ControlSignals, is_dst: 
             EaDone
         }
     };
+    
     let mut ldb_t1 = true;
     let after_ldb = match i {
         DstOperand::RegSum(_b, _x) => Ldi,
@@ -467,6 +502,12 @@ fn stage_load_imm(s: LoadImmStage, mut cs: ControlSignals) -> (State, ControlSig
 fn stage_load_tmps(s: LoadTempsStage, mut cs: ControlSignals, i: Decoded) -> (State, ControlSignals) {
     let mut invalid = false;
     let mut t2_reg = Reg::dont_care();
+    let dst_is_addr = match i {
+        Decoded::TwoOp { op: _x @ TwoOp::Mov, src: _s, dst: _d} => true,
+        Decoded::OneOp { op: _x @ OneOp::MovI, dst: _d} => true,
+        Decoded::OneOp { op: _x @ OneOp::Pop, dst: _d} => true,
+        _ => false
+    };
     let state = if s == LoadTs {
         match i {
             Decoded::TwoOp { op: _x, src: s, dst: _d} => {
@@ -554,6 +595,7 @@ fn stage_load_tmps(s: LoadTempsStage, mut cs: ControlSignals, i: Decoded) -> (St
                 Decoded::TwoOp { op: _x @ TwoOp::Mov, src: _x2, dst: _x3} =>
                     if is_dst {LoadDone} else {TempsMA},
                 Decoded::OneOp { op: _x @ OneOp::MovI, dst: _x2} => LoadDone,
+                Decoded::OneOp { op: _x @ OneOp::Pop, dst: _x2} => LoadDone,
                 _ => TempsMA,
             }
         }
@@ -563,7 +605,7 @@ fn stage_load_tmps(s: LoadTempsStage, mut cs: ControlSignals, i: Decoded) -> (St
         }
         TempsML => {
             cs.ram_oe = true;
-            cs.t1_we = is_dst;
+            cs.t1_we = is_dst && !dst_is_addr;
             cs.t2_we = !is_dst;
             LoadDone
         }
@@ -578,16 +620,227 @@ fn stage_load_tmps(s: LoadTempsStage, mut cs: ControlSignals, i: Decoded) -> (St
         (State::LoadTemps(LoadDone), cs)
     } else if next_state == LoadDone {
         cs.load_done = true;
-        (IncPC, cs)
+        (State::Exec(ExecStart), cs)
     } else {
         (State::LoadTemps(next_state), cs)
     }
 }
 
+// use crate::decode_unit::TwoOp::*;
+#[kernel]
+fn stage_exec(s: ExecStage, mut cs: ControlSignals, i: Decoded, fin: AluFlags) -> (State, ControlSignals) {
+    let mut invalid = false;
+    let mut to_inc_pc = false;
+    let next_state = match s {
+        ExecStart => {
+            match i {
+                Decoded::TwoOp { op: x, src: _s, dst: _d} => {
+                    cs.alu_oe = !(x == TwoOp::Test || x == TwoOp::Cmp);
+                    cs.t1_we = !(x == TwoOp::Test || x == TwoOp::Cmp);
+                    cs.t2_oe = true;
+                    cs.t1_oe = x != TwoOp::Mov;
+                    cs.alu_carry = if x == TwoOp::Adc || x == TwoOp::Sbb { fin.c } else {false};
+                    cs.alu_sel = match x {
+                        TwoOp::Add => ADC,
+                        TwoOp::Sub => SBB1,
+                        TwoOp::And => AND,
+                        TwoOp::Or => OR,
+                        TwoOp::Xor => XOR,
+                        TwoOp::Cmp => SBB1,
+                        TwoOp::Test => AND,
+                        TwoOp::Mov => OR,
+                        TwoOp::Adc => ADC,
+                        TwoOp::Sbb => SBB1,
+                    };
+                    cs.fr_sel_bus = false;
+                    cs.fr_we = x != TwoOp::Mov;
+                    ExecDone
+                }
+                Decoded::OneOp { op: _x @ OneOp::Push, dst: _d} => {
+                    cs.rf_oe = true;
+                    cs.rf_sel = SP;
+                    cs.t2_we = true;
+                    ExecPush
+                }
+                Decoded::OneOp { op: _x @ OneOp::Pop, dst: _d} => {
+                    cs.rf_oe = true;
+                    cs.rf_sel = SP;
+                    cs.t2_we = true;
+                    cs.ma_we = true;
+                    ExecPop
+                }
+                Decoded::OneOp { op: _x @ OneOp::Call, dst: _d} => {
+                    cs.rf_oe = true;
+                    cs.rf_sel = SP;
+                    cs.t2_we = true;
+                    ExecPush
+                }
+                Decoded::OneOp { op: _x @ OneOp::Jmp, dst: _d} => {
+                    cs.t1_oe = true;
+                    cs.alu_oe = true;
+                    cs.alu_sel = OR;
+                    cs.pc_we = true;
+                    InstrDone
+                }
+                Decoded::OneOp { op: x, dst: _d} => {
+                    cs.alu_oe = true;
+                    cs.t1_we = true;
+                    cs.t1_oe = x != OneOp::MovI;
+                    cs.t2_oe = x == OneOp::MovI;
+                    cs.alu_carry = x == OneOp::Inc || x == OneOp::Dec;
+                    cs.alu_sel = match x {
+                        OneOp::Inc => ADC,
+                        OneOp::Dec => SBB1,
+                        OneOp::Neg => SBB2,
+                        OneOp::Not => NOT,
+                        OneOp::Shl => SHL,
+                        OneOp::Shr => SHR,
+                        OneOp::Sar => SAR,
+                        OneOp::MovI => OR,
+                        _ => {
+                            invalid = true;
+                            ADC
+                        }
+                    };
+                    cs.fr_sel_bus = false;
+                    cs.fr_we = x != OneOp::MovI;
+                    ExecDone
+                }
 
+                _ => {
+                    invalid = true;
+                    ExecDone
+                }
+            }
+        }
+        ExecPop => {
+            cs.ma_oe = true;
+            cs.t2_oe = true;
+            cs.alu_oe = true;
+            cs.alu_sel = ADC;
+            cs.alu_carry = true;
+            cs.rf_sel = SP;
+            cs.rf_we = true;
+            ExecPop2
+        }
+        ExecPop2 => {
+            cs.ram_oe = true;
+            cs.t2_we = true;
+            if let Some(_ea) = extract_ea(i) {
+                ExecPop3
+            } else {
+                ExecDone
+            }
+        }
+        ExecPop3 => {
+            cs.t1_oe = true;
+            cs.alu_oe = true;
+            cs.alu_sel = OR;
+            cs.ma_we = true;
+            ExecDone
+        }
+        ExecPush => {
+            cs.t2_oe = true;
+            cs.alu_oe = true;
+            cs.alu_sel = SBB2;
+            cs.alu_carry = true;
+            cs.rf_sel = SP;
+            cs.rf_we = true;
+            cs.ma_we = true;
+            ExecPush2
+        }
+        ExecPush2 => {
+            cs.ma_oe = true;
+            cs.ram_we = true;
+            match i {
+                Decoded::OneOp {op: _x @ OneOp::Push, dst: _d} => {
+                    cs.t1_oe = true;
+                    cs.alu_oe = true;
+                    cs.alu_sel = OR;
+                    to_inc_pc = true;
+                    InstrDone
+                }
+                Decoded::OneOp {op: _x @ OneOp::Call, dst: _d} => {
+                    cs.pc_oe = true;
+                    ExecCall
+                }
+                _ => {
+                    invalid = true;
+                    ExecDone
+                }
+            }
+        }
+        ExecCall => {
+            cs.pc_we = true;
+            cs.t1_oe = true;
+            cs.alu_oe = true;
+            cs.alu_sel = OR;
+            InstrDone
+        }
+        _ => ExecDone
+    };
+
+    if invalid {
+        (Hlt, cs)
+    } else if next_state == InstrDone {
+        cs.exec_done = true;
+        if to_inc_pc {
+            (State::IncPC, cs)            
+        } else {
+            (State::Fetch(PcToMA), cs)
+        }
+    } else if next_state == ExecDone {
+        cs.exec_done = true;
+        (State::Store(StoreStart), cs)
+    } else {
+        (State::Exec(next_state), cs)
+    }
+}
 
 #[kernel]
-pub fn control_unit(d: Decoded, _f: AluFlags, s: State) -> (State, ControlSignals) {
+fn stage_store(st: StoreStage, mut cs: ControlSignals, i: Decoded) -> (State, ControlSignals) {
+    let mut invalid = false;
+    let is_pop = if let Decoded::OneOp {op: _x @ OneOp::Pop, dst: _d} = i {true} else {false};
+    let next_state = match st {
+        StoreStart => {
+            if let Some(dst) = extract_dst(i) {
+                cs.t1_oe = !is_pop;
+                cs.t2_oe = is_pop;
+                cs.alu_oe = true;
+                cs.alu_sel = OR;
+                match dst {
+                    DstOperand::Reg(r) => {
+                        cs.rf_we = true;
+                        cs.rf_sel = r;
+                        StoreDone
+                    }
+                    _ => {
+                        cs.ma_oe = true;
+                        cs.ram_we = true;
+                        StoreDone
+                    }
+                }
+            } else {
+                invalid = true;
+                StoreDone
+            }
+        }
+        _ => {
+            invalid = true;
+            StoreDone
+        }
+    };
+    if invalid {
+        (Hlt, cs)
+    } else if next_state == StoreDone {
+        (IncPC, cs)
+    } else {
+        (State::Store(next_state), cs)
+    }
+}
+
+#[kernel]
+pub fn control_unit(d: Decoded, f: AluFlags, s: State) -> (State, ControlSignals) {
     let mut cs = ControlSignals {
         rf_sel: RA,
         rf_oe: false,
@@ -610,6 +863,8 @@ pub fn control_unit(d: Decoded, _f: AluFlags, s: State) -> (State, ControlSignal
         fr_we: false,
         fr_oe: false,
         fr_sel_bus: false,
+        ioa_we: false,
+        ioa_oe: false,
         exec_done: false,
         load_done: false,
     };
@@ -667,6 +922,16 @@ pub fn control_unit(d: Decoded, _f: AluFlags, s: State) -> (State, ControlSignal
         }
         State::LoadTemps(t) => {
             let (state, cs2) = stage_load_tmps(t, cs, d);
+            cs = cs2;
+            state
+        }
+        State::Exec(e) => {
+            let (state, cs2) = stage_exec(e, cs, d, f);
+            cs = cs2;
+            state
+        }
+        State::Store(st) => {
+            let (state, cs2) = stage_store(st, cs, d);
             cs = cs2;
             state
         }

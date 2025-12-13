@@ -19,6 +19,7 @@ pub struct CpuDefault {
     pub PC: u128,
     pub FR: u128,
     pub state: State,
+    pub IOA: u128,
 }
 #[derive(Synchronous, SynchronousDQ, Clone, Debug)]
 
@@ -35,6 +36,7 @@ pub struct Cpu {
     pub Cu: ControlUnit,
     pub RAM: Ram,
     // IO coming soon...
+    pub IOA: DFF<Bits<U8>>,
 }
 
 impl Default for Cpu {
@@ -50,6 +52,7 @@ impl Default for Cpu {
             RAM: Ram::from_hex_file("cram.data").unwrap_or_default(),
             IR: DFF::default(),
             PC: Register::default(),
+            IOA: DFF::default(),
             FR: DFF::default(),
         }
     }
@@ -66,6 +69,7 @@ impl Cpu {
             RAM: Ram::from_hex_file("cram.data").unwrap_or_default(),
             IR: DFF::new(Bits::from(init.IR)),
             PC: Register::new(init.PC),
+            IOA: DFF::new(Bits::from(init.IOA)),
             FR: DFF::new(Bits::from(init.FR)),
         }
     }
@@ -103,6 +107,8 @@ pub fn top_kernel(_cr: ClockReset, _i: (), q: Q) -> (Bits<U16>, D) {
         fr_oe,
         fr_we,
         fr_sel_bus,
+        ioa_oe,
+        ioa_we,
         ..
     } = q.Cu;
     let alu_res = alu::<U16>(AluInput::<U16> {
@@ -112,12 +118,13 @@ pub fn top_kernel(_cr: ClockReset, _i: (), q: Q) -> (Bits<U16>, D) {
         opsel: alu_sel,
     });
     // let alu_res  = AluOutput::<U16> { res: bits(0), flags: AluFlags { c: false, z: false, s: false, o: false, p: false } };
-    let bus = if fr_oe { q.FR } else { bits(0) }
-        | if ir_oe { (q.IR[8], q.IR[8], q.IR[8], q.IR[8], q.IR[8], q.IR[8], q.IR[8], q.IR[8], q.IR[8], q.IR[9], q.IR[10], q.IR[11], q.IR[12], q.IR[13], q.IR[14], q.IR[15]) } else { bits(0) }
+    let bus = if fr_oe && !(fr_sel_bus && fr_we) { q.FR } else { bits(0) }
+        | if ir_oe && !ir_we { (q.IR[8], q.IR[8], q.IR[8], q.IR[8], q.IR[8], q.IR[8], q.IR[8], q.IR[8], q.IR[8], q.IR[9], q.IR[10], q.IR[11], q.IR[12], q.IR[13], q.IR[14], q.IR[15]) } else { bits(0) }
         | q.PC.0 // Bus output
         | q.regs
         | q.RAM
-        | if alu_oe { alu_res.res } else { bits(0) };
+        | if alu_oe { alu_res.res } else { bits(0) }
+        | if ioa_oe && !ioa_we {q.IOA.resize()} else {bits(0)};
     d.T1 = RegisterInput::<U16> {
         oe: t1_oe,
         we: t1_we,
@@ -156,6 +163,8 @@ pub fn top_kernel(_cr: ClockReset, _i: (), q: Q) -> (Bits<U16>, D) {
     } else {
         q.FR
     };
+
+    d.IOA = if ioa_we { bus.resize() } else {q.IOA};
 
     d.regs.0 = RegisterInput::<U16> {
         oe: rf_oe,
@@ -401,7 +410,7 @@ pub mod tests {
         init.regs[4] = 0x69;
         let (cpu, mut s) = start_cpu_test(
             r#"
-            hlt1
+            hlt
             "#,
             init
         ).unwrap();
@@ -541,21 +550,610 @@ pub mod tests {
         assert_eq!(source_value, t2(&s));
     }
 
+    #[test]
+    fn test_load_memory_source_addressing_modes(){
+        use rand::prelude::*;
+        let mut rng = rand::rng();
+
+        let mapping = [
+            "ra",
+            "rb",
+            "rc",
+            "sp",
+            "xa",
+            "xb",
+            "ba",
+            "bb",
+        ];
+
+        // 1) Direct
+        {
+            let mut init = CpuDefault::default();
+
+            for i in 0..8 {
+                init.regs[i] = rng.random_range(0..u16::MAX) as u128;
+            }
+
+            let dst = rng.random_range(0..8) as usize;
+            let dst_val = init.regs[dst];
+
+            const MEM_SIZE : usize = 1024;
+
+            let addr = rng.random_range(10..MEM_SIZE as u16) as u16;
+            let mem_val = rng.random_range(0..u16::MAX) as u16;
+            
+            let asm_code = format!(
+                "adc {dst}, [{addr:#04X}]
+                {addr}: {mem_val:#04X}
+                ",
+                dst = mapping[dst],
+                addr = addr,
+                mem_val = mem_val
+            );
+            println!("{}", &asm_code);
+            let (cpu, mut s) = start_cpu_test(
+                &asm_code,
+                init
+            ).unwrap();
+            run_till_next_instr(&cpu, &mut s);
+            let o = run_till_load_done(&cpu, &mut s);
+            assert_eq!(1, pc(&s));
+            assert_eq!(dst_val, t1(&s));
+            assert_eq!(addr as u128, ma(&s));
+            assert_eq!(mem_val as u128, t2(&s));
+        }
+
+        // 2) [reg]
+        {
+            let mut init = CpuDefault::default();
+
+            for i in 0..8 {
+                init.regs[i] = rng.random_range(0..u16::MAX) as u128;
+            }
+
+            let addr_regs = [4usize, 5, 6, 7]; // xa, xb, ba, bb
+            let addr_reg = addr_regs[rng.random_range(0..addr_regs.len())];
+
+            const MEM_SIZE : usize = 1024;
+
+            let addr = rng.random_range(10..MEM_SIZE as u16) as u16;
+            init.regs[addr_reg] = addr as u128;
+            let src_val = init.regs[addr_reg];
+
+            let dst = rng.random_range(0..8) as usize;
+            let dst_val = init.regs[dst];
+
+            let mem_val = rng.random_range(0..u16::MAX) as u16;
+
+            let asm_code = format!(
+                "sbb {dst}, [{addr_reg}]
+                {addr}: {mem_val:#04X}
+                ",
+                dst = mapping[dst],
+                addr_reg = mapping[addr_reg],
+                addr = addr,
+                mem_val = mem_val
+            );
+            println!("{}", &asm_code);
+            let (cpu, mut s) = start_cpu_test(
+                &asm_code,
+                init
+            ).unwrap();
+            run_till_next_instr(&cpu, &mut s);
+            let o = run_till_load_done(&cpu, &mut s);
+            assert_eq!(0, pc(&s));
+            assert_eq!(dst_val, t1(&s));
+            assert_eq!(src_val as u128, ma(&s));
+            assert_eq!(mem_val as u128, t2(&s));
+        }
+
+        // 3) [reg + imm]
+        {
+            let mut init = CpuDefault::default();
+
+            for i in 0..8 {
+                init.regs[i] = rng.random_range(0..u16::MAX) as u128;
+            }
+
+            let addr_regs = [4usize, 5, 6, 7]; // xa, xb, ba, bb
+            let addr_reg = addr_regs[rng.random_range(0..addr_regs.len())];
+
+            const MEM_SIZE : usize = 1024;
+
+            let base_addr = rng.random_range(10..(MEM_SIZE as u16 - 20)) as u16;
+            let offset = rng.random_range(1..20) as u16;
+            let final_addr = base_addr + offset;
+            init.regs[addr_reg] = base_addr as u128;
+            let src_val = init.regs[addr_reg];
+
+            let dst = rng.random_range(0..8) as usize;
+            let dst_val = init.regs[dst];
+
+            let mem_val = rng.random_range(0..u16::MAX) as u16;
+
+            let asm_code = format!(
+                "and {dst}, [{addr_reg}+{offset}]
+                {final_addr}: {mem_val:#04X}
+                ",
+                dst = mapping[dst],
+                addr_reg = mapping[addr_reg],
+                offset = offset,
+                final_addr = final_addr,
+                mem_val = mem_val
+            );
+            println!("{}", &asm_code);
+            let (cpu, mut s) = start_cpu_test(
+                &asm_code,
+                init
+            ).unwrap();
+            run_till_next_instr(&cpu, &mut s);
+            let o = run_till_load_done(&cpu, &mut s);
+            assert_eq!(1, pc(&s));
+            assert_eq!(dst_val, t1(&s));
+            assert_eq!(src_val as u128 + offset as u128, ma(&s));
+            assert_eq!(mem_val as u128, t2(&s));
+        }
+
+        // 4) [[imm]]
+        {
+            let mut init = CpuDefault::default();
+
+            for i in 0..8 {
+                init.regs[i] = rng.random_range(0..u16::MAX) as u128;
+            }
+
+            const MEM_SIZE : usize = 1024;
+
+            let pointer_addr = rng.random_range(10..(MEM_SIZE as u16 - 20)) as u16;
+            let final_addr = rng.random_range(10..(MEM_SIZE as u16 - 1)) as u16;
+            let mem_val = rng.random_range(0..u16::MAX) as u16;
+
+            // Write the final address into memory at pointer_addr
+            {
+                let mut ram_init = vec![0u128; MEM_SIZE];
+                ram_init[pointer_addr as usize] = final_addr as u128;
+                std::fs::write("cram.data", ram_init.iter().map(|v| format!("{:04X}\n", v)).collect::<String>()).unwrap();
+            }
+
+            let dst = rng.random_range(0..8) as usize;
+            let dst_val = init.regs[dst];
+
+            let asm_code = format!(
+                "xor {dst}, [[{pointer_addr}]]
+                {pointer_addr}: {final_addr:#04X}
+                {final_addr}: {mem_val:#04X}
+                ",
+                dst = mapping[dst],
+                pointer_addr = pointer_addr,
+                final_addr = final_addr,
+                mem_val = mem_val
+            );
+            println!("{}", &asm_code);
+            let (cpu, mut s) = start_cpu_test(
+                &asm_code,
+                init
+            ).unwrap();
+            run_till_next_instr(&cpu, &mut s);
+            let o = run_till_load_done(&cpu, &mut s);
+            assert_eq!(1, pc(&s));
+            assert_eq!(dst_val, t1(&s));
+            assert_eq!(final_addr as u128, ma(&s));
+            assert_eq!(mem_val as u128, t2(&s));
+        }
+
+        // 5) [base_reg + index_reg]
+        {
+            let mut init = CpuDefault::default();
+
+            for i in 0..8 {
+                init.regs[i] = rng.random_range(0..u16::MAX) as u128;
+            }
+
+            let addr_base_regs = [6usize, 7]; // ba, bb
+            let addr_index_regs = [4usize, 5]; // xa, xb
+            let base_reg = addr_base_regs[rng.random_range(0..addr_base_regs.len())];
+            let index_reg = addr_index_regs[rng.random_range(0..addr_index_regs.len())];
+
+            const MEM_SIZE : usize = 1024;
+
+            let base_addr = rng.random_range(10..(MEM_SIZE as u16 - 20)) as u16;
+            let index_offset = rng.random_range(1..20) as u16;
+            let final_addr = base_addr + index_offset;
+            init.regs[base_reg] = base_addr as u128;
+            init.regs[index_reg] = index_offset as u128;
+            let src_val = init.regs[base_reg] + init.regs[index_reg];
+
+            let dst = rng.random_range(0..8) as usize;
+            let dst_val = init.regs[dst];
+
+            let mem_val = rng.random_range(0..u16::MAX) as u16;
+
+            let asm_code = format!(
+                "or {dst}, [{base_reg}+{index_reg}]
+                {final_addr}: {mem_val:#04X}
+                ",
+                dst = mapping[dst],
+                base_reg = mapping[base_reg],
+                index_reg = mapping[index_reg],
+                final_addr = final_addr,
+                mem_val = mem_val
+            );
+            println!("{}", &asm_code);
+            let (cpu, mut s) = start_cpu_test(
+                &asm_code,
+                init
+            ).unwrap();
+            run_till_next_instr(&cpu, &mut s);
+            let o = run_till_load_done(&cpu, &mut s);
+            assert_eq!(0, pc(&s));
+            assert_eq!(dst_val, t1(&s));
+            assert_eq!(src_val as u128, ma(&s));
+            assert_eq!(mem_val as u128, t2(&s));
+        }
+
+        // 6) [base_reg + index_reg + imm]
+        {
+            let mut init = CpuDefault::default();
+
+            for i in 0..8 {
+                init.regs[i] = rng.random_range(0..u16::MAX) as u128;
+            }
+
+            let addr_base_regs = [6usize, 7]; // ba, bb
+            let addr_index_regs = [4usize, 5]; // xa, xb
+            let base_reg = addr_base_regs[rng.random_range(0..addr_base_regs.len())];
+            let index_reg = addr_index_regs[rng.random_range(0..addr_index_regs.len())];
+
+            const MEM_SIZE : usize = 1024;
+
+            let base_addr = rng.random_range(10..(MEM_SIZE as u16 - 40)) as u16;
+            let index_offset = rng.random_range(1..20) as u16;
+            let imm_offset = rng.random_range(1..20) as u16;
+            let final_addr = base_addr + index_offset + imm_offset;
+            init.regs[base_reg] = base_addr as u128;
+            init.regs[index_reg] = index_offset as u128;
+            let src_val = init.regs[base_reg] + init.regs[index_reg] + imm_offset as u128;
+
+            let dst = rng.random_range(0..8) as usize;
+            let dst_val = init.regs[dst];
+
+            let mem_val = rng.random_range(0..u16::MAX) as u16;
+
+            let asm_code = format!(
+                "xor {dst}, [{base_reg}+{index_reg}+{imm_offset}]
+                {final_addr}: {mem_val:#04X}
+                ",
+                dst = mapping[dst],
+                base_reg = mapping[base_reg],
+                index_reg = mapping[index_reg],
+                imm_offset = imm_offset,
+                final_addr = final_addr,
+                mem_val = mem_val
+            );
+            println!("{}", &asm_code);
+            let (cpu, mut s) = start_cpu_test(
+                &asm_code,
+                init
+            ).unwrap();
+            run_till_next_instr(&cpu, &mut s);
+            let o = run_till_load_done(&cpu, &mut s);
+            assert_eq!(1, pc(&s));
+            assert_eq!(dst_val, t1(&s));
+            assert_eq!(src_val as u128, ma(&s));
+            assert_eq!(mem_val as u128, t2(&s));
+        }
+    }
+    
+    #[test]
+    pub fn test_load_memory_destination_addressing_modes(){
+        use rand::prelude::*;
+        let mut rng = rand::rng();
+
+        let mapping = [
+            "ra",
+            "rb",
+            "rc",
+            "sp",
+            "xa",
+            "xb",
+            "ba",
+            "bb",
+        ];
+
+        // 1) Direct
+        {
+            let mut init = CpuDefault::default();
+
+            for i in 0..8 {
+                init.regs[i] = rng.random_range(0..u16::MAX) as u128;
+            }
+
+            let src = rng.random_range(0..8) as usize;
+            let src_val = init.regs[src];
+
+            const MEM_SIZE : usize = 1024;
+
+            let addr = rng.random_range(10..MEM_SIZE as u16) as u16;
+            let mem_val = rng.random_range(0..u16::MAX) as u16;
+            
+            let asm_code = format!(
+                "adc [{addr}], {src}
+                {addr}: {mem_val:#06X}
+                ",
+                src = mapping[src],
+                addr = addr,
+                mem_val = mem_val
+            );
+            println!("{}", &asm_code);
+            let (cpu, mut s) = start_cpu_test(
+                &asm_code,
+                init
+            ).unwrap();
+            run_till_next_instr(&cpu, &mut s);
+            let o = run_till_load_done(&cpu, &mut s);
+            assert_eq!(1, pc(&s));
+            assert_eq!(addr as u128, ma(&s));
+            assert_eq!(mem_val as u128, t1(&s));
+            assert_eq!(src_val, t2(&s));
+        }
+
+        // 2) [reg]
+        {
+            let mut init = CpuDefault::default();
+
+            for i in 0..8 {
+                init.regs[i] = rng.random_range(0..u16::MAX) as u128;
+            }
+
+            let addr_regs = [4usize, 5, 6, 7]; // xa, xb, ba, bb
+            let addr_reg = addr_regs[rng.random_range(0..addr_regs.len())];
+
+            const MEM_SIZE : usize = 1024;
+
+            let addr = rng.random_range(10..MEM_SIZE as u16);
+            init.regs[addr_reg] = addr as u128;
+
+            let src = rng.random_range(0..8) as usize;
+            let src_val = init.regs[src];
+
+            let mem_val = rng.random_range(0..u16::MAX) as u16;
+
+            let asm_code = format!(
+                "sbb [{addr_reg}], {src}
+                {addr}: {mem_val:#06X}
+                ",
+                src = mapping[src],
+                addr_reg = mapping[addr_reg],
+                addr = addr,
+                mem_val = mem_val
+            );
+            println!("{}", &asm_code);
+            let (cpu, mut s) = start_cpu_test(
+                &asm_code,
+                init
+            ).unwrap();
+            run_till_next_instr(&cpu, &mut s);
+            let o = run_till_load_done(&cpu, &mut s);
+            assert_eq!(1, pc(&s));
+            assert_eq!(addr as u128, ma(&s));
+            assert_eq!(mem_val as u128, t1(&s));
+            assert_eq!(src_val, t2(&s));
+        }
+
+        // 3) [reg + imm]
+        {
+            let mut init = CpuDefault::default();
+
+            for i in 0..8 {
+                init.regs[i] = rng.random_range(0..u16::MAX) as u128;
+            }
+
+            let addr_regs = [4usize, 5, 6, 7]; // xa, xb, ba, bb
+            let addr_reg = addr_regs[rng.random_range(0..addr_regs.len())];
+
+            const MEM_SIZE : usize = 1024;
+
+            let base_addr = rng.random_range(10..(MEM_SIZE as u16 - 20)) as u16;
+            let offset = rng.random_range(1..20) as u16;
+            let final_addr = base_addr + offset;
+            init.regs[addr_reg] = base_addr as u128;
+
+            let src = rng.random_range(0..8) as usize;
+            let src_val = init.regs[src];
+
+            let mem_val = rng.random_range(0..u16::MAX) as u16;
+
+            let asm_code = format!(
+                "and [{addr_reg}+{offset}], {src}
+                {final_addr}: {mem_val:#06X}
+                ",
+                src = mapping[src],
+                addr_reg = mapping[addr_reg],
+                offset = offset,
+                final_addr = final_addr,
+                mem_val = mem_val
+            );
+            println!("{}", &asm_code);
+            let (cpu, mut s) = start_cpu_test(
+                &asm_code,
+                init
+            ).unwrap();
+            run_till_next_instr(&cpu, &mut s);
+            let o = run_till_load_done(&cpu, &mut s);
+            assert_eq!(1, pc(&s));
+            assert_eq!(final_addr as u128, ma(&s));
+            assert_eq!(mem_val as u128, t1(&s));
+            assert_eq!(src_val, t2(&s));
+        }
+
+        // 4) [[imm]]
+        {
+            let mut init = CpuDefault::default();
+
+            for i in 0..8 {
+                init.regs[i] = rng.random_range(0..u16::MAX) as u128;
+            }
+
+            const MEM_SIZE : usize = 1024;
+
+            let pointer_addr = rng.random_range(10..(MEM_SIZE as u16 - 20)) as u16;
+            let final_addr = rng.random_range(10..(MEM_SIZE as u16 - 1)) as u16;
+            let mem_val = rng.random_range(0..u16::MAX) as u16;
+
+            // Write the final address into memory at pointer_addr
+            {
+                let mut ram_init = vec![0u128; MEM_SIZE];
+                ram_init[pointer_addr as usize] = final_addr as u128;
+                std::fs::write("cram.data", ram_init.iter().map(|v| format!("{:04X}\n", v)).collect::<String>()).unwrap();
+            }
+
+            let src = rng.random_range(0..8) as usize;
+            let src_val = init.regs[src];
+
+            let asm_code = format!(
+                "xor [[{pointer_addr}]], {src}
+                {pointer_addr}: {final_addr:#04X}
+                {final_addr}: {mem_val:#06X}
+                ",
+                src = mapping[src],
+                pointer_addr = pointer_addr,
+                final_addr = final_addr,
+                mem_val = mem_val
+            );
+            println!("{}", &asm_code);
+            let (cpu, mut s) = start_cpu_test(
+                &asm_code,
+                init
+            ).unwrap();
+            run_till_next_instr(&cpu, &mut s);
+            let o = run_till_load_done(&cpu, &mut s);
+            assert_eq!(1, pc(&s));
+            assert_eq!(final_addr as u128, ma(&s));
+            assert_eq!(mem_val as u128, t1(&s));
+            assert_eq!(src_val, t2(&s));
+        }
+
+        // 5) [base_reg + index_reg]
+        {
+            let mut init = CpuDefault::default();
+
+            for i in 0..8 {
+                init.regs[i] = rng.random_range(0..u16::MAX) as u128;
+            }
+
+            let addr_base_regs = [6usize, 7]; // ba, bb
+            let addr_index_regs = [4usize, 5]; // xa, xb
+            let base_reg = addr_base_regs[rng.random_range(0..addr_base_regs.len())];
+            let index_reg = addr_index_regs[rng.random_range(0..addr_index_regs.len())];
+
+            const MEM_SIZE : usize = 1024;
+
+            let base_addr = rng.random_range(10..(MEM_SIZE as u16 - 20)) as u16;
+            let index_offset = rng.random_range(1..20) as u16;
+            let final_addr = base_addr + index_offset;
+            init.regs[base_reg] = base_addr as u128;
+            init.regs[index_reg] = index_offset as u128;
+
+            let src = rng.random_range(0..8) as usize;
+            let src_val = init.regs[src];
+
+            let mem_val = rng.random_range(0..u16::MAX) as u16;
+
+            let asm_code = format!(
+                "or [{base_reg}+{index_reg}], {src}
+                {final_addr}: {mem_val:#06X}
+                ",
+                src = mapping[src],
+                base_reg = mapping[base_reg],
+                index_reg = mapping[index_reg],
+                final_addr = final_addr,
+                mem_val = mem_val
+            );
+            println!("{}", &asm_code);
+            let (cpu, mut s) = start_cpu_test(
+                &asm_code,
+                init
+            ).unwrap();
+            run_till_next_instr(&cpu, &mut s);
+            let o = run_till_load_done(&cpu, &mut s);
+            assert_eq!(1, pc(&s));
+            assert_eq!(final_addr as u128, ma(&s));
+            assert_eq!(mem_val as u128, t1(&s));
+            assert_eq!(src_val, t2(&s));
+        }
+
+        // 6) [base_reg + index_reg + imm]
+        {
+            let mut init = CpuDefault::default();
+
+            for i in 0..8 {
+                init.regs[i] = rng.random_range(0..u16::MAX) as u128;
+            }
+
+            let addr_base_regs = [6usize, 7]; // ba, bb
+            let addr_index_regs = [4usize, 5]; // xa, xb
+            let base_reg = addr_base_regs[rng.random_range(0..addr_base_regs.len())];
+            let index_reg = addr_index_regs[rng.random_range(0..addr_index_regs.len())];
+
+            const MEM_SIZE : usize = 1024;
+
+            let base_addr = rng.random_range(10..(MEM_SIZE as u16 - 40)) as u16;
+            let index_offset = rng.random_range(1..20) as u16;
+            let imm_offset = rng.random_range(1..20) as u16;
+            let final_addr = base_addr + index_offset + imm_offset;
+            init.regs[base_reg] = base_addr as u128;
+            init.regs[index_reg] = index_offset as u128;
+
+            let src = rng.random_range(0..8) as usize;
+            let src_val = init.regs[src];
+
+            let mem_val = rng.random_range(0..u16::MAX) as u16;
+
+            let asm_code = format!(
+                "xor [{base_reg}+{index_reg}+{imm_offset}], {src}
+                {final_addr}: {mem_val:#06X}
+                ",
+                src = mapping[src],
+                base_reg = mapping[base_reg],
+                index_reg = mapping[index_reg],
+                imm_offset = imm_offset,
+                final_addr = final_addr,
+                mem_val = mem_val
+            );
+            println!("{}", &asm_code);
+            let (cpu, mut s) = start_cpu_test(
+                &asm_code,
+                init
+            ).unwrap();
+            run_till_next_instr(&cpu, &mut s);
+            let o = run_till_load_done(&cpu, &mut s);
+            assert_eq!(1, pc(&s));
+            assert_eq!(final_addr as u128, ma(&s));
+            assert_eq!(mem_val as u128, t1(&s));
+            assert_eq!(src_val, t2(&s));
+        }
+    }
     // run in an interactive way
     pub fn sim_cpu() -> Result<(), RHDLError> {
         let mut init = CpuDefault::default();
         for i in 0..8 {
             init.regs[i] = i as u128 + 1;
         }
+        init.regs[3] = 420 as u128;
         init.PC = 1;
         let (cpu, mut s) = start_cpu_test(
             r#"
 hlt
+;jmp [0x69]
+call [0x69]
 mov ra, [0x42]
 test ra,[bb+xa]
 jc -3
 
-sub [ba+43], 42
+sbb [ba+43], 42
+neg [0x69]
+mov [0x69], 0x69
+mov [0x69], ra
 
 inc ra
 inc [bb]
@@ -570,6 +1168,8 @@ inc [bb+xa]
 inc [ba+xb+]
 inc [bb+xa-]
 inc [ba+xb+2]
+0x69: 34
+420: 44
 0x0308: 0x69
             "#,
             init
@@ -587,6 +1187,7 @@ inc [ba+xb+2]
         let mut peek = 0;
         let mut peek_buf = peek;
         let mut wait_for_peek = false;
+        let mut dump_ram = true;
         let o = step(&cpu, (), &mut s);
         v.push((o,s.clone()));
         write!(screen, "{}", termion::clear::All)?;
@@ -674,12 +1275,7 @@ inc [ba+xb+2]
                     peek_buf = (peek_buf << 4 | x) & 0x3FF;
                 }
                 Key::Char('d') => {
-                    let mut file = File::create("mem.dump")?;
-                    let (o,state) = &v[i];
-                    let ram = ram(&state);
-                    for i in ram.into_iter() {
-                        writeln!(&mut file, "{:04X}", i)?;
-                    }
+                    dump_ram = true;
                 }
                 Key::Char('\n') => {
                     wait_for_peek=false;
@@ -690,6 +1286,14 @@ inc [ba+xb+2]
             }
             
             let (o,state) = &v[if i >= v.len() {v.len() - 1} else {i}];
+            if dump_ram {
+                let mut file = File::create("mem.dump")?;
+                let ram = ram(&state);
+                for value in ram.into_iter() {
+                    writeln!(&mut file, "{:04X}", value)?;
+                }
+                dump_ram = false;
+            }
             let peek_str = format!("{:03X}", peek);
             write!(screen, "{}(step {}, lookup {}{})\r\n", help_str, i, if peek == ma(&state) {
                 "MA"
