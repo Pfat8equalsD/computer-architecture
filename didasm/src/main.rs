@@ -8,6 +8,8 @@ use codegen::{Instruction, Ir, ParsedStatement, Statement};
 use std::str::FromStr;
 use tokens::*;
 
+#[cfg(feature = "smart_equ")]
+use rhai::{Engine, EvalAltResult};
 
 /// Represents the actions each line of the input file can make
 /// Important for moving the cursor and keeping track of labels
@@ -54,6 +56,8 @@ fn main() {
     let mut any_error1 = false;
     let mut any_error2 = false;
     let mut any_error3 = false;
+    #[cfg(feature = "smart_equ")]
+    let engine = Engine::new();
 
     // Contains all labels and definitions, we will need a 2 pass system for name resolution
     let mut symtable = HashMap::<String, isize>::new();
@@ -105,13 +109,45 @@ fn main() {
                     eprintln!("Redefinition of {key} at line {}\n{}", lineno + 1, stmt);
                     any_error1 = true;
                 } else {
-                    let _ = c.get(2).expect("Equ parser regex was tampered with and no longer detects definition value properly: {lineno}")
-                        .as_str().parse::<isize>()
-                        .inspect_err(|_| {
-                            any_error1 = true;
-                            eprintln!("Cannot convert to integer in expression at {}", lineno + 1)
-                        })
-                        .map(|x| symtable.insert(key.to_string(), x));
+                    let s = c.get(2).expect("Equ parser regex was tampered with and no longer detects definition value properly: {lineno}")
+                        .as_str();
+                    #[cfg(feature = "smart_equ")]
+                    let s1 = {
+                        let mut s = s.to_string();
+                        for (sym, val) in symtable.iter() {
+                            s = s.replace(sym, format!("{}", val).as_str())
+                        }
+                        s
+                    };
+                    #[cfg(feature = "smart_equ")]
+                    let s = s1.as_str();
+
+                    let x = match Expr::from_str(s) {
+                            Ok(Expr::Id(i)) => {
+                                any_error1 = true;
+                                eprintln!("EQU: Identifier {} not allowed at line {}", i, lineno + 1);
+                                None
+                            }
+                            Ok(Expr::Int(i)) => {
+                                Some(i)
+                            }
+                            #[cfg(not(feature = "smart_equ"))]
+                            Err(e) => {
+                                any_error1 = true;
+                                eprintln!("EQU: Could not convert to integer in expression at {}", lineno + 1);
+                                None
+                            }
+                            #[cfg(feature = "smart_equ")]
+                            Err(_) => None
+                        }
+                        .unwrap_or_else(|| {
+                            #[cfg(feature = "smart_equ")]
+                            let r:i64 = engine.eval_expression(s).inspect_err(|e| eprintln!("Invalid expression: {:?}", e)).unwrap_or_default();
+                            #[cfg(not(feature = "smart_equ"))]
+                            let r:i64 = 0;
+                            r as isize
+                        });
+                    symtable.insert(key.to_string(), x);
                 }
             } else if let Some(c) = stmt_parser.captures(stmt) {
                 v.push(Action::Stmt(Statement {

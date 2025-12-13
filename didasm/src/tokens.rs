@@ -297,6 +297,11 @@ impl FromStr for Expr {
                 Ok(x) => Ok(Expr::Int(sgn * x)),
                 Err(e) => Err(format!("Invalid hex number '{s}', {e}")),
             }
+        } else if let Some(stripped) = s.strip_suffix("h") {
+            match isize::from_str_radix(stripped, 16) {
+                Ok(x) => Ok(Expr::Int(sgn * x)),
+                Err(e) => Err(format!("Invalid hex number '{s}', {e}")),
+            }
         } else {
             match s.chars().nth(0) {
                 Some('0'..='9') => match s.parse::<isize>() {
