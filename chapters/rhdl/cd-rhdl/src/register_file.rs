@@ -1,9 +1,6 @@
 use std::fmt::Display;
 
-use crate::{
-    decode_unit::{Decoded, Jcond, decode},
-    prelude::*,
-};
+use crate::prelude::*;
 #[allow(non_camel_case_types)]
 #[derive(Debug, Digital, Default, PartialEq)]
 pub enum Reg {
@@ -101,11 +98,11 @@ pub fn reg_file<N: BitWidth + Unsigned>(
     // IndexMut is implemented for arrays only when Bits<N> is wrapped in a signal
     // let index: Signal<Bits<U3>, Red> = signal(rtb(i.1)); // Works but generates combinatorial loop
     // if i.0.we {
-    //     d.rg[index] = i.0.data_in;
+    //     d.rg[rtb(i.1)] = i.0.data_in;
     // };
     // (
     //     if i.0.oe && !i.0.we {
-    //         d.rg[index]
+    //         d.rg[rtb(i.1)]
     //     } else {
     //         bits(0)
     //     },

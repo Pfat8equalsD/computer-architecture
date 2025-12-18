@@ -1,13 +1,15 @@
 use crate::{
     alu::{alu, flags, fr},
     control_unit::{ControlSignals, ControlUnit, State},
-    decode_unit::{Decoded, decode},
+    decode_unit::decode,
     memory::{Ram, RamInput},
     prelude::*,
 };
 use bitops_rhdl::bitops;
-use rhdl::typenum::Diff;
 use rhdl_fpga::core::dff::DFF;
+
+pub mod cpu_test;
+
 
 #[derive(Clone, Debug, Default)]
 pub struct CpuDefault {
@@ -19,7 +21,6 @@ pub struct CpuDefault {
     pub PC: u128,
     pub FR: u128,
     pub state: State,
-    pub IOA: u128,
 }
 #[derive(Synchronous, SynchronousDQ, Clone, Debug)]
 
@@ -35,8 +36,6 @@ pub struct Cpu {
     pub FR: DFF<Bits<U16>>,
     pub Cu: ControlUnit,
     pub RAM: Ram,
-    // IO coming soon...
-    pub IOA: DFF<Bits<U8>>,
 }
 
 impl Default for Cpu {
@@ -52,7 +51,6 @@ impl Default for Cpu {
             RAM: Ram::from_hex_file("cram.data").unwrap_or_default(),
             IR: DFF::default(),
             PC: Register::default(),
-            IOA: DFF::default(),
             FR: DFF::default(),
         }
     }
@@ -69,21 +67,20 @@ impl Cpu {
             RAM: Ram::from_hex_file("cram.data").unwrap_or_default(),
             IR: DFF::new(Bits::from(init.IR)),
             PC: Register::new(init.PC),
-            IOA: DFF::new(Bits::from(init.IOA)),
             FR: DFF::new(Bits::from(init.FR)),
         }
     }
 }
 
 impl SynchronousIO for Cpu {
-    type I = ();
-    type O = Bits<U16>;
+    type I = Bits<U16>;
+    type O = (Bits<U16>, IOSignals);
     type Kernel = top_kernel;
 }
 
 #[bitops]
 #[kernel]
-pub fn top_kernel(_cr: ClockReset, _i: (), q: Q) -> (Bits<U16>, D) {
+pub fn top_kernel(_cr: ClockReset, i: Bits<U16>, q: Q) -> ((Bits<U16>, IOSignals), D) {
     let mut d = D::dont_care();
     let ControlSignals {
         rf_sel,
@@ -107,9 +104,11 @@ pub fn top_kernel(_cr: ClockReset, _i: (), q: Q) -> (Bits<U16>, D) {
         fr_oe,
         fr_we,
         fr_sel_bus,
-        ioa_oe,
         ioa_we,
-        ..
+        ioa_oe,
+        io_oe,
+        io_we,
+        .. // done signals
     } = q.Cu;
     let alu_res = alu::<U16>(AluInput::<U16> {
         t1: q.T1.1, // Not a bus output
@@ -123,8 +122,8 @@ pub fn top_kernel(_cr: ClockReset, _i: (), q: Q) -> (Bits<U16>, D) {
         | q.PC.0 // Bus output
         | q.regs
         | q.RAM
-        | if alu_oe { alu_res.res } else { bits(0) }
-        | if ioa_oe && !ioa_we {q.IOA.resize()} else {bits(0)};
+        | if io_oe {i} else { bits(0) } // Even if we send oe signal to the exterior, we cannot control its behavior fully, so we guard against the risk
+        | if alu_oe { alu_res.res } else { bits(0) };
     d.T1 = RegisterInput::<U16> {
         oe: t1_oe,
         we: t1_we,
@@ -164,169 +163,19 @@ pub fn top_kernel(_cr: ClockReset, _i: (), q: Q) -> (Bits<U16>, D) {
         q.FR
     };
 
-    d.IOA = if ioa_we { bus.resize() } else {q.IOA};
-
     d.regs.0 = RegisterInput::<U16> {
         oe: rf_oe,
         we: rf_we,
         data_in: bus,
     };
     d.regs.1 = rf_sel;
-    ((bus), d)
+    ((bus, IOSignals {
+        ioa_oe, ioa_we, io_oe, io_we
+    }), d)
 }
 
 // ADD TESTBENCHES
 pub mod tests {
-    use std::io::{Stdout, Write, stdout};
-    use std::fs::File;
-    use rand::rng;
-    use termion::{
-        event::Key,
-        input::TermRead,
-        raw::{IntoRawMode, RawTerminal},
-        screen::{IntoAlternateScreen, ToAlternateScreen, ToMainScreen}
-    };
-    use anyhow::anyhow;
-    use crate::register_file::reg;
-    use crate::{
-        alu::alu, control_unit::{self, ControlSignals}, decode_unit::{Decoded, decode}, prelude::*
-    };
-    type S = <Cpu as Synchronous>::S;
-    type O = <Cpu as SynchronousIO>::O;
-    use colored::Colorize;
-    use crate::control_unit::*;
-
-    fn rg(s: &S, i: usize) -> u128 {
-        s.1.1[i].current.raw()
-    }
-    fn t1(s: &S) -> u128 {
-        s.1.0;
-        s.2.1.current.raw()
-    }
-    fn t2(s: &S) -> u128 {
-        s.3.1.current.raw()
-    }
-    fn ma(s: &S) -> u128 {
-        s.4.1.current.raw()
-    }
-    fn pc(s: &S) -> u128 {
-        s.5.1.current.raw()
-    }
-    fn ir(s: &S) -> u128 {
-        s.6.current.raw()
-    }
-    fn fr(s: &S) -> u128 {
-        s.7.current.raw()
-    }
-    fn cu_state(s: &S) -> control_unit::State {
-        s.8.1.current
-    }
-    fn control_signals(s: &S) -> ControlSignals {
-        s.0.Cu
-    }
-    fn ram(s: &S) -> Vec<u128> {
-        get_ram_vec(&s.9)
-    }
-    fn bus(o: &O) -> u128 {
-        o.raw()
-    }
-    fn run_till_next_instr(cpu: &Cpu, s: &mut S) -> O {
-        let mut steps = 0;
-        loop {
-            if steps > 10000 {
-                panic!("Instruction took too many clock cycles!");
-            }
-            let o = step(cpu, (), s);
-
-            if cu_state(&s) == Decode {
-                return o;
-            }
-            steps = steps + 1;
-        }
-    }
-    fn run_till_load_done(cpu: &Cpu, s: &mut S) -> O{
-        let mut steps = 0;
-        loop {
-            if steps > 10000 {
-                panic!("Instruction took too many clock cycles!");
-            }
-            let o = step(cpu, (), s);
-            if cu_state(&s) == Decode {
-                panic!("No load was detected!");
-            }
-            let cs = control_signals(&s);
-            if cs.load_done {
-                return o;
-            }
-            steps = steps + 1;
-        }
-    }
-    fn hex(i: u128) -> String {
-        format!("{:04X}", i)
-    }
-    fn alu_rez(s: &S) -> (u128, u128) {
-        let sig = control_signals(s);
-        let t1 = if sig.t1_oe {t1(s)} else {0};
-        let t2 = if sig.t2_oe {t2(s)} else {0};
-        let AluOutput { res, flags } = alu(AluInput::<U16> { t1: Bits::from(t1), t2: Bits::from(t2), carry_in: sig.alu_carry, opsel: sig.alu_sel });
-        (res.raw(), crate::alu::fr(flags).raw())
-    }
-    //↑ ↓
-    fn print_cd(s: &S, o: &O, ram_addr: u128) -> String {
-        let bus = bus(o);
-        let regs: Vec<_> = (0..8).into_iter().map(|i| rg(s, i)).collect();
-        let t1 = t1(s);
-        let t2 = t2(s);
-        let ma = ma(s);
-        let pc = pc(s);
-        let fr = fr(s);
-        let ir = ir(s);
-        let dec = decode(Bits::from(ir));
-        let ram = ram(s)[(ram_addr as usize) & 0x3FF];
-        let state = cu_state(s);
-        let signals = control_signals(s);
-        let (res, flags) = alu_rez(s);
-        let mut template = include_str!("../cd.txt").to_string()
-            .replace("t1w$", if signals.t1_we {"   ↓"} else {"    "})
-            .replace("t1o$", if signals.t1_oe {"   ↓"} else {"    "})
-            .replace("t2w$", if signals.t2_we {"   ↓"} else {"    "})
-            .replace("t2o$", if signals.t2_oe {"   ↓"} else {"    "})
-            .replace("maw$", if signals.ma_we {"   ↓"} else {"    "})
-            .replace("raw$", if signals.ram_we {"   ↓"} else {"    "})
-            .replace("$adr ", if signals.ma_oe {"$adr→"} else {"$adr "})
-            .replace(&format!(" {} ", signals.rf_sel), &format!("{}{} ",if signals.rf_we || signals.rf_oe {"→"} else {" "}, signals.rf_sel))
-            .replace("rgo$", if signals.rf_oe {"   ↓"} else {"    "})
-            .replace("$rgw", if signals.rf_we {"↑   "} else {"    "})
-            .replace("$rao", if signals.ram_oe {"↑   "} else {"    "})
-            .replace("$pcw", if signals.pc_we {"↑   "} else {"    "})
-            .replace("pco$", if signals.pc_oe {"   ↓"} else {"    "})
-            .replace("irw$", if signals.ir_we {"   ↓"} else {"    "})
-            .replace("$ri", if signals.ir_oe {"↑  "} else {"   "})
-            .replace("$fra", if !signals.fr_sel_bus && signals.fr_we {"   ↓"} else {"    "})
-            .replace("fro$", if signals.fr_oe {"   ↓"} else {"    "})
-            .replace("$frb", if signals.fr_sel_bus && signals.fr_we {"↑   "} else {"    "})
-            .replace("ao$", if signals.alu_oe {"  ↓"} else {"   "})
-            // Value replacements
-            .replace("$OP               ", &format!("{:^18}",format!("{:?}({}, {}, {})", signals.alu_sel, if signals.t1_oe {"T1"} else {"0"}, if signals.t2_oe {"T2"} else {"0"}, if signals.alu_carry {1} else {0})))
-            .replace("$res              ", &format!("{:^18}", format!("{:04X}",res)))
-            .replace("$flag", &format!("{:05b}",flags))
-            .replace("$fr  ", &format!("{:05b}",fr))
-            .replace("$state                    ", &format!("{:^26}", format!("{:?}",state)))
-            .replace("$decoded                                                                           ", &format!("{:^83}", format!("{:?}",dec)))
-            .replace("$pc ", &hex(pc))
-            .replace("$t1 ", &hex(t1))
-            .replace("$t2 ", &hex(t2))
-            .replace("$ir ", &hex(ir))
-            .replace("$adr", &hex(ma))
-            .replace("$val", &hex(ram))
-            .replace("$bus", &hex(bus));
-        for (i, v) in regs.iter().enumerate() {
-            let st = crate::register_file::reg(bits(i as u128)).to_string().to_ascii_lowercase();
-            template = template.replace(&format!("${} ", st), &hex(*v));
-        }
-        template.push('\n');
-        template.replace("\n", "\r\n")
-    }
 
     fn didasm(asm_source: &str){
         std::fs::write("test.asm", asm_source);
@@ -337,35 +186,6 @@ pub mod tests {
             .output() {
             eprintln!("Didasm not available (cargo install didasm --path <computer-architecture-path>/didasm), falling back to existing cram.data...")
         }
-    }
-    // #[test]
-    // use 
-    use super::CpuDefault;
-    /// Start a cpu test by providing its current state directly
-    fn start_cpu_test(
-        asm_source: &str,
-        def_values: CpuDefault
-    ) -> Result<(Cpu, S), RHDLError> {
-        std::fs::write("test.asm", asm_source)?;
-        let out = std::process::Command::new("didasm")
-            .arg("test.asm")
-            .arg("cram.data")
-            .arg("--quiet")
-            .output()
-            .map_err(|e| anyhow!("Didasm not available (cargo install didasm --path <computer-architecture-path>/didasm). Fallback is not available in unit tests"))?;
-        if !out.status.success() {
-            return Err(anyhow!("Assembler failed: {}", String::from_utf8(out.stderr).unwrap()).into());
-        }
-        let cpu = Cpu::new(def_values);
-
-        // Validate if cpu kernel is valid rhdl
-        let ins = vec![()].with_reset(1).clock_pos_edge(100);
-        cpu.run(ins)?;
-
-        // Initialize a state with the values provided in def_values
-        let mut s: S = cpu.init();
-        reset_step(&cpu, &mut s);
-        Ok((cpu, s))
     }
 
     // Test just the fetch
@@ -549,7 +369,6 @@ pub mod tests {
         assert_eq!(destination_value, t1(&s));
         assert_eq!(source_value, t2(&s));
     }
-
     #[test]
     fn test_load_memory_source_addressing_modes(){
         use rand::prelude::*;
@@ -1133,188 +952,5 @@ pub mod tests {
             assert_eq!(src_val, t2(&s));
         }
     }
-    // run in an interactive way
-    pub fn sim_cpu() -> Result<(), RHDLError> {
-        let mut init = CpuDefault::default();
-        for i in 0..8 {
-            init.regs[i] = i as u128 + 1;
-        }
-        init.regs[3] = 420 as u128;
-        init.PC = 1;
-        let (cpu, mut s) = start_cpu_test(
-            r#"
-hlt
-;jmp [0x69]
-call [0x69]
-mov ra, [0x42]
-test ra,[bb+xa]
-jc -3
-
-sbb [ba+43], 42
-neg [0x69]
-mov [0x69], 0x69
-mov [0x69], ra
-
-inc ra
-inc [bb]
-inc [43]
-inc [[12]]
-inc [xa+23]
-inc [ba+42]
-inc [bb+1]
-inc [bb+xb]
-inc [ba+xa]
-inc [bb+xa]
-inc [ba+xb+]
-inc [bb+xa-]
-inc [ba+xb+2]
-0x69: 34
-420: 44
-0x0308: 0x69
-            "#,
-            init
-        ).unwrap();
-        let mut v = vec![];
-        let mut i:usize = 0;
-        let mut screen = stdout()
-        .into_raw_mode()
-        .unwrap()
-        .into_alternate_screen()
-        .unwrap();
-
-        // print_cd(&s, &o);
-        let stdin = std::io::stdin();
-        let mut peek = 0;
-        let mut peek_buf = peek;
-        let mut wait_for_peek = false;
-        let mut dump_ram = true;
-        let o = step(&cpu, (), &mut s);
-        v.push((o,s.clone()));
-        write!(screen, "{}", termion::clear::All)?;
-        write!(screen, "{}", termion::cursor::Goto(1, 1))?;
-        screen.flush()?;
-        let help_str = "Press ← → for single clock cycle step, p n for instruction step, d for mem.dump or q; Press /<addr(HEX)><enter> for a peek in ram ";
-        write!(screen, "{}(step {}, lookup MA)\r\n", help_str, i);
-        let (o,state) = &v[if i >= v.len() {v.len() - 1} else {i}];
-        let myst = print_cd(state, o, peek);
-        write!(screen, "{}",myst);
-        for key in stdin.keys() {
-            write!(screen, "{}", termion::clear::All)?;
-            write!(screen, "{}", termion::cursor::Goto(1, 1))?;
-            screen.flush()?;
-            match key.unwrap() {
-                Key::Left => {
-                    i = i.saturating_sub(1);
-                    let (o,state) = &v[i];
-                    peek = ma(&state);
-                    peek_buf = peek & 0x3FF;
-                    wait_for_peek = false;
-                    // let myst = print_cd(state, o, peek);
-                    // write!(screen, "{}",myst);
-                }
-                Key::Right => {
-                    if i == v.len() {
-                        let o = step(&cpu, (), &mut s);
-                        v.push((o,s.clone()));
-                    }
-                    let (o,state) = &v[i];
-                    peek = ma(&state);
-                    peek_buf = peek & 0x3FF;
-                    wait_for_peek = false;
-                    // let myst = print_cd(state, o, peek);
-                    // write!(screen, "{}",myst);
-                    i = i + 1
-                }
-                Key::Char('q') => break,
-                Key::Char('/') => {
-                    wait_for_peek=true;
-                    peek_buf = 0;
-                }
-                Key::Char('n') => {
-                    let mut steps = 0;
-                    wait_for_peek = false;
-                    if i != v.len() {
-                        i = i + 1;
-                    }
-                    loop {
-                        if steps >= 10000  {
-                            break;
-                        }
-                        if i == v.len() {
-                            let o = step(&cpu, (), &mut s);
-                            v.push((o,s.clone()));
-                        }
-                        let (o,state) = &v[i];
-                        peek = ma(&state);
-                        if matches!(cu_state(&state), Decode|Reset|Hlt) {
-                            break;
-                        }
-                        i = i + 1;
-                        steps = steps + 1;
-                    };
-                }
-                Key::Char('p') => {
-                    wait_for_peek = false;
-                    let mut steps = 0;
-                    i = i.saturating_sub(1);
-                    loop {
-                        if steps >= 10000 {
-                            break;
-                        }
-                        let (o,state) = &v[i];
-                        peek = ma(&state);
-                        if matches!(cu_state(&state), Decode|Reset|Hlt) {
-                            break;
-                        }
-                        i = i.saturating_sub(1);
-                        steps = steps + 1;
-                    }
-                }
-                Key::Char(c @ ('0'..='9' | 'a'..='f')) if wait_for_peek => {
-                    let x = c.to_digit(16).map(|d| d as u128).unwrap();
-                    peek_buf = (peek_buf << 4 | x) & 0x3FF;
-                }
-                Key::Char('d') => {
-                    dump_ram = true;
-                }
-                Key::Char('\n') => {
-                    wait_for_peek=false;
-                    peek = peek_buf;
-
-                }
-                _ => {}
-            }
-            
-            let (o,state) = &v[if i >= v.len() {v.len() - 1} else {i}];
-            if dump_ram {
-                let mut file = File::create("mem.dump")?;
-                let ram = ram(&state);
-                for value in ram.into_iter() {
-                    writeln!(&mut file, "{:04X}", value)?;
-                }
-                dump_ram = false;
-            }
-            let peek_str = format!("{:03X}", peek);
-            write!(screen, "{}(step {}, lookup {}{})\r\n", help_str, i, if peek == ma(&state) {
-                "MA"
-            } else {
-                &peek_str
-            }, if wait_for_peek {
-                format!("; next lookup {:03X}, press enter to commit, accepts [0-3FF]", peek_buf)
-            } else {
-                "".to_string()
-            })?;
-            let myst = print_cd(state, o, peek);
-            write!(screen, "{}",myst);
-        }
-
-        Ok(())
-    }
 }
-pub fn sim_top() -> Result<(), RHDLError> {
-    let top = Cpu::default();
-    let ins = vec![(), (), ()].with_reset(1).clock_pos_edge(100);
-    top.run(ins)?;
 
-    Ok(())
-}

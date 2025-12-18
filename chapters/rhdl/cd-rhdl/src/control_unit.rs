@@ -25,8 +25,14 @@ pub struct ControlSignals {
     pub fr_sel_bus: bool,
     pub ioa_oe: bool,
     pub ioa_we: bool,
+    pub io_oe: bool,
+    pub io_we: bool,
+    pub fetch_done: bool,
+    // decode_done is not needed, just check cu_state == Decode
     pub load_done: bool,
     pub exec_done: bool,
+    pub store_done: bool,
+    pub instr_done: bool,
 }
 
 #[derive(Digital, PartialEq, Debug, Default)]
@@ -101,16 +107,29 @@ pub enum ExecStage {
     ExecPush,
     ExecPush2,
     ExecCall,
-    InstrDone,
+    ExecJcond,
+    ExecJcond2,
+
 }
 use ExecStage::*;
+
 #[derive(Digital, PartialEq, Debug, Default)]
-pub enum StoreStage {
+pub enum NeaStage {
     #[default]
-    StoreStart,
-    StoreDone,
+    IoaL,
+    IoW,
+    IoR,
+    PopSP,
+    PopfMA,
+    PopfL,
+    RetMA,
+    RetL,
+    PushfSP,
+    PushfDec,
+    PushfW,
 }
-use StoreStage::*;
+use NeaStage::*;
+
 #[derive(Digital, PartialEq, Debug, Default)]
 pub enum State {
     #[default]
@@ -125,7 +144,8 @@ pub enum State {
     LoadTemps(LoadTempsStage),
 
     Exec(ExecStage),
-    Store(StoreStage),
+    Nea(NeaStage),
+    Store,
     IncPC,
     IncPC1,
     Hlt,
@@ -180,16 +200,12 @@ fn stage_fetch(s: FetchStage, mut cs: ControlSignals) -> (State, ControlSignals)
         FetchDone => FetchDone
     };
     if next_state == FetchDone {
+        cs.fetch_done = true;
         (Decode, cs)
     } else {
         (State::Fetch(next_state), cs)
     }
 }
-
-// #[kernel]
-// fn has_imm(i: Decoded) -> bool {
-
-// }
 
 #[kernel]
 fn has_imm(i: Decoded) -> bool {
@@ -614,15 +630,33 @@ fn stage_load_tmps(s: LoadTempsStage, mut cs: ControlSignals, i: Decoded) -> (St
 
     if invalid {
         (Hlt, cs)
-    } else if next_state == LoadDone && s != LoadDone {
-        // Delay 1 clock cycle such that the signal for load done is given after
-        // every register was written to
-        (State::LoadTemps(LoadDone), cs)
     } else if next_state == LoadDone {
         cs.load_done = true;
         (State::Exec(ExecStart), cs)
     } else {
         (State::LoadTemps(next_state), cs)
+    }
+}
+use crate::Jcond::*;
+#[kernel]
+fn check_condition(jc: Jcond, f: AluFlags) -> bool {
+    match jc {
+        Jbe => f.c | f.z,
+        Jb  => f.c,
+        Jle => (f.s ^ f.o) | f.z,
+        Jl  => f.s ^ f.o,
+        Je  => f.z,
+        Jo  => f.o,
+        Js  => f.s,
+        Jpe => f.p,
+        Ja  => !(f.c | f.z),
+        Jae => !f.c,
+        Jg  => !((f.s ^ f.o) | f.z),
+        Jge => !(f.s ^ f.o),
+        Jne => !f.z,
+        Jno => !f.o,
+        Jns => !f.s,
+        Jpo => !f.p,
     }
 }
 
@@ -631,6 +665,7 @@ fn stage_load_tmps(s: LoadTempsStage, mut cs: ControlSignals, i: Decoded) -> (St
 fn stage_exec(s: ExecStage, mut cs: ControlSignals, i: Decoded, fin: AluFlags) -> (State, ControlSignals) {
     let mut invalid = false;
     let mut to_inc_pc = false;
+    let mut instr_done = false;
     let next_state = match s {
         ExecStart => {
             match i {
@@ -680,7 +715,8 @@ fn stage_exec(s: ExecStage, mut cs: ControlSignals, i: Decoded, fin: AluFlags) -
                     cs.alu_oe = true;
                     cs.alu_sel = OR;
                     cs.pc_we = true;
-                    InstrDone
+                    instr_done = true;
+                    ExecDone
                 }
                 Decoded::OneOp { op: x, dst: _d} => {
                     cs.alu_oe = true;
@@ -706,12 +742,36 @@ fn stage_exec(s: ExecStage, mut cs: ControlSignals, i: Decoded, fin: AluFlags) -
                     cs.fr_we = x != OneOp::MovI;
                     ExecDone
                 }
+                Decoded::Jcond(jc) => {
+                    // Preload t1 with the offset just in case condition succeeds
+                    cs.ir_oe = true;
+                    cs.t1_we = true;
+                    if check_condition(jc, fin) {
+                        ExecJcond
+                    } else {
+                        ExecDone
+                    }
+                }
 
                 _ => {
                     invalid = true;
                     ExecDone
                 }
             }
+        }
+        ExecJcond => {
+            cs.t2_we = true;
+            cs.pc_oe = true;
+            ExecJcond2
+        }
+        ExecJcond2 => {
+            cs.t1_oe = true;
+            cs.t2_oe = true;
+            cs.alu_oe = true;
+            cs.alu_sel = ADC;
+            cs.pc_we = true;
+            instr_done = true;
+            ExecDone
         }
         ExecPop => {
             cs.ma_oe = true;
@@ -758,7 +818,7 @@ fn stage_exec(s: ExecStage, mut cs: ControlSignals, i: Decoded, fin: AluFlags) -
                     cs.alu_oe = true;
                     cs.alu_sel = OR;
                     to_inc_pc = true;
-                    InstrDone
+                    ExecDone
                 }
                 Decoded::OneOp {op: _x @ OneOp::Call, dst: _d} => {
                     cs.pc_oe = true;
@@ -775,69 +835,29 @@ fn stage_exec(s: ExecStage, mut cs: ControlSignals, i: Decoded, fin: AluFlags) -
             cs.t1_oe = true;
             cs.alu_oe = true;
             cs.alu_sel = OR;
-            InstrDone
+            instr_done = true;
+            ExecDone
         }
         _ => ExecDone
     };
 
     if invalid {
         (Hlt, cs)
-    } else if next_state == InstrDone {
+    } else if next_state == ExecDone {
         cs.exec_done = true;
         if to_inc_pc {
             (State::IncPC, cs)            
-        } else {
+        } else if instr_done {
+            cs.instr_done = true;
             (State::Fetch(PcToMA), cs)
+        } else {
+            (State::Store, cs)
         }
-    } else if next_state == ExecDone {
-        cs.exec_done = true;
-        (State::Store(StoreStart), cs)
     } else {
         (State::Exec(next_state), cs)
     }
 }
 
-#[kernel]
-fn stage_store(st: StoreStage, mut cs: ControlSignals, i: Decoded) -> (State, ControlSignals) {
-    let mut invalid = false;
-    let is_pop = if let Decoded::OneOp {op: _x @ OneOp::Pop, dst: _d} = i {true} else {false};
-    let next_state = match st {
-        StoreStart => {
-            if let Some(dst) = extract_dst(i) {
-                cs.t1_oe = !is_pop;
-                cs.t2_oe = is_pop;
-                cs.alu_oe = true;
-                cs.alu_sel = OR;
-                match dst {
-                    DstOperand::Reg(r) => {
-                        cs.rf_we = true;
-                        cs.rf_sel = r;
-                        StoreDone
-                    }
-                    _ => {
-                        cs.ma_oe = true;
-                        cs.ram_we = true;
-                        StoreDone
-                    }
-                }
-            } else {
-                invalid = true;
-                StoreDone
-            }
-        }
-        _ => {
-            invalid = true;
-            StoreDone
-        }
-    };
-    if invalid {
-        (Hlt, cs)
-    } else if next_state == StoreDone {
-        (IncPC, cs)
-    } else {
-        (State::Store(next_state), cs)
-    }
-}
 
 #[kernel]
 pub fn control_unit(d: Decoded, f: AluFlags, s: State) -> (State, ControlSignals) {
@@ -865,10 +885,14 @@ pub fn control_unit(d: Decoded, f: AluFlags, s: State) -> (State, ControlSignals
         fr_sel_bus: false,
         ioa_we: false,
         ioa_oe: false,
+        io_we: false,
+        io_oe: false,
+        fetch_done: false,
+        instr_done: false,
         exec_done: false,
         load_done: false,
+        store_done: false,
     };
-
     let next_state = match s {
         State::Reset => State::Fetch(PcToMA),
         State::Fetch(f) => {
@@ -888,8 +912,13 @@ pub fn control_unit(d: Decoded, f: AluFlags, s: State) -> (State, ControlSignals
                 Decoded::TwoOp {op:_x,dst:_x2,src:_x3} => eastate,
                 Decoded::OneOp {op:_x,dst:_x2} => eastate,
                 Decoded::CfNea(_x @ CfNea::Hlt) => Hlt,
-                Decoded::CfNea(_x) => IncPC,
-                Decoded::Jcond(_x) => IncPC,
+                Decoded::CfNea(_x @ CfNea::In) => State::Nea(IoaL),
+                Decoded::CfNea(_x @ CfNea::Out) => State::Nea(IoaL),
+                Decoded::CfNea(_x @ CfNea::Pushf) => State::Nea(PushfSP),
+                Decoded::CfNea(_x @ CfNea::Popf) => State::Nea(PopSP),
+                Decoded::CfNea(_x @ CfNea::Iret) => State::Nea(PopSP),
+                Decoded::CfNea(_x @ CfNea::Ret) => State::Nea(PopSP),
+                Decoded::Jcond(_x) => State::Exec(ExecStart),
                 Decoded::Invalid => Hlt,
             }
         },
@@ -930,10 +959,133 @@ pub fn control_unit(d: Decoded, f: AluFlags, s: State) -> (State, ControlSignals
             cs = cs2;
             state
         }
-        State::Store(st) => {
-            let (state, cs2) = stage_store(st, cs, d);
-            cs = cs2;
-            state
+        State::Nea(nea_state) => {
+            if let Decoded::CfNea(opc) = d {
+                match nea_state {
+                    IoaL => {
+                        cs.ioa_we = true;
+                        cs.ir_oe = true;
+                        State::Nea(IoW)
+                    }
+                    IoW => {
+                        cs.ioa_oe = true;
+                        if opc == CfNea::In {
+                            State::Nea(IoR)
+                        } else if opc == CfNea::Out {
+                            cs.io_we = true;
+                            cs.rf_sel = RA;
+                            cs.rf_oe = true;
+                            IncPC
+                        } else {
+                            Hlt
+                        }
+                    }
+                    IoR => {
+                        cs.io_oe = true;
+                        cs.rf_sel = RA;
+                        cs.rf_we = true;
+                        IncPC
+                    }
+                    PushfSP => {
+                        cs.rf_sel = SP;
+                        cs.rf_oe = true;
+                        cs.t1_we = true;
+                        State::Nea(PushfDec)
+                    }
+                    PushfDec => {
+                        cs.alu_oe = true;
+                        cs.alu_sel = SBB1;
+                        cs.alu_carry = true;
+                        cs.t1_oe = true;
+                        cs.ma_we = true;
+                        cs.rf_we = true;
+                        cs.rf_sel = SP;
+                        State::Nea(PushfW)
+                    }
+                    PushfW => {
+                        cs.ma_oe = true;
+                        cs.ram_we = true;
+                        cs.fr_oe = true;
+                        IncPC
+                    }
+                    PopSP => {
+                        cs.rf_oe = true;
+                        cs.rf_sel = SP;
+                        cs.t1_we = true;
+                        cs.ma_we = true;
+                        if opc == CfNea::Popf || opc == CfNea::Iret {
+                            State::Nea(PopfMA)
+                        } else if opc == CfNea::Ret {
+                            State::Nea(RetMA)
+                        } else {
+                            Hlt
+                        }
+                    }
+                    PopfMA => {
+                        cs.ma_oe = true;
+                        cs.t1_oe = true;
+                        cs.alu_sel = ADC;
+                        cs.alu_oe = true;
+                        cs.alu_carry = true;
+                        cs.t1_we = true; // Loading result in case needed for IRET
+                        cs.ma_we = true; // Loading result in case needed for IRET
+                        cs.rf_we = true;
+                        cs.rf_sel = SP;
+                        State::Nea(PopfL)
+                    }
+                    PopfL => {
+                        cs.fr_we = true;
+                        cs.fr_sel_bus = true; // FR_WE by default takes from ALU, force it to take from BUS
+                        cs.ram_oe = true;
+                        if opc == CfNea::Popf {
+                            IncPC
+                        } else if opc == CfNea::Iret {
+                            State::Nea(RetMA) // No need to reload SP into T1
+                        } else {
+                            Hlt
+                        }
+                    }
+                    RetMA => {
+                        cs.ma_oe = true;
+                        cs.t1_oe = true;
+                        cs.alu_sel = ADC;
+                        cs.alu_oe = true;
+                        cs.alu_carry = true;
+                        cs.rf_we = true;
+                        cs.rf_sel = SP;
+                        State::Nea(RetL)
+                    }
+                    RetL => {
+                        cs.pc_we = true;
+                        cs.ram_oe = true;
+                        IncPC
+                    }
+                }
+            } else {
+                Hlt
+            }
+        }
+        State::Store => {
+            let is_pop = if let Decoded::OneOp {op: _x @ OneOp::Pop, dst: _d} = d {true} else {false};
+            if let Some(dst) = extract_dst(d) {
+                cs.t1_oe = !is_pop;
+                cs.t2_oe = is_pop;
+                cs.alu_oe = true;
+                cs.alu_sel = OR;
+                match dst {
+                    DstOperand::Reg(r) => {
+                        cs.rf_we = true;
+                        cs.rf_sel = r;
+                    }
+                    _ => {
+                        cs.ma_oe = true;
+                        cs.ram_we = true;
+                    }
+                };
+                IncPC
+            } else {
+                Hlt
+            }
         }
         IncPC => {
             cs.pc_oe = true;

@@ -50,7 +50,7 @@ pub enum AluOp {
     /// ## result
     /// (T1 + ~(T2 + c) + 1)\[N-1..0]
     /// ## Flags
-    /// C = (T1 + ~(T2 + c) + 1)\[N]
+    /// C = ~(T1 + ~(T2 + c) + 1)\[N]
     ///
     /// O = (T1\[N-1] != T2\[N-1]) && (T1\[N-1] != result\[N-1])
     SBB1,
@@ -58,7 +58,7 @@ pub enum AluOp {
     /// ## result
     /// (T2 + ~(T1 + c) + 1)\[N-1..0]
     /// ## Flags
-    /// C = (T2 + ~(T1 + c) + 1)\[N]
+    /// C = ~(T2 + ~(T1 + c) + 1)\[N]
     ///
     /// O = (T2\[N-1] != T1\[N-1]) && (T2\[N-1] != result\[N-1])
     SBB2,
@@ -226,13 +226,13 @@ pub fn alu<N: BitWidth>(i: AluInput<N>) -> AluOutput<N> {
         SBB1 => {
             let op1 = t1.dyn_bits().xext::<U1>().as_signed();
             let op2 = t2.dyn_bits().xadd(c).as_signed();
-            out.flags.c = op1 > op2;
+            out.flags.c = op1 < op2;
             (op1 - op2).as_unsigned().resize::<N>().as_bits()
         }
         SBB2 => {
             let op1 = t2.dyn_bits().xext::<U1>().as_signed();
             let op2 = t1.dyn_bits().xadd(c).as_signed();
-            out.flags.c = op1 > op2;
+            out.flags.c = op1 < op2;
             (op1 - op2).as_unsigned().resize::<N>().as_bits()
         }
     };
@@ -241,8 +241,8 @@ pub fn alu<N: BitWidth>(i: AluInput<N>) -> AluOutput<N> {
     out.flags.p = !out.res.xor();
     out.flags.o = match i.opsel {
         ADC => s1 == s2 && s1 != out.flags.s,
-        SBB1 => s1 != s2 && s1 != out.flags.s,
-        SBB2 => s2 != s1 && s2 != out.flags.s,
+        SBB1 => (s1 != s2 && s1 != out.flags.s) || (out.res == bits(0x8000) && out.res == t2),
+        SBB2 => (s2 != s1 && s2 != out.flags.s) || (out.res == bits(0x8000) && out.res == t1),
         _ => false,
     };
 

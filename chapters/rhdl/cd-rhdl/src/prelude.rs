@@ -12,6 +12,8 @@ pub use crate::register_file::Reg::{self, *};
 pub use crate::register_file::RegFile;
 pub use rhdl::prelude::*;
 pub use rhdl_fpga::core::dff::DFF;
+pub use crate::cpu::cpu_test::*;
+pub use crate::io_unit::IOSignals;
 pub fn miette_report(err: RHDLError) -> String {
     let handler =
         miette::GraphicalReportHandler::new_themed(miette::GraphicalTheme::unicode_nocolor());

@@ -1,4 +1,4 @@
-use std::default;
+#![allow(unused)]
 
 use bitops_rhdl::bitops;
 use rhdl::typenum::Diff;
@@ -432,7 +432,6 @@ pub fn decode(i: Bits<U16>) -> Decoded {
 
 mod tests {
     use super::*;
-    use crate::prelude::*;
     #[kernel]
     fn decode_uut(_cr: ClockReset, i: Bits<U16>) -> Decoded {
         decode(i)
@@ -450,13 +449,13 @@ mod tests {
             assert_eq!(d, x);
         }
     }
-    use DstOperand::*;
-    use OneOp::*;
-    use Operand::*;
-    use TwoOp::*;
-    use CfNea::*;
-    use Jcond::*;
-    use rhdl::core::rhif::spec::Index;
+    // use DstOperand::*;
+    // use OneOp::*;
+    // use Operand::*;
+    // use TwoOp::*;
+    // use CfNea::*;
+    // use Jcond::*;
+    // use rhdl::core::rhif::spec::Index;
 
     #[test]
     fn inc_all_ea_types_op() {

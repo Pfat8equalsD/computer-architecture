@@ -1,7 +1,7 @@
-use std::collections::BTreeMap;
+// use std::collections::BTreeMap;
 
 use crate::prelude::*;
-use rhdl_fpga::core::{dff::DFF, ram::synchronous::*};
+use rhdl_fpga::core::ram::synchronous::*;
 
 // ram
 #[derive(Digital, PartialEq, Eq)]
@@ -28,7 +28,7 @@ impl Default for Ram {
 impl Ram {
     pub fn from_hex_file(filename: &str) -> std::io::Result<Self> {
         let file = std::fs::read_to_string(filename)?;
-        let mut bram = SyncBRAM::new(
+        let bram = SyncBRAM::new(
             file.lines()
                 .map(|x| x.split_once("//").map(|x| x.0).unwrap_or(x))
                 .flat_map(|x| x.split(" "))
@@ -70,7 +70,7 @@ pub fn get_ram_vec(s: &<Ram as Synchronous>::S) -> Vec<u128> {
 pub fn sim_ram() -> Result<(), RHDLError> {
     let ram = Ram::from_hex_file("cram.data").unwrap();
     let mut s = ram.init();
-    let vals = get_ram_vec(&s);
+    // let vals = get_ram_vec(&s);
     // println!("{}", vals[69]);
     let x = step(
         &ram,
